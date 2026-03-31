@@ -1,5 +1,5 @@
 import './assets/css/App.css'
-import Header from './components/Header/Header.tsx'
+import MainHeader from './layout/Header/MainHeader';
 
 export default function App() {
 
@@ -7,7 +7,7 @@ export default function App() {
 
   return (
     <div>
-      <Header categorieName="On teste" date={dateNew} />
+      <MainHeader categorieName="On teste" date={dateNew} />
     </div>
   )
 }
