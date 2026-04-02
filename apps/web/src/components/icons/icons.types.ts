@@ -5,20 +5,13 @@
 export type BaseIconPropsSvg = {
     xmlns?: string;
     fill?: string;
-    classNameBase?: string;
+    className?: string;
     viewBox?: string;
     stroke?: string;
     strokeWidth?: number;
     strokeLinecap?: "round" | "butt" | "square" | "inherit"; 
     strokeLinejoin?: "round" | "bevel" | "miter" | "inherit"; 
     d: string;
-}
-
-export type BaseIconPropsImg = {
-    classNameBase?: string;
-    size?: "sm" | "md" | "lg";
-    color?: "default" | "primary" | "accent";
-    src: string;
 }
 
 export type IconButtonPropsSvg = BaseIconPropsSvg & {

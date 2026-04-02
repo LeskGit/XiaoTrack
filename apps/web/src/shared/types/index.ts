@@ -1,0 +1,1 @@
+export type { BaseImgProps } from './img.types.ts'

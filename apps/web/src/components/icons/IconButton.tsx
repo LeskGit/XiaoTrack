@@ -1,5 +1,5 @@
-import type { IconButtonPropsSvg } from "../../../types/typesIcons";
-import IconBase from "./IconBase";
+import type { IconButtonPropsSvg } from "@/components/icons/icons.types";
+import IconBase from "@/components/icons/IconBase";
 
 export default function IconButton(props: IconButtonPropsSvg) {
 

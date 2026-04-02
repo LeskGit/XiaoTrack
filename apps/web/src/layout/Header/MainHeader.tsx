@@ -1,5 +1,5 @@
 import './MainHeader.css'
-import IconButton from '../../components/Base/icons/IconButton'
+import IconButton from '@/components/icons/IconButton'
 
 type headerProps = {
     categorieName: string;
