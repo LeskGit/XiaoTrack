@@ -1,7 +1,7 @@
 import type { BaseImgProps } from '@/shared/types'
+import type { SizeKey } from './avatar.styles';
 
 export type AvatarProps = BaseImgProps & {
-    src?: string;
-    size?: string;
-    classNameContainer?: string;
+    size?: SizeKey;
+    className?: string;
 }
