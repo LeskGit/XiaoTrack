@@ -6,7 +6,7 @@ export default function IconBase({
         fill = "none",
         viewBox = "0 0 24 24",
         strokeWidth = 1.5,
-        className = "w-6 h-6",
+        className = "",
         strokeLinecap = "round",
         strokeLinejoin = "round",
         stroke = "black",

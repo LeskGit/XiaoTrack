@@ -1,7 +1,9 @@
 /**
  * Handle all type for Icon components 
  */
- 
+
+import type { SizeKey } from "@/shared/styles";
+
 export type BaseIconPropsSvg = {
     xmlns?: string;
     fill?: string;
@@ -16,5 +18,6 @@ export type BaseIconPropsSvg = {
 
 export type IconButtonPropsSvg = BaseIconPropsSvg & {
     classNameButton?: string;
+    size?: SizeKey;
     onClick?: () => void; 
 }
