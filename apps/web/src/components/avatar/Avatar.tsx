@@ -1,4 +1,5 @@
-import { sizeMapTW, type AvatarProps } from '.'
+import { type AvatarProps } from '.'
+import { sizeMapTW } from './avatar.styles'
 
 export default function Avatar({src, className, alt, size}: AvatarProps) {
 
