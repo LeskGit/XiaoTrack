@@ -10,7 +10,7 @@ function eventClickTest() {
 export default function MainHeader({categorieName, date} : MainheaderProps) {
 
     return (
-        <header className="flex justify-between items-center p-3 shadow-md">
+        <header className="flex col-span-6 justify-between items-center p-3 shadow-md">
             <div className="flex gap-5">
                 <IconButton className="w-8 h-8" size="custom" onClick={eventClickTest} d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 <div className="flex flex-col justify-center items-center">
