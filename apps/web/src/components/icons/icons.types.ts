@@ -5,19 +5,25 @@
 import type { SizeKey } from "@/shared/styles";
 
 export type BaseIconPropsSvg = {
-    xmlns?: string;
-    fill?: string;
-    className?: string;
-    viewBox?: string;
-    stroke?: string;
-    strokeWidth?: number;
-    strokeLinecap?: "round" | "butt" | "square" | "inherit"; 
-    strokeLinejoin?: "round" | "bevel" | "miter" | "inherit"; 
-    d: string;
+    readonly xmlns?: string;
+    readonly fill?: string;
+    readonly classNameSvg?: string;
+    readonly viewBox?: string;
+    readonly stroke?: string;
+    readonly strokeWidth?: number;
+    readonly strokeLinecap?: "round" | "butt" | "square" | "inherit"; 
+    readonly strokeLinejoin?: "round" | "bevel" | "miter" | "inherit"; 
+    readonly preserveAspectRatio?: string;
+    readonly d: string;
+}
+
+export type IconProps = BaseIconPropsSvg & {
+    readonly className?: string;
+    readonly size?: SizeKey;
 }
 
 export type IconButtonPropsSvg = BaseIconPropsSvg & {
-    classNameButton?: string;
-    size?: SizeKey;
-    onClick?: () => void; 
+    readonly className?: string;
+    readonly size?: SizeKey;
+    readonly onClick?: () => void; 
 }

@@ -5,10 +5,10 @@ import { sizeMapTW } from "@/shared/styles";
 export default function IconButton(props: IconButtonPropsSvg) {
 
     const defaultClassName = "";
-    const {onClick, classNameButton , ...baseIconProps} = props;
+    const {onClick, className, size, ...baseIconProps} = props;
 
     return (
-        <button onClick={onClick} className={`${classNameButton ?? defaultClassName} ${sizeMapTW[props.size ?? "custom"]}`}>
+        <button onClick={onClick} className={`${className ?? defaultClassName} ${sizeMapTW[size ?? "custom"]}`}>
             <IconBase {...baseIconProps} />
         </button>
     )
