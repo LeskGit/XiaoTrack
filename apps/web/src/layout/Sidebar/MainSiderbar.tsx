@@ -3,7 +3,7 @@ import { Icon } from "@/components/icons"
 
 export default function MainSidebar() {
     return (
-        <div className="flex grid-cols-1 justify-center items-center my-2 shadow-md">
+        <div className="flex justify-center items-center my-2 shadow-md">
             <div className="flex justify-center items-center">
                 <h1>TEST</h1>
                 <Icon d=""></Icon>
