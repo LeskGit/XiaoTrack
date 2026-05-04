@@ -1,14 +1,11 @@
-import type { IconButtonPropsSvg } from "@/components/icons/icons.types";
-import { sizeMapTW } from "@/shared/styles";
+import type { IconButtonProps } from "@/components/icons/icons.types";
 import Icon from "./Icon";
 
-export default function IconButton(props: IconButtonPropsSvg) {
-
-    const {onClick, className, size, ...baseIconProps} = props;
+export default function IconButton({onClick, classNameBtn, ...iconProps}: IconButtonProps) {
 
     return (
-        <button onClick={onClick}>
-            <Icon className={`${className ?? ""} ${sizeMapTW[size ?? "custom"]}`} {...baseIconProps} />
+        <button onClick={onClick} className={classNameBtn}>
+            <Icon {...iconProps} />
         </button>
     )
 }

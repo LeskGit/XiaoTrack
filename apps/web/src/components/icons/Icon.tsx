@@ -1,14 +1,11 @@
 import type { IconProps } from "@/components/icons/icons.types";
-import IconBase from "@/components/icons/IconBase";
 import { sizeMapTW } from "@/shared/styles";
 
-export default function Icon(props: IconProps) {
-
-    const {className, size, ...baseIconProps} = props;
+export default function Icon({icon, className, size} : IconProps) {
 
     return (
-        <div className={`${className ?? ""} ${sizeMapTW[size ?? "custom"]}`}>
-            <IconBase {...baseIconProps} />
-        </div>
+        <span className={`${className ?? ""} ${sizeMapTW[size ?? "custom"]} inline-flex [&>svg]:w-full [&>svg]:h-full`}>
+            {icon}
+        </span>
     )
 }
