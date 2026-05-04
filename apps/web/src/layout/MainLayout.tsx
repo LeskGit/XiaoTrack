@@ -11,10 +11,10 @@ export default function MainLayout() {
             <div className='col-span-full'>
                 <MainHeader categorieName="Tableau de bord" date={date} />
             </div>
-            <div className='shadow-md'>
+            <div className='shadow-sm'>
                 <MainSidebar></MainSidebar>
             </div>
-            <div className='shadow-md'>
+            <div className='shadow-sm'>
                 <MainContent></MainContent>
             </div>
         </div>

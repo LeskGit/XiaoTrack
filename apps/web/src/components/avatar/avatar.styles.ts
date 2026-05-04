@@ -1,1 +1,0 @@
-// Here is the style of avatar componentxs
