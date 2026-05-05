@@ -2,7 +2,7 @@
  * Types/props of Main Layouts
  */
 
-import type { IconProps } from "@/components/icons";
+import { Icon } from "@/components/icons";
 
 export type MainheaderProps = {
     readonly categorieName: string;
@@ -11,7 +11,7 @@ export type MainheaderProps = {
 
 
 export type SBCategoriePprops = {
-    title?: string;
-    logo: IconProps;
-    className?: string;
+    readonly title?: string;
+    readonly icon: typeof Icon;
+    readonly className?: string;
 }
