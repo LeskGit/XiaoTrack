@@ -6,7 +6,7 @@ import type { SizeKey } from "@/shared/styles";
 
 
 export type IconProps = {
-    readonly icon: React.ReactNode;
+    readonly icon: React.ComponentType;
     readonly className?: string;
     readonly size?: SizeKey;
 }

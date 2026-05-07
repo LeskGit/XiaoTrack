@@ -2,8 +2,6 @@
  * Types/props of Main Layouts
  */
 
-import { Icon } from "@/components/icons";
-
 export type MainheaderProps = {
     readonly categorieName: string;
     readonly date: Date;
@@ -12,6 +10,6 @@ export type MainheaderProps = {
 
 export type SBCategoriePprops = {
     readonly title?: string;
-    readonly icon: typeof Icon;
+    readonly icon: React.ComponentType;
     readonly className?: string;
 }
