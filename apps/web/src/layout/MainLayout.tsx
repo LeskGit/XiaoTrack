@@ -1,6 +1,7 @@
 import MainHeader from './Header/MainHeader'
 import MainSidebar from './Sidebar/MainSiderbar'
 import MainContent from './MainContent/MainContent';
+import AppHeader from './Header/AppHeader';
 
 export default function MainLayout() {
 
@@ -8,15 +9,10 @@ export default function MainLayout() {
 
     return (
         <div className='grid md:grid-cols-[16rem_1fr] grid-rows-[auto_1fr] h-screen gap-1'>
-            <div className='col-span-full'>
-                <MainHeader categorieName="Tableau de bord" date={date} />
-            </div>
-            <div className='shadow-sm'>
-                <MainSidebar></MainSidebar>
-            </div>
-            <div className='shadow-sm'>
-                <MainContent></MainContent>
-            </div>
+            <AppHeader />                
+            <MainHeader categorieName="Dashboard" date={date} />
+            <MainSidebar></MainSidebar>
+            <MainContent></MainContent>
         </div>
     )
 }
