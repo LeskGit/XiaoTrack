@@ -12,6 +12,19 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    svgr(),
+    svgr({
+      svgrOptions: {
+        svgo: true,
+        svgoConfig: {
+          plugins: [
+            'preset-default',
+            {
+              name: 'removeAttrs',
+              params: { attrs: '(stroke-width|class)' }
+            }
+          ]
+        }
+      }
+    }),
   ],
 })

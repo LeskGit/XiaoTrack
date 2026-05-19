@@ -10,5 +10,6 @@ export type MainheaderProps = {
 
 export type SBCategoriePprops = {
     readonly title?: string;
+    readonly className?: string;
     readonly icon: React.ComponentType;
 }

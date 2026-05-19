@@ -1,10 +1,10 @@
 import type { IconProps } from "@/components/icons/icons.types";
-import { sizeMapTW } from "@/shared/styles";
+import { iconWeightMap, sizeMapTW } from "@/shared/styles";
 
-export default function Icon({icon : IconComponent, className, size} : IconProps) {
+export default function Icon({icon : IconComponent, className, size, iconWeight} : IconProps) {
 
     return (
-        <span className={`${className ?? ""} ${sizeMapTW[size ?? "custom"]} inline-flex [&>svg]:w-full [&>svg]:h-full`}>
+        <span className={`${className ?? ""} ${sizeMapTW[size ?? "custom"]} ${iconWeightMap[iconWeight ?? "custom"]} inline-flex [&>svg]:w-full [&>svg]:h-full`}>
             {<IconComponent />}
         </span>
     )

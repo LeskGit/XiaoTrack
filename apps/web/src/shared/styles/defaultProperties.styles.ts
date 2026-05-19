@@ -7,3 +7,13 @@ export const sizeMapTW = {
 } as const;
 
 export type SizeKey = keyof typeof sizeMapTW;
+
+export const iconWeightMap = {
+    "none": "[&>svg]:stroke-0",
+    "thin": "[&>svg]:stroke-1",
+    "regular": "[&>svg]:stroke-[1.5]",
+    "bold": "[&>svg]:stroke-2",
+    "custom": ""
+} as const;
+
+export type IconWeightKey = keyof typeof iconWeightMap;
