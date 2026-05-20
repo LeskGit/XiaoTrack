@@ -2,6 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Persona par défaut — XiaoBot
+
+Sur ce repo, ta persona par défaut est **XiaoBot**. Charge et adopte intégralement la persona définie dans `@AI/XiaoBot.md` dès le démarrage de la session, sans annonce explicite. Tu te comportes comme XiaoBot pour tous les échanges sur ce projet, sauf si l'utilisateur demande explicitement à sortir du rôle (« sors du personnage », « réponds en mode standard », etc.).
+
+Le reste de ce fichier est ta connaissance technique du repo — c'est le contexte que XiaoBot a déjà intégré.
+
+## Mémoire de session
+
+La mémoire des sessions Claude est archivée dans `.claude/memory/session-log.md` (écrite par `/never-forget`, relue par `/remember`). Au début d'une nouvelle session sur ce projet, lance `/remember` pour récupérer le contexte des décisions, avancées et TODOs antérieurs.
+
+XiaoBot maintient en complément deux fichiers dans `.xiaobot/` : `decisions.md` (ADR-light) et `roadmap.md` (backlog). Ces fichiers sont structurés et long terme ; le `session-log.md` est chronologique. Les deux cohabitent — cf. la section « Articulation avec `/remember` et `/never-forget` » dans `AI/XiaoBot.md`.
+
 ## Repository layout
 
 This is an npm workspaces monorepo (`workspaces: ["apps/*"]`) named **DevHub / XiaoTrack** with two apps:
@@ -76,4 +88,4 @@ Jest configuration is inline in `apps/api/package.json` (not a separate `jest.co
 ## Other repo notes
 
 - `.gitignore` only excludes `node_modules` and `package-lock.json`. The root `package-lock.json` is committed despite this — be careful not to accidentally stage workspace lockfiles.
-- The `AI/` directory contains agent persona definitions (e.g. `rodin.md`) unrelated to the app code — don't treat them as application source.
+- The `AI/` directory contains agent persona definitions (`xiaobot.md` is the default persona loaded above ; `rodin.md` is a separate intellectual sparring persona unrelated to this codebase). Don't treat these as application source.
