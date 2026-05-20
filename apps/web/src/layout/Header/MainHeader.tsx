@@ -11,9 +11,9 @@ function eventClickTest() {
 
 export default function MainHeader({categorieName, date} : MainheaderProps) {
     return (
-        <header className="p-3 shadow-md justify-center items-center">
+        <header className="p-3 shadow-md">
             <nav className="nav flex justify-between items-center">
-                <div className="flex gap-5">
+                <div className="flex items-center gap-5">
                     <IconButton icon={Menu} className="w-8 h-8" size="custom" onClick={eventClickTest} />
                     <div className="flex flex-col justify-center">
                         <h1 className="font-bold">{categorieName}</h1>
@@ -23,8 +23,8 @@ export default function MainHeader({categorieName, date} : MainheaderProps) {
                 <div className="flex justify-center items-center gap-5">
                     <IconButton icon={Bell} className="w-8 h-8" size="custom" onClick={eventClickTest} />
                     <Avatar src={DefaultAvatar} size="md" />
-                    <div className="flex flex-col">
-                        <h1>XiaoPang</h1>
+                    <div className="flex flex-col justify-center">
+                        <span>XiaoPang</span>
                         <p className="text-sm font-light">Admin</p>
                     </div>
                 </div>

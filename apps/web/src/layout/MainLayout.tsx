@@ -1,5 +1,5 @@
 import MainHeader from './Header/MainHeader'
-import MainSidebar from './Sidebar/MainSiderbar'
+import MainSidebar from './Sidebar/MainSidebar'
 import MainContent from './MainContent/MainContent';
 import AppHeader from './Header/AppHeader';
 
