@@ -1,0 +1,6 @@
+export { default as Dashboard } from './Dashboard'
+export { default as Nutrition } from './Nutrition'
+export { default as Workouts } from './Workouts'
+export { default as Planning } from './Planning'
+export { default as Habits } from './Habits'
+export { default as Notes } from './Notes'

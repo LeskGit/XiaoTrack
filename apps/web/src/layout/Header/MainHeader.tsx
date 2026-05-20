@@ -1,4 +1,4 @@
-import { IconButton, Icon } from "@/components/icons"
+import { IconButton } from "@/components/icons"
 import { Avatar } from "@/components/avatar"
 import DefaultAvatar from "@/assets/img/avatar/dog.png"
 import type { MainheaderProps } from "../layout.types";
