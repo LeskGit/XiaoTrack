@@ -4,6 +4,7 @@ import type { ComponentType, SVGProps } from "react";
 
 
 type RouteConfig = {
+    id: string;
     title: string;
     path: string;
     icon: ComponentType<SVGProps<SVGSVGElement>>;
@@ -12,10 +13,10 @@ type RouteConfig = {
 }
 
 export const routes: Array<RouteConfig> = [
-    {title: "dashboard", path: "/dashboard", icon: TrendingUpDownIcon, Component: Dashboard , showInSidebar: true},
-    {title: "nutrition", path: "/nutrition", icon: HamIcon, Component: Nutrition , showInSidebar: true},
-    {title: "workouts", path: "/workouts", icon: DumbellIcon, Component: Workouts , showInSidebar: true},
-    {title: "planning", path: "/planning", icon: CalendarCheckIcon, Component: Planning , showInSidebar: true},
-    {title: "habits", path: "/habits", icon: BookCheckIcon, Component: Habits , showInSidebar: true},
-    {title: "notes", path: "/notes", icon: NoteBookPenIcon, Component: Notes , showInSidebar: true}
+    {id: "dashboard", title: "Dashboard", path: "dashboard", icon: TrendingUpDownIcon, Component: Dashboard , showInSidebar: true},
+    {id: "nutrition", title: "Nutrition", path: "nutrition", icon: HamIcon, Component: Nutrition , showInSidebar: true},
+    {id: "workouts", title: "Workouts", path: "workouts", icon: DumbellIcon, Component: Workouts , showInSidebar: true},
+    {id: "planning", title: "Planning", path: "planning", icon: CalendarCheckIcon, Component: Planning , showInSidebar: true},
+    {id: "habits", title: "Habits", path: "habits", icon: BookCheckIcon, Component: Habits , showInSidebar: true},
+    {id: "notes", title: "Notes", path: "notes", icon: NoteBookPenIcon, Component: Notes , showInSidebar: true}
 ]

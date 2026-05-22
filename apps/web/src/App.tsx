@@ -1,6 +1,5 @@
 import MainLayout from "@/layout/MainLayout"
 import { Routes, Route, Navigate } from "react-router-dom"
-import { Dashboard, Nutrition, Workouts, Planning, Notes, Habits } from "./pages"
 import { routes } from "./shared/config/routes"
 
 export default function App() {
@@ -8,13 +7,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/"         element={<MainLayout />} >
-        <Route index            element={<Navigate to={"/dashboard"} replace />} />
-        <Route path="dashboard" element={<Dashboard/>} />
-        <Route path="nutrition" element={<Nutrition/>} />
-        <Route path="workouts"  element={<Workouts/>} />
-        <Route path="planning"  element={<Planning/>} />
-        <Route path="habits"  element={<Habits/>} />
-        <Route path="notes" element={<Notes/>} />
+        {routes.filter((route) => route.showInSidebar === true).map((route) => <Route id={route.id} path={route.path} element={<route.Component />} />)}
       </Route>
     </Routes>
   )
