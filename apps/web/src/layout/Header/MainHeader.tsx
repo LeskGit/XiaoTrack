@@ -16,7 +16,7 @@ export default function MainHeader({categorieName, date} : MainheaderProps) {
                 <div className="flex items-center gap-5">
                     <IconButton icon={Menu} className="w-8 h-8" size="custom" onClick={eventClickTest} />
                     <div className="flex flex-col justify-center">
-                        <h1 className="font-bold">{categorieName}</h1>
+                        <h2 className="font-bold">{categorieName}</h2>
                         <h4 className="">{date.toLocaleDateString('fr-FR')}</h4>
                     </div>
                 </div>

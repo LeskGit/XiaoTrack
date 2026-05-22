@@ -1,6 +1,7 @@
 import MainLayout from "@/layout/MainLayout"
 import { Routes, Route, Navigate } from "react-router-dom"
 import { Dashboard, Nutrition, Workouts, Planning, Notes, Habits } from "./pages"
+import { routes } from "./shared/config/routes"
 
 export default function App() {
 
