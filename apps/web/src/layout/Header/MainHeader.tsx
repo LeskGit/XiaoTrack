@@ -1,22 +1,30 @@
 import { IconButton } from "@/components/icons"
 import { Avatar } from "@/components/avatar"
 import DefaultAvatar from "@/assets/img/avatar/dog.png"
-import type { MainheaderProps } from "../layout.types";
 import Bell from '@/assets/icons/bell.svg?react'
 import Menu from '@/assets/icons/menu.svg?react'
+import { useLocation } from "react-router-dom";
+import { routes } from "@/shared/config/routes";
 
 function eventClickTest() {
     console.log("zdz");
 }
 
-export default function MainHeader({categorieName, date} : MainheaderProps) {
+export default function MainHeader() {
+
+    const location = useLocation();
+    const currentPath = location.pathname.replace(/^\//, "");
+    const currentRoute = routes.find(r => r.path === currentPath);
+    const title = currentRoute?.title ?? "XiaoTrack";
+    const date = new Date();
+
     return (
         <header className="p-3 shadow-md">
             <nav className="nav flex justify-between items-center">
                 <div className="flex items-center gap-5">
                     <IconButton icon={Menu} className="w-8 h-8" size="custom" onClick={eventClickTest} />
                     <div className="flex flex-col justify-center">
-                        <h2 className="font-bold">{categorieName}</h2>
+                        <h2 className="font-bold">{title}</h2>
                         <h4 className="">{date.toLocaleDateString('fr-FR')}</h4>
                     </div>
                 </div>

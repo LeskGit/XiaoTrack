@@ -3,20 +3,32 @@ import { Dashboard, Habits, Notes, Nutrition, Planning, Workouts } from "@/pages
 import type { ComponentType, SVGProps } from "react";
 
 
-type RouteConfig = {
+export const DisplayMode = {
+    Sidebar: "sidebar",
+    Modal: "modal",
+    Fullscreen: "fullscreen"
+} as const;
+
+export type DisplayMode = typeof DisplayMode[keyof typeof DisplayMode];
+
+export type RouteConfig = {
     id: string;
     title: string;
     path: string;
     icon: ComponentType<SVGProps<SVGSVGElement>>;
     Component: ComponentType;
-    showInSidebar: boolean;
+    displayMode: DisplayMode;
 }
 
-export const routes: Array<RouteConfig> = [
-    {id: "dashboard", title: "Dashboard", path: "dashboard", icon: TrendingUpDownIcon, Component: Dashboard , showInSidebar: true},
-    {id: "nutrition", title: "Nutrition", path: "nutrition", icon: HamIcon, Component: Nutrition , showInSidebar: true},
-    {id: "workouts", title: "Workouts", path: "workouts", icon: DumbellIcon, Component: Workouts , showInSidebar: true},
-    {id: "planning", title: "Planning", path: "planning", icon: CalendarCheckIcon, Component: Planning , showInSidebar: true},
-    {id: "habits", title: "Habits", path: "habits", icon: BookCheckIcon, Component: Habits , showInSidebar: true},
-    {id: "notes", title: "Notes", path: "notes", icon: NoteBookPenIcon, Component: Notes , showInSidebar: true}
-]
+export const defaultRoute = {
+    id: "dashboard", title: "Dashboard", path: "dashboard", icon: TrendingUpDownIcon, Component: Dashboard , displayMode: DisplayMode.Sidebar
+} as const satisfies RouteConfig;
+
+export const routes = [
+    {id: "dashboard", title: "Dashboard", path: "dashboard", icon: TrendingUpDownIcon, Component: Dashboard , displayMode: DisplayMode.Sidebar},
+    {id: "nutrition", title: "Nutrition", path: "nutrition", icon: HamIcon, Component: Nutrition , displayMode: DisplayMode.Sidebar},
+    {id: "workouts", title: "Workouts", path: "workouts", icon: DumbellIcon, Component: Workouts , displayMode: DisplayMode.Sidebar},
+    {id: "planning", title: "Planning", path: "planning", icon: CalendarCheckIcon, Component: Planning , displayMode: DisplayMode.Sidebar},
+    {id: "habits", title: "Habits", path: "habits", icon: BookCheckIcon, Component: Habits , displayMode: DisplayMode.Sidebar},
+    {id: "notes", title: "Notes", path: "notes", icon: NoteBookPenIcon, Component: Notes , displayMode: DisplayMode.Sidebar}
+] as const satisfies ReadonlyArray<RouteConfig>;
