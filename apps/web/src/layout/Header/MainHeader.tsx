@@ -3,7 +3,7 @@ import { Avatar } from "@/components/avatar"
 import DefaultAvatar from "@/assets/img/avatar/dog.png"
 import Bell from '@/assets/icons/bell.svg?react'
 import Menu from '@/assets/icons/menu.svg?react'
-import { useLocation } from "react-router-dom";
+import { useLocation, useMatches } from "react-router-dom";
 import { routes } from "@/shared/config/routes";
 
 function eventClickTest() {
@@ -17,6 +17,10 @@ export default function MainHeader() {
     const currentRoute = routes.find(r => r.path === currentPath);
     const title = currentRoute?.title ?? "XiaoTrack";
     const date = new Date();
+
+    const match = useMatches();
+    console.log(match);
+    console.log(match.map(m => m));
 
     return (
         <header className="p-3 shadow-md">
