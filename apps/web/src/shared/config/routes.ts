@@ -24,7 +24,7 @@ export const defaultRoute = {
     id: "dashboard", title: "Dashboard", path: "dashboard", icon: TrendingUpDownIcon, Component: Dashboard , displayMode: DisplayMode.Sidebar
 } as const satisfies RouteConfig;
 
-export const routes = [
+export const dashboardRoutes = [
     {id: "dashboard", title: "Dashboard", path: "dashboard", icon: TrendingUpDownIcon, Component: Dashboard , displayMode: DisplayMode.Sidebar},
     {id: "nutrition", title: "Nutrition", path: "nutrition", icon: HamIcon, Component: Nutrition , displayMode: DisplayMode.Sidebar},
     {id: "workouts", title: "Workouts", path: "workouts", icon: DumbellIcon, Component: Workouts , displayMode: DisplayMode.Sidebar},
