@@ -66,3 +66,32 @@ Mémoire append-only des sessions Claude. Géré par la commande `/never-forget`
 - [ ] **Vérifier compat `react-grid-layout` ↔ React 19 + StrictMode** avant l'étape 6 (lib impérative ancienne ; plans B : `gridstack`, `@dnd-kit`).
 - [ ] **Vérifier compat `Tremor` ↔ Tailwind v4 sans config** si Tremor est retenu pour les charts/KPI (historiquement dépendant d'un `tailwind.config.js`).
 - [ ] Reliquat 2026-05-20 toujours ouvert et croisé cette session : nettoyer `eventClickTest`/`console.log("zdz")` (`MainHeader.tsx:8-10,21,28`), trancher le `grid` sans cols de `MainContent.tsx:6`.
+
+---
+
+## 2026-06-15 — Session conception système de widgets (build maison)
+
+### Décisions
+
+- **Construire le système de widgets soi-même, pas de lib layout** — contexte : besoin peu poussé + projet d'apprentissage + risque compat `react-grid-layout` ↔ React 19 (`findDOMNode` supprimé). Choix : maison, sur **Pointer Events** (drag) + **CSS Grid** (substrat de position), zéro dépendance. Raison : la complexité des libs vient de la collision/reflow 2D, pas du drag ; en restant sur du **reorder** (ordre dans un tableau, pas coordonnées pixel), le maison devient trivial. Conséquence : on n'adopte pas react-grid-layout/@dnd-kit/gridstack pour l'instant. Signal de bascule futur noté dans l'ADR. Tranche le TODO « vérifier compat react-grid-layout » du 2026-06-11 (devenu non bloquant tant qu'on reste maison).
+- **Architecture du système de widgets en 5 couches** — rejet du « god-component `WidgetInstance` qui porte tout » (donnée+drag+UI+CSS = intestable, persistance impossible, collision de nom). Retenu : (1) Donnée `WidgetInstance` sérialisable / (2) Comportement = hook headless `useDraggable` / (3) Présentation = Shell `<Widget>` (carte + hover) / (4) Contenu = Body par `type` via Registry / (5) Orchestration = `<Dashboard>` détient `WidgetInstance[]`. **Formalisée en ADR dans `.xiaobot/decisions.md`** (2026-06-15). Prolonge l'archi « Shell + Body + Registry » du 2026-06-11.
+- **Couche 1 (donnée) modélisée en discriminated union sur `type`** — `WidgetBase` (id, layout, style?) en `interface`, union des variantes en `type` (obligatoire : une interface n'exprime pas une union), `WidgetInstance = WidgetBase & WidgetConfig`. TS distribue l'intersection → l'union discriminée est préservée → narrowing auto dans le `switch` du Registry + exhaustivité via `assertNever`. **`data` placé DANS chaque branche** (pas dans `WidgetBase`) sinon perte du narrowing. Anti-pattern écarté : `data: any/unknown`. Types **cross-cutting** → dossier feature `widgets/widgets.types.ts` (pas collé à un composant).
+- **Transport de la donnée : props par défaut, Context réservé aux actions** — `<Dashboard>` passe chaque `instance` en prop à `<Widget>`. Context envisagé plus tard *uniquement* pour les actions (add/remove/update) ou le flag « mode édition », jamais pour stocker le `WidgetInstance[]` (Context ne bail-out pas les re-renders, n'est pas un state manager).
+- **Data du contenu : option A (Body nourri par le parent)** — tranche la question A/B laissée ouverte le 2026-06-11. Le Body reçoit sa data en props (pur, testable) ; fetch/calcul vit au-dessus. Pas de store (Redux/Zustand) tant qu'il n'y a pas de prop-drilling douloureux.
+- **Drag perf : transient-local + commit-on-drop (recommandé, à confirmer)** — pendant le déplacement, la position vit en local (state du hook ou `transform` via ref qui bypasse le render) ; commit dans le state parent au `pointerup`. Évite N re-renders à 60 fps. Pas encore définitivement acté.
+
+### Avancées
+
+- Création de `.xiaobot/decisions.md` (ADR « Architecture système de widgets en 5 couches », daté 2026-06-15).
+- Création de `.xiaobot/roadmap.md` (Done / In progress = système de widgets / Next).
+- Comparatif des libs de layout livré (react-grid-layout, @dnd-kit, gridstack, react-resizable-panels, react-mosaic) avec angle React 19.
+- Squelette de design de la couche 1 (`WidgetType`, `WidgetBase`, `WidgetConfig` union, `WidgetInstance`) présenté — fichier réel à écrire par l'utilisateur (mode coaching).
+
+### TODOs / Suites
+
+- [ ] **Trancher la forme de `WidgetLayout`** — reorder simple (`{ order }` / index) vs resize dès le départ (`{ x, y, w, h }`). Bloque l'écriture du type `WidgetInstance`. (question ouverte en fin de session)
+- [ ] **Écrire `widgets/widgets.types.ts`** une fois `WidgetLayout` tranché — discriminated union + `assertNever` pour l'exhaustivité du Registry.
+- [ ] **Confirmer définitivement le modèle de drag** : transient-local + commit-on-drop vs fully-controlled (décide si `useDraggable` garde un state interne).
+- [ ] **Trancher `bgColor`/CSS** : persisté par widget (→ champ `style` dans `WidgetInstance`) vs apparence fixe partagée (→ Tailwind dans le Shell).
+- [ ] Étapes suivantes une fois la couche 1 figée : signature `useDraggable`, Shell `<Widget>` (physique + effets CSS), puis rendu statique → add/remove → persistance → drag (ordre figé dans l'ADR).
+- [ ] Toujours ouverts (hérités) : finir le narrowing du titre `MainHeader` (`handle: unknown`, bloque la compilation), unifier la source de vérité des sections, et la dette front 2026-05-20 (fallback Avatar, `eventClickTest`, `SBCategoriePprops`, `grid` sans cols, hoist `categories`, logo cliquable).
