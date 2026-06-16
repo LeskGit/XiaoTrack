@@ -95,3 +95,28 @@ Mémoire append-only des sessions Claude. Géré par la commande `/never-forget`
 - [ ] **Trancher `bgColor`/CSS** : persisté par widget (→ champ `style` dans `WidgetInstance`) vs apparence fixe partagée (→ Tailwind dans le Shell).
 - [ ] Étapes suivantes une fois la couche 1 figée : signature `useDraggable`, Shell `<Widget>` (physique + effets CSS), puis rendu statique → add/remove → persistance → drag (ordre figé dans l'ADR).
 - [ ] Toujours ouverts (hérités) : finir le narrowing du titre `MainHeader` (`handle: unknown`, bloque la compilation), unifier la source de vérité des sections, et la dette front 2026-05-20 (fallback Avatar, `eventClickTest`, `SBCategoriePprops`, `grid` sans cols, hoist `categories`, logo cliquable).
+
+---
+
+## 2026-06-16 — Session pédagogie POO→React + écriture couche 1 widgets
+
+### Décisions
+
+- *(rien de structurant de nouveau)* — session surtout pédagogique et de clarification de modèle mental. Confirme sans les modifier les décisions du 2026-06-15 (archi 5 couches, données séparées des composants, hooks plutôt qu'héritage, option A pour la data). Une orientation d'archi reste **ouverte** (cf. TODOs) : où vit le dispatch du Registry — *option 1* `<Widget>` fait le `switch` lui-même (colle à l'ADR `Widget → WidgetBody → ChartBody`) vs *option 2* `<Dashboard>` choisit le Body et le passe en `children` (Widget = pure coquille type `<Card>`).
+
+### Avancées
+
+- **Couche 1 (donnée) écrite** dans `apps/web/src/components/widgets/widgets.types.ts` : `shapeData {x,y,w,h}`, `WidgetData` (stub vide, TODO), `WidgetConfig` (union discriminée `chart | card | inline`), `WidgetBase` (interface, `{ layout: shapeData }`), `WidgetInstance = WidgetBase & WidgetConfig`. → De facto `WidgetLayout` a pris la forme **`{x,y,w,h}`** (resize-ready), mais sous le nom `shapeData` et sans formalisation du choix reorder-vs-resize laissé ouvert le 2026-06-15.
+- **Stubs créés** : `Widget.tsx` (carte `rounded shadow`, contenu « TEST WIDGET ») et `Dashboard.tsx` (instancie un `widgetTest: WidgetInstance`, `useState([])`, rend `<Widget instance={widgetTest} />`).
+- **Bug diagnostiqué (pas encore corrigé par l'utilisateur)** : `Widget.tsx:5` signe `function Widget(instance: WidgetInstance)` — faux modèle mental. Un composant reçoit **un seul argument = l'objet props** ; `<Widget instance={...} />` appelle `Widget({ instance })`. Il faut typer les props comme `{ instance: WidgetInstance }` et destructurer. Cause racine = réflexe POO (paramètre nu vs enveloppe props). Explication livrée, correction laissée à l'utilisateur (mode coaching).
+- **Sessions pédagogiques livrées** : (1) moyens React de partager comportement/état sans héritage (custom hooks, composition, Context, render props, HOC) + table de correspondance OO→React ; (2) `/greatest-strength` sur le mécanisme interne des hooks (slots/fiber, ordre d'appel, règles des hooks, `useState` re-render vs `useRef` non) ; (3) `/greatest-strength` sur `interface` vs `type` (typage structurel vs nominal — clé pour ex-POO, union impossible en interface, declaration merging) ; (4) cartographie complète des objets/types du système (nature DONNÉE/COMPOSANT/HOOK/TABLE), et clarification du lien `WidgetInstance`↔`<Widget>` (= une prop, pas un `new`) et composition `<Widget>`→`<ChartBody>` (imbrication via Registry, pas héritage).
+
+### TODOs / Suites
+
+- [ ] **Corriger la signature de `Widget.tsx:5`** — props `{ instance }: { instance: WidgetInstance }` + destructuration, au lieu du paramètre nu. (bug bloquant le rendu, identifié cette session)
+- [ ] **Trancher où vit le dispatch du Registry** : option 1 (`<Widget>` fait le `switch`) vs option 2 (`<Dashboard>` passe le Body en `children`). Penche option 1 (cohérent ADR 15/06).
+- [ ] **Formaliser/renommer `shapeData` → `WidgetLayout`** et acter le choix : le code a de facto pris `{x,y,w,h}` (resize-ready) alors que le 15/06 envisageait `{ order }` simple. Trancher si on assume le resize d'emblée. Nom `shapeData` (minuscule + vague) à revoir.
+- [ ] **`data` partagé = perte de narrowing** : les 3 branches de `WidgetConfig` pointent toutes vers le même `WidgetData` (stub vide) → l'union discriminée ne discrimine rien côté `data`. Quand on remplira, donner à chaque branche **sa** forme (`ChartData`, `CardData`…) pour retrouver l'intérêt du narrowing (cf. décision 15/06 « data DANS chaque branche »).
+- [ ] **Typer `useState<WidgetInstance[]>([])`** dans `Dashboard.tsx:9` (actuellement inféré `never[]`).
+- [ ] Étapes suivantes une fois la couche 1 propre : signature `useDraggable`, Shell `<Widget>` complet (titre/✕/hover), rendu statique → add/remove → persistance → drag (ordre figé dans l'ADR).
+- [ ] Toujours ouverts (hérités) : narrowing titre `MainHeader` (`handle: unknown`, bloque la compilation), unifier la source de vérité des sections, dette front 2026-05-20.
