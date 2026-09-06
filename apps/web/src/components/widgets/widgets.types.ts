@@ -1,23 +1,24 @@
+import type { ComponentType, SVGProps } from "react";
+import { MainDomain } from "@/shared/types/domain.types";
 
 
-export type shapeData = {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
+export const WidgetArchetype = {
+    ArchetypeStat: "stat",
+    ArchetypeChart: "chart",
+} as const;
+
+export type WidgetArchetype = typeof WidgetArchetype[keyof typeof WidgetArchetype];
+
+type WidgetBase = {
+    title: string;
+    icon: ComponentType<SVGProps<SVGSVGElement>>;
+    domain: MainDomain;
+    endpoint: string;
+    width: number;
+    height: number;
 }
 
-export type WidgetData = {
-    // TODO
-}
-
-export type WidgetConfig = 
-    | {type: "chart", data: WidgetData}
-    | {type: "card", data: WidgetData}
-    | {type: "inline", data: WidgetData}
-
-export interface WidgetBase {
-    layout: shapeData;
-}
-
-export type WidgetInstance = WidgetBase & WidgetConfig;
+export type WidgetDefinition = WidgetBase & (
+    | { archetype: typeof WidgetArchetype.ArchetypeStat; unit: string}
+    | { archetype: typeof WidgetArchetype.ArchetypeChart;}
+);
