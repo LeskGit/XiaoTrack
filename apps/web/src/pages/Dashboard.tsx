@@ -1,9 +1,9 @@
-
+import WidgetCard from "@/components/widgets/WidgetCard"
 
 export default function Dashboard() {
 
 
     return (
-        <div></div>
+        <div><WidgetCard /></div>
     )
 }

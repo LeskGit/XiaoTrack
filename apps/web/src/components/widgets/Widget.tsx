@@ -1,8 +1,10 @@
-
+import WidgetCard from './WidgetCard'
 
 
 export default function Widget() {
     return(
-        <div></div>
+        <div>
+            <WidgetCard />
+        </div>
     );
 }
