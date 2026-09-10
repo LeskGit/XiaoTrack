@@ -1,11 +1,13 @@
-import type { WidgetCardProps } from "@/shared/types/compound.types";
 import WidgetCard from "./WidgetCard";
 import Widget from "./Widget";
+import type { WidgetInstance } from "./catalog";
 
-export default function WidgetGrid(widgets: WidgetCardProps[]) {
+type WidgetGridProps = { widgets: WidgetInstance[] };
+
+export default function WidgetGrid({widgets}: WidgetGridProps) {
     return (
-        <div className="grid grid-cols-[60px] grid-rows-[1fr] gap-1">
-            {widgets.map((w) => <WidgetCard width={2} height={1} children={<Widget />} />)};
+        <div className="grid grid-cols-12  grid-rows-[250px] gap-4">
+            {widgets.map((w) => <Widget instance={w} />)} 
         </div>
     );
 }

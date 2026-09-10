@@ -1,4 +1,12 @@
 
+export const sizeClasses = {
+    SizeSmall:  "small",
+    SizeMedium: "medium",
+    SizeLarge:  "large",
+    SizeWide:   "wide",
+} as const;
+export type sizeClasses = typeof sizeClasses[keyof typeof sizeClasses];
+
 export const sizeMapTW = {
     "sm": "w-5 h-5",
     "md": "w-10 h-10",

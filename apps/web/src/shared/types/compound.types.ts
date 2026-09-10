@@ -1,3 +1,4 @@
+import type { WidgetSize } from "@/components/widgets/widgets.types";
 import type { ReactElement } from "react"
 
 
@@ -7,5 +8,5 @@ export type BaseCompoundProps = {
 };
 
 export type WidgetCardProps = BaseCompoundProps & (
-    {width: number, height: number}
+    {size: WidgetSize}
 );
