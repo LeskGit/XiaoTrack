@@ -18,10 +18,10 @@ export const WidgetSize = {
 export type WidgetSize = typeof WidgetSize[keyof typeof WidgetSize];
 
 export const widgetSizeClasses = {
-    small:  "col-span-1 row-span-1",
-    medium: "col-span-2 row-span-1",
-    large:  "col-span-2 row-span-2",
-    wide:   "col-span-4 row-span-1",
+    small:  "col-span-1 md:col-span-2 row-span-1",
+    medium: "col-span-2 md:col-span-3 row-span-1",
+    large:  "col-span-3 md:col-span-4 row-span-2",
+    wide:   "col-span-full row-span-1",
 } as const satisfies Record<WidgetSize, string>;
 
 type WidgetBase = {
