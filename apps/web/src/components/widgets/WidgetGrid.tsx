@@ -12,7 +12,7 @@ export default function WidgetGrid({widgets}: WidgetGridProps) {
                 <div className="widget-grid">
                     {widgets.map((w) => (
                     <div className="widget-cell" style={{"--col": w.position.x + 1, "--row": w.position.y + 1, "--w": w.size.width, "--h": w.size.height} as CSSProperties} key={w.id}>
-                        <Widget key={w.id} instance={w} />
+                        <Widget instance={w} />
                     </div>
                     ))}
                 </div>
