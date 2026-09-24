@@ -1,0 +1,33 @@
+
+
+
+@layer components {
+    .widget-grid-frame {
+        container: grid / inline-size;
+    }
+
+    /* Phone mode (default) */
+    .widget-grid {
+        --gap: 0.6cqi;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-auto-rows: 110px;
+        gap: 12px;
+    }
+    .widget-cell {
+        grid-row: span var(--h);
+    }
+
+    /* Desktop / tablet mode */
+    @container grid (min-width: 780px) {
+        .widget-grid {
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            grid-auto-rows: calc((100cqi - 11 * var(--gap)) / 12 * 1.3);
+            gap: var(--gap);
+        }
+        .widget-cell {
+            grid-column: var(--col) / span var(--w);
+            grid-row: var(--row) / span var(--h);
+        }
+    }
+}

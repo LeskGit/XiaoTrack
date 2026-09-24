@@ -1,6 +1,5 @@
 import type { ComponentType, SVGProps } from "react";
 import { MainDomain } from "@/shared/types/domain.types";
-import type { defaultPosition, defaultSize } from "@/shared/styles/defaultProperties.styles";
 
 
 export const WidgetArchetype = {

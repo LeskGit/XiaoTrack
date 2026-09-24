@@ -61,14 +61,14 @@ npm run test:e2e                # test/jest-e2e.json
 
 Adding a page means adding a `pages/X.tsx`, exporting it from `pages/index.ts`, adding a `MainDomain` value, and adding a `sidebarRoutes` entry. Paths come from `MainDomain` in `shared/types/domain.types.ts`.
 
-**Layout.** `MainLayout` is a CSS grid (header row above sidebar + content). `MainContent` renders the `<Outlet />` inside a Tailwind **container-query** context named `content` (`@container/content`). Widget sizing responds to that container, not the viewport.
+**Layout.** `MainLayout` is a CSS grid (header row above sidebar + content). `MainContent` renders the `<Outlet />`.
 
-**Widget system** (`components/widgets/`, in progress, used only by `pages/Dashboard.tsx`). The spec in `docs/widgets/01-analyse.md` separates three concepts that must stay distinct:
-- *Definition* (`WidgetDefinition` in `widgets.types.ts`): a discriminated union on `archetype` (`stat` needs `unit`; `chart` is planned). Size is a property of the **type**, not of the instance.
-- *Catalog* (`catalog.ts`): the `widgetCatalog` map, keyed like `"nutrition.dailyKcal"`, declared `as const satisfies Record<string, WidgetDefinition>`. `WidgetType = keyof typeof widgetCatalog`.
-- *Instance* (`WidgetInstance`: `{ id, type, position }`): what the user places on the dashboard. Only this is meant to be persisted.
-
-`WidgetGrid` → `Widget` (a `switch` on `archetype` that picks the body component from `catalog/`) → `WidgetCard` (applies the `widgetSizeClasses[size]` span classes). V1 scope from the spec: `stat` archetype only; add/remove/move in an explicit edit mode; persistence through the Nest API with no localStorage cache; read-only single column on mobile. Resizing and per-widget configuration are out of scope. There is no global store (Redux/Zustand) by design.
+**Widget system** (`components/widgets/`, in progress, used only by `pages/Dashboard.tsx`). The current decisions are in the latest entry (2026-09-24) of `.claude/memory/session-log.md`. `docs/widgets/01-analyse.md` and `docs/vol-cookbook/05-widget-framework.md` are partly outdated; the log wins on conflicts. Key points:
+- Domain-agnostic and "ready to plug": each archetype defines a data contract, and each catalog entry will provide a source function (fake in V1). No `domain`/`endpoint` in the target catalog.
+- *Catalog* (`catalog.ts`, `as const satisfies Record<string, WidgetDefinition>`, `WidgetType = keyof typeof widgetCatalog`) is code, never persisted. *Instance* (`WidgetInstance`: `{ id, type, size: {width, height}, position: {x, y} }`) is the persisted placement, in grid units, 0-indexed.
+- The grid owns placement; `<Widget>`/`WidgetCard` never read size or position and just fill their cell.
+- `widget-grid.css` (in `@layer components`): `.widget-grid-frame` (container query, no padding) → `.widget-grid` → `.widget-cell` carrying CSS vars `--col`/`--row`/`--w`/`--h`. Above the container threshold: 12 columns scaled with `cqi` units, positions and holes kept. Below it: a single column in reading order (sorted by `y`, then `x`). No medium mode. Don't add Tailwind grid utilities on these elements, because the `utilities` layer would override the CSS.
+- Minimum widget size is 2×1. V1 covers add/remove with auto-placement, an edit mode, and localStorage persistence behind `load()`/`save()`. Drag and resize are V2. The layout engine is home-made. There is no global store (Redux/Zustand) by design.
 
 **Enum pattern.** "Enums" are `const` objects plus a same-named type: `export const X = {...} as const; export type X = typeof X[keyof typeof X];` (see `DisplayMode`, `MainDomain`, `WidgetSize`). `erasableSyntaxOnly` forbids TS `enum`, so use this pattern for new ones.
 
@@ -85,4 +85,4 @@ Key rules from `docs/coding-conventions.md`: English identifiers and English UI 
 ## Repo notes
 
 - `.gitignore` excludes `package-lock.json`, but the root lockfile is committed anyway. Don't stage workspace lockfiles by accident.
-- The root `package.json` lists `react-grid-layout` and `react-router-dom` as dependencies. The widget spec's "grid 2D maison" decision (§9 of the analysis) is still open, so don't assume `react-grid-layout` is the chosen approach.
+- The root `package.json` lists `react-grid-layout` and `react-router-dom` as dependencies. The widget layout engine is home-made by decision (2026-09-24), so `react-grid-layout` is not used.

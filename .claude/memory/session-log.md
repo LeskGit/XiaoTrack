@@ -120,3 +120,54 @@ Mémoire append-only des sessions Claude. Géré par la commande `/never-forget`
 - [ ] **Typer `useState<WidgetInstance[]>([])`** dans `Dashboard.tsx:9` (actuellement inféré `never[]`).
 - [ ] Étapes suivantes une fois la couche 1 propre : signature `useDraggable`, Shell `<Widget>` complet (titre/✕/hover), rendu statique → add/remove → persistance → drag (ordre figé dans l'ADR).
 - [ ] Toujours ouverts (hérités) : narrowing titre `MainHeader` (`handle: unknown`, bloque la compilation), unifier la source de vérité des sections, dette front 2026-05-20.
+
+---
+
+## 2026-09-24 — Session recadrage du système de widgets (grille statique responsive 12 colonnes)
+
+> Note de continuité : les sessions du 2026-09-05 et du 2026-09-16 ne figurent pas dans ce log. La première est dans `Claude outputs/session-log.md` ; l'ADR « géométrie » du 2026-09-16 vivait dans `.xiaobot/decisions.md`, supprimé ce jour (`87a4912`), et ne subsiste que dans l'historique git (`git show 6c2fe62:.xiaobot/decisions.md`). La doc `docs/widgets/01-analyse.md` (CDC du 05/09) et `docs/vol-cookbook/05-widget-framework.md` sont **en partie obsolètes** : cette entrée fait foi en cas de contradiction.
+
+### Décisions
+
+- **Persona XiaoBot et dossier `.xiaobot/` retirés** — `CLAUDE.md` réécrit sans persona. Le cadre coaching (l'utilisateur écrit le code applicatif) est conservé.
+- **Système de widgets neutre, sans domaine métier, « prêt à brancher »** — contexte : l'utilisateur ne veut que le visuel et la mécanique complète, branchés plus tard sur des données non encore décidées. Choix : `domain` et `endpoint` sortent du catalogue. Chaque archétype définit un contrat de données (ex. `stat` = `{ value, unit?, caption? }`), et chaque entrée de catalogue fournit une *source* `(signal) => Promise<Data>`, factice en V1. Critère « prêt à brancher » : brancher une vraie donnée = écrire une source + changer une ligne du catalogue, sans toucher à la grille, à la carte ni au dashboard. Révise le CDC du 05/09 (catalogue typé par domaine, endpoint).
+- **Périmètre V1 : ajout / suppression seulement, placement automatique ; drag et resize en V2** — confirme le report du drag de l'ADR du 16/09, contredit le CDC du 05/09 (déplacement en V1). Conséquence : le moteur maison V1 se réduit à des fonctions pures (collision AABB, première place libre) ; le vrai moteur (push, drag) arrive en V2.
+- **Moteur de disposition maison** (pas de `react-grid-layout`) — tranche la révision 3 du CDC du 05/09.
+- **Persistance : `localStorage` derrière une interface `load()` / `save()`** — l'API NestJS est hors périmètre et se branchera plus tard sur la même interface. Révise le CDC du 05/09 (qui excluait `localStorage` et visait directement l'API).
+- **Deux archétypes : `stat` et `chart`**, `chart` restant au placard pour l'instant.
+- **Coordonnées explicites stockées dès la V1, même placées par la machine** — l'instance porte `{ id, type, size: {width, height}, position: {x, y} }` (déjà migré dans le code par l'utilisateur). Raison : un retour à une liste ordonnée imposerait une migration des dispositions au drag V2. Le même type peut être posé plusieurs fois (retour de l'`id`, abandon de l'unicité par type du 05/09).
+- **Taille portée par l'instance** (préparation du resize). Question ouverte sur le rôle du défaut du catalogue, cf. TODOs.
+- **Mode édition conservé** (brouillon, Annuler / Enregistrer) ; **les trous restent** après une suppression, l'ajout comble la première place libre (balayage haut → bas, gauche → droite, sinon sous la dernière rangée).
+- **12 colonnes** — révise les 5 colonnes de l'ADR du 16/09 (6 avait été envisagé en cours de session). Raison : granularité plus fine des tailles (quarts possibles). **Taille minimale d'un widget : 2×1.**
+- **Responsive : pas de mode medium, échelle pure au-dessus du seuil, une colonne en dessous** — un mode intermédiaire à 6 colonnes a été exploré puis écarté : diviser positions et tailles par 2 crée des chevauchements, diviser les seules tailles ne grossit pas les widgets, et un mode sans positions rendrait le drag V2 impossible sur portable. Choix : au-dessus du seuil, 12 colonnes dont les cases grandissent et rétrécissent proportionnellement (« comme une image »), positions et trous identiques ; en dessous, mode téléphone en une colonne, positions ignorées, ordre de lecture `y` puis `x`, hauteur de `h` rangées fixes de 110px.
+- **Mécanique CSS de la grille** (fichier `components/widgets/widget-grid.css`, en `@layer components`) :
+  - trois niveaux : `.widget-grid-frame` (conteneur de requête `container: grid / inline-size`, **sans padding**) → `.widget-grid` → `.widget-cell` par widget ;
+  - la grille possède le placement ; `<Widget>` ne connaît pas sa taille et remplit sa case ;
+  - placement par variables CSS posées en inline (`--col = x+1`, `--row = y+1`, `--w`, `--h`), consommées uniquement dans la container query, ce qui permet au mode téléphone de les ignorer ;
+  - dimensions en unités `cqi` : gouttière `--gap: 0.6cqi`, rangée = largeur d'une colonne × 1.3 (`calc((100cqi - 11 * var(--gap)) / 12 * 1.3)`) ;
+  - seuil de bascule actuel : `min-width: 866px` de cadre (2×1 ≥ 140px de large) ;
+  - aucune mesure JS de l'écran, pas de `ResizeObserver`. Pour le drag V2 : mesure de la grille au `pointerdown` pour convertir pixels → cases.
+- **Pas de classes Tailwind de grille sur ces éléments** — la couche `utilities` passerait devant `components` et écraserait la container query.
+
+### Avancées
+
+- `CLAUDE.md` réécrit (commandes, architecture front, routage piloté par `sidebarRoutes`, conventions).
+- `apps/web/src/components/widgets/widget-grid.css` créé (règles ci-dessus) et importé par `WidgetGrid.tsx`.
+- `WidgetGrid.tsx` restructuré en cadre → grille → cases, avec les 4 variables CSS par case.
+- `WidgetCard.tsx` : ajout de `h-full` pour remplir la case.
+- Rendu vérifié visuellement par l'utilisateur : placement et échelle fonctionnels ; les cases sont jugées petites près du seuil, résultat accepté en l'état.
+- Explications livrées : lignes numérotées de CSS Grid et `span`, auto-placement, `inline-size` / `container-type`, unité `cqi`, `@layer`, pourquoi des variables CSS plutôt que des classes ou du style inline.
+
+### TODOs / Suites
+
+- [ ] **Build cassée** : `Dashboard.tsx` importe `useEffect` et déclare `setWidgets` sans les utiliser (tsc + eslint). Sortir la fixture en `const` de module.
+- [ ] **Fixture** : les widgets 6 et 7 se superposent en `(10, 0)`, et tous sont en 2×1. Remplacer par des tailles variées avec trous (proposée : 2×1 `(0,0)`, 4×1 `(2,0)`, 4×2 `(8,0)`, 6×2 `(0,1)`, 3×1 `(6,2)`, 12×1 `(0,3)`).
+- [ ] **Tri `y` puis `x`** d'une copie des placements dans `WidgetGrid` avant le `map` (indispensable en mode téléphone). Retirer le `key` en double sur `<Widget>`.
+- [ ] **Commentaire de formule du seuil** dans `widget-grid.css`. Envisager de monter le minimum 2×1 à 160px → seuil ≈ 990px.
+- [ ] **Padding de la carte proportionnel** (`clamp(8px, 1cqi, 16px)`) à la place de `px-4 py-3.5`, pour que la coquille suive l'effet d'échelle.
+- [ ] **Question ouverte : défaut de taille du catalogue** — l'utilisateur a proposé un défaut « en fallback » quand l'instance n'a pas de taille. Recommandation : `size` obligatoire dans l'instance, `defaultSize` du catalogue copié uniquement à l'ajout (sinon un changement de défaut crée des chevauchements dans les dispositions persistées). À trancher.
+- [ ] **Nettoyage du catalogue et des types** : retirer `domain` / `endpoint`, clés neutres (`demo.*`) au lieu de `nutrition.dailyKcal`, ajouter `defaultSize` ; déplacer `defaultSize` / `defaultPosition` de `shared/styles/defaultProperties.styles.ts` vers `widgets.types.ts` en PascalCase ; supprimer `sizeClasses` (mort).
+- [ ] **`Widget.tsx`** : passer au Body le type rétréci par le `switch` (pas `typeWidget`), JSX imbriqué plutôt que `children={...}`, placeholder honnête pour `chart`. Séparer carte (icône + titre) et Body (donnée de l'archétype).
+- [ ] **Questions de conception V1 posées mais non tranchées** (recommandation entre parenthèses) : type de l'`id` (`string` via `crypto.randomUUID()`) ; format stocké versionné (`{ version: 1, placements }`) ; données invalides au chargement (écarter individuellement, `console.warn`, jamais d'écran d'erreur) ; premier lancement (dashboard vide) ; signal de modification (simple état modifié, sans compteur) ; quitter l'édition avec des modifications (confirmation via `useBlocker`) ; palette (panneau groupé par archétype, sans recherche) ; sources factices déterministes plutôt qu'aléatoires ; formatage de la valeur dans le Body (`Intl.NumberFormat`, locale `en`) ; rafraîchissement uniquement par « Réessayer » ; organisation (fonctions pures de géométrie hors React, testées par Vitest ; état dans `pages/Dashboard.tsx`).
+- [ ] **Écrire `docs/widgets/00-cadrage-v1.md`** une fois ces questions tranchées, et marquer `01-analyse.md` et `vol-cookbook/05-widget-framework.md` comme dépassés.
+- [ ] **Leviers reportés** : contenu adaptatif par widget (`container-type` sur `.widget-cell`) le jour où le contenu sera traité ; sidebar repliable (hors périmètre widgets).
