@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif; }
+    a { color: oklch(0.50 0.12 250); } a:hover { color: oklch(0.40 0.12 250); }
+  </style>
+</helmet>
+
+<div style="width: 900px; height: 680px; box-sizing: border-box; background: #faf9f7; color: #1c1917; padding: 36px 40px; display: flex; flex-direction: column; gap: 22px;">
+
+  <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #1c1917; padding-bottom: 12px;">
+    <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.01em;">Flux de données</div>
+    <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #78716c;">une source, trois dérivations</div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 0;">
+
+    <div style="background: #ffffff; border: 2px solid oklch(0.50 0.12 250); border-radius: 8px; padding: 14px 26px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+      <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 14px; font-weight: 700; color: #1c1917;">placements: WidgetPlacement[]</div>
+      <div style="font-size: 11.5px; color: oklch(0.50 0.12 250); font-weight: 500;">source de vérité — persistée</div>
+    </div>
+
+    <svg width="780" height="46" viewBox="0 0 780 46" fill="none" stroke="#78716c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;">
+      <path d="M390 0 V16"></path>
+      <path d="M130 16 H650"></path>
+      <path d="M130 16 V36"></path>
+      <path d="M125 31 L130 37 L135 31"></path>
+      <path d="M390 16 V36"></path>
+      <path d="M385 31 L390 37 L395 31"></path>
+      <path d="M650 16 V36"></path>
+      <path d="M645 31 L650 37 L655 31"></path>
+    </svg>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px; width: 780px;">
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; font-weight: 700; color: oklch(0.55 0.13 65); background: #ffffff; border: 1.5px solid oklch(0.55 0.13 65); border-radius: 5px; padding: 5px 12px;">useMemo</div>
+        <svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="#78716c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 0 V14"></path><path d="M1 9 L6 15 L11 9"></path></svg>
+        <div style="background: #ffffff; border: 1.5px solid #d6d3d1; border-radius: 6px; padding: 12px; width: 100%; box-sizing: border-box; text-align: center; font-size: 13px; font-weight: 500;">matrice d'occupation</div>
+        <svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="#78716c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 0 V14"></path><path d="M1 9 L6 15 L11 9"></path></svg>
+        <div style="font-size: 12.5px; color: #292524; text-align: center; font-style: italic;">« où y a-t-il de la place ? »</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; font-weight: 700; color: oklch(0.55 0.13 65); background: #ffffff; border: 1.5px solid oklch(0.55 0.13 65); border-radius: 5px; padding: 5px 12px;">AABB</div>
+        <svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="#78716c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 0 V14"></path><path d="M1 9 L6 15 L11 9"></path></svg>
+        <div style="background: #ffffff; border: 1.5px solid #d6d3d1; border-radius: 6px; padding: 12px; width: 100%; box-sizing: border-box; text-align: center; font-size: 13px; font-weight: 500;">test de collision</div>
+        <svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="#78716c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 0 V14"></path><path d="M1 9 L6 15 L11 9"></path></svg>
+        <div style="font-size: 12.5px; color: #292524; text-align: center; font-style: italic;">« est-ce que ça rentre ? »</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; font-weight: 700; color: oklch(0.55 0.13 65); background: #ffffff; border: 1.5px solid oklch(0.55 0.13 65); border-radius: 5px; padding: 5px 12px;">projection</div>
+        <svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="#78716c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 0 V14"></path><path d="M1 9 L6 15 L11 9"></path></svg>
+        <div style="background: #ffffff; border: 1.5px solid #d6d3d1; border-radius: 6px; padding: 12px; width: 100%; box-sizing: border-box; text-align: center; font-size: 13px; font-weight: 500;">placements affichés</div>
+        <svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="#78716c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 0 V14"></path><path d="M1 9 L6 15 L11 9"></path></svg>
+        <div style="font-size: 12.5px; color: #292524; text-align: center; font-style: italic;">rendu CSS Grid</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="background: oklch(0.50 0.12 250 / 0.07); border-left: 3px solid oklch(0.50 0.12 250); border-radius: 0 6px 6px 0; padding: 12px 16px; font-size: 13px; font-weight: 500; color: #1c1917;">
+    Aucune flèche ne remonte. Rien dans ce diagramme ne réécrit la source de vérité.
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px;">
+
+    <div style="background: #ffffff; border: 1px solid #e0dcd6; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 7px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline;">
+        <div style="font-size: 13px; font-weight: 700;">AABB</div>
+        <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: oklch(0.55 0.13 65); font-weight: 700;">O(n)</div>
+      </div>
+      <div style="font-size: 11.5px; color: #57534e; line-height: 1.45;">Test d'un rectangle précis, sans matérialiser une cellule.</div>
+      <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; line-height: 1.6; color: #1c1917; background: #faf9f7; border-radius: 4px; padding: 8px 10px; white-space: pre-wrap;">a.x &lt; b.x+b.w && a.x+a.w &gt; b.x &&
+a.y &lt; b.y+b.h && a.y+a.h &gt; b.y</div>
+      <div style="font-size: 11px; color: #78716c; line-height: 1.45; font-style: italic;">Comparaisons strictes : avec <span style="font-family: 'JetBrains Mono', ui-monospace, monospace;">&gt;=</span>, deux widgets qui se touchent seraient en collision.</div>
+    </div>
+
+    <div style="background: #ffffff; border: 1px solid #e0dcd6; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 7px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline;">
+        <div style="font-size: 13px; font-weight: 700;">Matrice d'occupation</div>
+        <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: oklch(0.55 0.13 65); font-weight: 700;">O(cols × rows)</div>
+      </div>
+      <div style="font-size: 11.5px; color: #57534e; line-height: 1.45;">Vue d'ensemble. Recherche d'un emplacement libre, aperçu de dépose.</div>
+      <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; line-height: 1.6; color: #1c1917; background: #faf9f7; border-radius: 4px; padding: 8px 10px; white-space: pre-wrap;">useMemo(
+  () =&gt; buildOccupancy(placements, cols),
+  [placements, cols]
+)</div>
+      <div style="font-size: 11px; color: #78716c; line-height: 1.45; font-style: italic;">Reconstruite à la demande. Jamais stockée.</div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

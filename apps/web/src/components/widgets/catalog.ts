@@ -1,6 +1,7 @@
 import  { MainDomain } from "@/shared/types";
 import { HamIcon } from "../icons/library";
-import { WidgetArchetype, WidgetSize, type WidgetDefinition } from "./widgets.types";
+import { WidgetArchetype, type WidgetDefinition } from "./widgets.types";
+import type { defaultPosition, defaultSize } from "@/shared/styles/defaultProperties.styles";
 
 
 export const widgetCatalog = {
@@ -9,7 +10,6 @@ export const widgetCatalog = {
         icon: HamIcon, 
         domain: MainDomain.DomainNutrition, 
         endpoint: "/", 
-        size: WidgetSize.SizeSmall,
         archetype: WidgetArchetype.ArchetypeStat, 
         unit: "kcal", 
     },
@@ -18,5 +18,5 @@ export const widgetCatalog = {
 export type WidgetType = keyof typeof widgetCatalog;
 
 export type WidgetInstance = {
-    id: number, type: WidgetType, position: number;
+    id: number, type: WidgetType, size: defaultSize, position: defaultPosition
 };

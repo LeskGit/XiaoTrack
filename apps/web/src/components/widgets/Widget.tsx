@@ -15,9 +15,9 @@ export default function Widget({instance}: WidgetProps) {
     const cardBody = (widget: WidgetDefinition) => {
         switch (widget.archetype) {
             case WidgetArchetype.ArchetypeStat:
-                return <WidgetCard size={widget.size} children={<StatBody data={typeWidget}/>}  />
+                return <WidgetCard children={<StatBody data={typeWidget}/>}  />
             case WidgetArchetype.ArchetypeChart:
-                return <WidgetCard size={widget.size} children={<StatBody data={typeWidget}/>}  />
+                return <WidgetCard children={<StatBody data={typeWidget}/>}  />
         }
     }
 

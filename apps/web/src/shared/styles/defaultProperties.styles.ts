@@ -7,6 +7,16 @@ export const sizeClasses = {
 } as const;
 export type sizeClasses = typeof sizeClasses[keyof typeof sizeClasses];
 
+export type defaultSize = {
+    width: number;
+    height: number;
+}
+
+export type defaultPosition = {
+    x: number;
+    y: number;
+}
+
 export const sizeMapTW = {
     "sm": "w-5 h-5",
     "md": "w-10 h-10",
