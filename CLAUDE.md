@@ -2,90 +2,87 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Persona par défaut — XiaoBot
+## Nature of the project
 
-Sur ce repo, ta persona par défaut est **XiaoBot**. Charge et adopte intégralement la persona définie dans `@AI/XiaoBot.md` dès le démarrage de la session, sans annonce explicite. Tu te comportes comme XiaoBot pour tous les échanges sur ce projet, sauf si l'utilisateur demande explicitement à sortir du rôle (« sors du personnage », « réponds en mode standard », etc.).
+XiaoTrack (package name `devhub`) is a personal **learning sandbox**: the owner writes the application code themselves. `docs/vol-cookbook/00-index.md` states this explicitly. By default, explain, review, and point to patterns. Don't write feature code in `apps/web` or `apps/api` unless you're asked to directly.
 
-Le reste de ce fichier est ta connaissance technique du repo — c'est le contexte que XiaoBot a déjà intégré.
-
-## Mémoire de session
-
-La mémoire des sessions Claude est archivée dans `.claude/memory/session-log.md` (écrite par `/never-forget`, relue par `/remember`). Au début d'une nouvelle session sur ce projet, lance `/remember` pour récupérer le contexte des décisions, avancées et TODOs antérieurs.
-
-XiaoBot maintient en complément deux fichiers dans `.xiaobot/` : `decisions.md` (ADR-light) et `roadmap.md` (backlog). Ces fichiers sont structurés et long terme ; le `session-log.md` est chronologique. Les deux cohabitent — cf. la section « Articulation avec `/remember` et `/never-forget` » dans `AI/XiaoBot.md`.
+Session memory lives in `.claude/memory/session-log.md` (written by `/never-forget`, read by `/remember`). Run `/remember` at the start of a session to pick up earlier decisions and TODOs.
 
 ## Repository layout
 
-This is an npm workspaces monorepo (`workspaces: ["apps/*"]`) named **DevHub / XiaoTrack** with two apps:
+An npm workspaces monorepo (`workspaces: ["apps/*"]`):
 
-- `apps/api` — NestJS 11 backend (TypeScript, Express platform). Default port `3000` (overridable via `PORT`).
-- `apps/web` — React 19 + Vite 7 + Tailwind CSS v4 frontend (TypeScript). Dev server binds `0.0.0.0:5173`.
+- `apps/web`: React 19 + Vite 7 + Tailwind CSS v4 + React Router v7 (TypeScript). The dev server binds `0.0.0.0:5173`. This is where almost all current work happens.
+- `apps/api`: NestJS 11 scaffold (a single `AppController`/`AppService`, no DB/config/auth yet). Default port `3000` (override with `PORT`).
+- `apps/ai/XiaoBot`: a Python side experiment (`main.py` plus `requirements.txt`, which is UTF-16 encoded). It isn't part of the npm workspaces.
+- `docs/`: design docs written in French. They are the source of truth for intent:
+  - `docs/coding-conventions.md`: the project's coding rules. Read this before reviewing or writing frontend code. §10 lists known legacy debt.
+  - `docs/widgets/01-analyse.md`: the spec for the dashboard widget system (v1 scope, data model, out-of-scope items).
+  - `docs/widgets/prerequis/`: concept primers for building the widget system.
+  - `docs/vol-cookbook/`: an offline cookbook (TS, React, Router, state, widget framework, testing).
+- `Claude outputs/`: earlier Claude-generated notes and session logs. Not source code.
 
-Root `docker-compose.yml` and `apps/api/Dockerfile` are placeholders (`# TODO`). The `.devcontainer/` provides a Node 20 TypeScript devcontainer that runs `npm ci || npm install` in each workspace on create.
+Root `docker-compose.yml` and `apps/api/Dockerfile` are `# TODO` placeholders.
 
-## Common commands
+## Commands
 
-Run from the repo root unless noted. Workspace flags (`-w apps/api` / `-ws --parallel`) are how the root scripts dispatch into each app.
-
-```bash
-# Install all workspaces
-npm run install:all
-
-# Run both api and web in parallel
-npm run dev
-npm run dev:api   # NestJS only (apps/api)
-npm run dev:web   # Vite only (apps/web)
-
-# Build / start every workspace
-npm run build
-npm run start
-```
-
-Per-app commands (run inside `apps/api` or `apps/web`, or via `-w`):
+From the repo root:
 
 ```bash
-# apps/api (NestJS)
-npm run start:dev      # nest start --watch
-npm run start:debug    # nest start --debug --watch
-npm run lint           # eslint --fix on src/apps/libs/test
-npm run format         # prettier on src and test
-npm test               # jest (config inline in package.json: rootDir=src, testRegex=*.spec.ts)
-npm run test:watch
-npm run test:cov
-npm run test:e2e       # uses test/jest-e2e.json
-# Run a single test:
-npx jest path/to/file.spec.ts
-npx jest -t "test name pattern"
-
-# apps/web (Vite)
-npm run dev            # vite --host 0.0.0.0 --port 5173
-npm run build          # tsc -b && vite build  (project references via tsconfig.json)
-npm run lint           # eslint .
-npm run preview        # vite preview
+npm run install:all   # npm install --workspaces
+npm run dev           # api + web in parallel
+npm run dev:web       # Vite only
+npm run dev:api       # Nest (start:dev) only
+npm run build         # build every workspace
 ```
 
-Note: there is no root-level `test` script — testing is per-workspace, currently only configured in `apps/api`.
+The root `npm test` script is a stub that exits with an error. Tests are configured per workspace, and only in `apps/api`.
 
-## Frontend architecture (`apps/web`)
+`apps/web`:
+```bash
+npm run build   # tsc -b && vite build  (the type check is part of the build)
+npm run lint    # eslint .
+```
 
-The frontend is intentionally small and convention-driven. A few non-obvious points worth knowing before editing:
+`apps/api`:
+```bash
+npm run start:dev | lint | format
+npm test                        # jest, config inline in package.json (rootDir=src, *.spec.ts)
+npx jest src/app.controller.spec.ts   # single file
+npx jest -t "pattern"                 # single test by name
+npm run test:e2e                # test/jest-e2e.json
+```
 
-- **Path alias `@/`** maps to `apps/web/src/` in three places that all need to stay in sync if changed: `vite.config.ts` (resolve.alias), `tsconfig.app.json` (paths), and consumer imports.
-- **SVGs as React components** via `vite-plugin-svgr`. Import with the `?react` query, e.g. `import Bell from '@/assets/icons/bell.svg?react'`. The resulting component is passed to the shared `<Icon icon={Bell} />` / `<IconButton />` wrappers — do not render raw `<svg>` tags directly when an `Icon` wrapper exists.
-- **Icon sizing convention.** `Icon` and `Avatar` both consume `sizeMapTW` from `@/shared/styles` (`sm | md | lg | custom`). When `size="custom"`, sizing must come from the caller's `className` (e.g. `className="w-8 h-8"`). The wrapper applies `[&>svg]:w-full [&>svg]:h-full` so the inner SVG fills the span.
-- **Tailwind v4** is wired through the official Vite plugin (`@tailwindcss/vite`) and a single `@import "tailwindcss";` in `src/assets/css/index.css`. There is no `tailwind.config.js` — utilities/tokens are configured via CSS, not JS.
-- **Layout shape.** `App.tsx` → `MainLayout` (CSS grid: header row spans both columns, sidebar + main below). New pages should plug into `MainContent`; the page directory currently holds a single `Dashboard.tsx`.
-- **Component folders use barrel `index.ts`** that re-exports both default components and named types (see `components/icons/index.ts`, `components/avatar/index.ts`, `shared/styles/index.ts`). Match this pattern when adding new components.
-- **Types live next to their components** in `*.types.ts` files (`icons.types.ts`, `avatar.types.ts`, `layout.types.ts`). Cross-cutting types live in `shared/types/`.
-- **TS strictness** is high: `strict`, `noUnusedLocals`, `noUnusedParameters`, `verbatimModuleSyntax`, `erasableSyntaxOnly`, `noUncheckedSideEffectImports`. `verbatimModuleSyntax` means **type-only imports must use `import type { ... }`** — mixing types into value imports will fail to build.
+## Frontend architecture (`apps/web/src`)
 
-## Backend architecture (`apps/api`)
+**Routing is config-driven.** `shared/config/routes.ts` exports `sidebarRoutes`, a list of `RouteConfig` objects (`id`, `path`, `Component`, `handle: { icon, title, displayMode }`) declared `as const satisfies ReadonlyArray<RouteConfig>`. The same array feeds two consumers:
+- `shared/config/router.tsx` (`createBrowserRouter`): `/` renders `MainLayout`, the index route redirects to `/dashboard`, and the sidebar routes become children.
+- `layout/Sidebar/MainSidebar.tsx`: renders one nav entry per route from `handle`.
 
-Standard scaffolded NestJS 11 app at this stage: `main.ts` bootstraps `AppModule` with a single `AppController` / `AppService`. No database, config module, or auth wired up yet — when adding those, follow Nest module conventions (feature-module per domain) and register them in `AppModule.imports`.
+Adding a page means adding a `pages/X.tsx`, exporting it from `pages/index.ts`, adding a `MainDomain` value, and adding a `sidebarRoutes` entry. Paths come from `MainDomain` in `shared/types/domain.types.ts`.
 
-Jest configuration is inline in `apps/api/package.json` (not a separate `jest.config`); E2E uses `test/jest-e2e.json`.
+**Layout.** `MainLayout` is a CSS grid (header row above sidebar + content). `MainContent` renders the `<Outlet />` inside a Tailwind **container-query** context named `content` (`@container/content`). Widget sizing responds to that container, not the viewport.
 
-## Other repo notes
+**Widget system** (`components/widgets/`, in progress, used only by `pages/Dashboard.tsx`). The spec in `docs/widgets/01-analyse.md` separates three concepts that must stay distinct:
+- *Definition* (`WidgetDefinition` in `widgets.types.ts`): a discriminated union on `archetype` (`stat` needs `unit`; `chart` is planned). Size is a property of the **type**, not of the instance.
+- *Catalog* (`catalog.ts`): the `widgetCatalog` map, keyed like `"nutrition.dailyKcal"`, declared `as const satisfies Record<string, WidgetDefinition>`. `WidgetType = keyof typeof widgetCatalog`.
+- *Instance* (`WidgetInstance`: `{ id, type, position }`): what the user places on the dashboard. Only this is meant to be persisted.
 
-- `.gitignore` only excludes `node_modules` and `package-lock.json`. The root `package-lock.json` is committed despite this — be careful not to accidentally stage workspace lockfiles.
-- The `AI/` directory contains agent persona definitions (`xiaobot.md` is the default persona loaded above ; `rodin.md` is a separate intellectual sparring persona unrelated to this codebase). Don't treat these as application source.
+`WidgetGrid` → `Widget` (a `switch` on `archetype` that picks the body component from `catalog/`) → `WidgetCard` (applies the `widgetSizeClasses[size]` span classes). V1 scope from the spec: `stat` archetype only; add/remove/move in an explicit edit mode; persistence through the Nest API with no localStorage cache; read-only single column on mobile. Resizing and per-widget configuration are out of scope. There is no global store (Redux/Zustand) by design.
+
+**Enum pattern.** "Enums" are `const` objects plus a same-named type: `export const X = {...} as const; export type X = typeof X[keyof typeof X];` (see `DisplayMode`, `MainDomain`, `WidgetSize`). `erasableSyntaxOnly` forbids TS `enum`, so use this pattern for new ones.
+
+**Tooling specifics:**
+- Path alias `@/` → `src/`, defined in both `vite.config.ts` and `tsconfig.app.json`. Keep the two in sync.
+- SVGs are imported as components with `?react` (vite-plugin-svgr). svgo strips `stroke-width` and `class`. Icons are centralized in `components/icons/library.ts` with an `Icon` suffix (`HamIcon`) and rendered through `<Icon>`/`<IconButton>`, not as raw SVG components.
+- `Icon`/`Avatar` sizes come from `sizeMapTW` in `shared/styles` (`sm | md | lg | custom`). With `custom`, the caller supplies the size through `className`.
+- Tailwind v4 via `@tailwindcss/vite` and a single `@import "tailwindcss"` in `assets/css/index.css`. There is no `tailwind.config.js`.
+- Strict TS: `strict`, `noUnusedLocals/Parameters`, `verbatimModuleSyntax` (type-only imports must use `import type`), `erasableSyntaxOnly`, `noUncheckedSideEffectImports`. A violation breaks `npm run build`.
+- `src/poc/` holds throwaway proof-of-concept code.
+
+Key rules from `docs/coding-conventions.md`: English identifiers and English UI text (some French text remains as legacy); `type`, not `interface`; props are `readonly` and named `XxxProps`; one default-exported component per file; barrel `index.ts` files contain re-exports only; `@/` for cross-folder imports and relative paths for siblings; `components/` (context-free UI) vs `layout/` (app shell) vs `pages/` (screens) vs `shared/` (no React components).
+
+## Repo notes
+
+- `.gitignore` excludes `package-lock.json`, but the root lockfile is committed anyway. Don't stage workspace lockfiles by accident.
+- The root `package.json` lists `react-grid-layout` and `react-router-dom` as dependencies. The widget spec's "grid 2D maison" decision (§9 of the analysis) is still open, so don't assume `react-grid-layout` is the chosen approach.
