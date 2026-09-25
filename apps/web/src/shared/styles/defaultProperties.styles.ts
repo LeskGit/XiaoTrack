@@ -5,14 +5,14 @@ export const sizeClasses = {
     SizeLarge:  "large",
     SizeWide:   "wide",
 } as const;
-export type sizeClasses = typeof sizeClasses[keyof typeof sizeClasses];
+export type SizeClasses = typeof sizeClasses[keyof typeof sizeClasses];
 
-export type defaultSize = {
+export type DefaultSize = {
     width: number;
     height: number;
 }
 
-export type defaultPosition = {
+export type DefaultPosition = {
     x: number;
     y: number;
 }

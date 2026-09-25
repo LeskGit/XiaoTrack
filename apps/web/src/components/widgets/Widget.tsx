@@ -1,8 +1,8 @@
-import type { WidgetInstance } from './catalog';
+import type { WidgetInstance } from './widgets.types';
 import WidgetCard from './WidgetCard'
 import {widgetCatalog} from './catalog'
 import { WidgetArchetype, type WidgetDefinition } from './widgets.types';
-import StatBody from './catalog/StatBody';
+import StatBody from './bodies/StatBody';
 
 type WidgetProps = {instance: WidgetInstance}
 

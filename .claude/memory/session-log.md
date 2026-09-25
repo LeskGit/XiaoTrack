@@ -171,3 +171,29 @@ Mémoire append-only des sessions Claude. Géré par la commande `/never-forget`
 - [ ] **Questions de conception V1 posées mais non tranchées** (recommandation entre parenthèses) : type de l'`id` (`string` via `crypto.randomUUID()`) ; format stocké versionné (`{ version: 1, placements }`) ; données invalides au chargement (écarter individuellement, `console.warn`, jamais d'écran d'erreur) ; premier lancement (dashboard vide) ; signal de modification (simple état modifié, sans compteur) ; quitter l'édition avec des modifications (confirmation via `useBlocker`) ; palette (panneau groupé par archétype, sans recherche) ; sources factices déterministes plutôt qu'aléatoires ; formatage de la valeur dans le Body (`Intl.NumberFormat`, locale `en`) ; rafraîchissement uniquement par « Réessayer » ; organisation (fonctions pures de géométrie hors React, testées par Vitest ; état dans `pages/Dashboard.tsx`).
 - [ ] **Écrire `docs/widgets/00-cadrage-v1.md`** une fois ces questions tranchées, et marquer `01-analyse.md` et `vol-cookbook/05-widget-framework.md` comme dépassés.
 - [ ] **Leviers reportés** : contenu adaptatif par widget (`container-type` sur `.widget-cell`) le jour où le contenu sera traité ; sidebar repliable (hors périmètre widgets).
+
+---
+
+## 2026-09-25 — Session questions ouvertes du cadrage widgets
+
+> La spec de référence est désormais **`docs/widgets/00-cadrage-v1.md`**. Elle consolide les décisions du 24/09 et celles-ci.
+
+### Décisions
+
+- **Défaut de taille porté par l'archétype, surchargeable par le catalogue** — l'utilisateur propose un `defaultSize` obligatoire sur l'archétype (un chart a besoin de plus de place qu'un stat). Complété par un `minSize` par archétype, qui relève le plancher global 2×1. À l'ajout : `entrée.defaultSize ?? archétype.defaultSize`, **copié dans l'instance**. Tranche la question ouverte du 24/09 : un défaut n'est jamais appliqué à l'affichage. Conséquence : la table des archétypes devient `{ Body, defaultSize, minSize }`.
+- **`id` en UUID** (`crypto.randomUUID()`). Le champ `type` existant sert déjà de clé de catalogue (identification de l'indicateur) : rien à ajouter.
+- **Format `localStorage` = tableau seul**, sans version pour l'instant (migration future détectable par `Array.isArray`).
+- **Chargement : réparer plutôt qu'écarter.** JSON illisible → dashboard vide ; widget illisible ou type inconnu → écarté avec `console.warn` ; géométrie invalide ou chevauchement → taille ramenée dans les bornes, puis replacé **sous le widget le plus bas**, après les widgets valides et dans l'ordre d'origine. La réparation n'est pas enregistrée avant un *Enregistrer* explicite.
+- **États d'un widget : `loading | success | error`** en union discriminée, suffisants pour la V1. **Fournis en dur** pour l'instant, pour ne travailler que l'affichage (pas de sources factices). Recommandation : les fournir depuis l'emplacement du futur hook de chargement.
+- **Premier lancement = dashboard vide** ; **simple état modifié** sans compteur ; **confirmation** en quittant l'édition (`useBlocker`) ; **palette** en panneau latéral groupé par archétype, qui reste ouverte ; **formatage dans le Body** (données brutes, `Intl.NumberFormat`, locale `en`) ; **organisation** : géométrie pure hors React testée avec Vitest, état dans `pages/Dashboard.tsx`, affichage dans `components/widgets/`.
+
+### Avancées
+
+- `docs/widgets/00-cadrage-v1.md` créé : périmètre, modèle à trois niveaux, grille et responsive, comportement, persistance et réparation, états, critères d'acceptation, options écartées, valeurs à fixer.
+- Bandeaux « dépassé » ajoutés en tête de `docs/widgets/01-analyse.md` et de `docs/vol-cookbook/05-widget-framework.md`.
+- `CLAUDE.md` : renvoie vers `00-cadrage-v1.md` comme spec, avec le modèle archétype / catalogue / instance.
+
+### TODOs / Suites
+
+- [ ] Valeurs à fixer : `defaultSize` / `minSize` de `stat` et `chart` ; seuil définitif (866px ou ≈ 990px) ; padding proportionnel de la carte.
+- [ ] Les TODOs de code du 24/09 restent ouverts (build cassée, fixture, tri, nettoyage du catalogue et des types, `Widget.tsx`), avec en plus : passer `id` en `string`, et créer la table des archétypes `{ Body, defaultSize, minSize }`.

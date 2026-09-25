@@ -16,13 +16,14 @@
     }
     .widget-cell {
         grid-row: span var(--h);
+        padding: calc(clamp(4px, 1cqi, 8px));
     }
 
     /* Desktop / tablet mode */
     @container grid (min-width: 780px) {
         .widget-grid {
-            grid-template-columns: repeat(12, minmax(0, 1fr));
-            grid-auto-rows: calc((100cqi - 11 * var(--gap)) / 12 * 1.3);
+            grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+            grid-auto-rows: calc((100cqi (var(--cols) - 1) * var(--gap)) / var(--cols) * 1.3);
             gap: var(--gap);
         }
         .widget-cell {

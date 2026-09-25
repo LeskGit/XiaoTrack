@@ -1,5 +1,7 @@
 # 05 — Mini framework de widgets : les 5 couches (exemples génériques)
 
+> ⚠️ **En partie dépassé (2026-09-25)** — Les patterns (union discriminée, Registry, Shell, hook headless) restent valables comme apprentissage, mais le modèle du projet a changé. Voir [`docs/widgets/00-cadrage-v1.md`](../widgets/00-cadrage-v1.md), qui fait foi : pas de drag en V1, persistance derrière `load()` / `save()`, taille et position dans l'instance, grille 12 colonnes pilotée par la grille.
+
 > Le cœur. On construit la même **architecture 5 couches que ton ADR**, mais sur un domaine **générique et neutre** (`Block` = `text | counter | image`) pour illustrer les **patterns** — pas pour te livrer ton code. À toi de transposer sur `WidgetInstance` (`chart | card | inline`).
 > Ordre d'attaque (celui de ton ADR) : donnée → registry/rendu statique → remove/add → persistance → drag.
 

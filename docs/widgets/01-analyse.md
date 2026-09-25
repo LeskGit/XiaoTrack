@@ -1,5 +1,7 @@
 # Système de widgets — Analyse et cahier des charges
 
+> ⚠️ **DÉPASSÉ (2026-09-25)** — Remplacé par [`00-cadrage-v1.md`](00-cadrage-v1.md), qui fait foi. Conservé pour l'historique du raisonnement. Divergences principales : widgets sans domaine métier, pas de drag en V1, 12 colonnes à cases proportionnelles, `id` + taille dans l'instance, persistance `localStorage`.
+
 > **Statut** : analyse validée le 2026-09-05. La conception architecturale détaillée suit dans `02-conception.md`.
 > **Maquettes** : canvas « Widgets XiaoTrack » (7 états annotés) — mode lecture, mode édition, drag+push, palette, états vide/chargement/erreur, mobile, anatomie du widget.
 > **Révise** : l'ADR du 2026-06-15 (`.xiaobot/decisions.md`) sur **six** points, listés en §9.1. La révision 3 (grille 2D maison) demande une décision explicite avant d'aller plus loin.

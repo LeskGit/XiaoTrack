@@ -17,7 +17,8 @@ An npm workspaces monorepo (`workspaces: ["apps/*"]`):
 - `apps/ai/XiaoBot`: a Python side experiment (`main.py` plus `requirements.txt`, which is UTF-16 encoded). It isn't part of the npm workspaces.
 - `docs/`: design docs written in French. They are the source of truth for intent:
   - `docs/coding-conventions.md`: the project's coding rules. Read this before reviewing or writing frontend code. §10 lists known legacy debt.
-  - `docs/widgets/01-analyse.md`: the spec for the dashboard widget system (v1 scope, data model, out-of-scope items).
+  - `docs/widgets/00-cadrage-v1.md`: the current spec for the dashboard widget system, and the source of truth. `01-analyse.md` is outdated and kept only for history.
+  - `docs/widgets/03-plan-v1.md`: the step-by-step build plan the owner follows by hand (phases 0 to 7). When helping, locate the current step and stay within it.
   - `docs/widgets/prerequis/`: concept primers for building the widget system.
   - `docs/vol-cookbook/`: an offline cookbook (TS, React, Router, state, widget framework, testing).
 - `Claude outputs/`: earlier Claude-generated notes and session logs. Not source code.
@@ -36,12 +37,14 @@ npm run dev:api       # Nest (start:dev) only
 npm run build         # build every workspace
 ```
 
-The root `npm test` script is a stub that exits with an error. Tests are configured per workspace, and only in `apps/api`.
+The root `npm test` script is a stub that exits with an error. Tests are configured per workspace: Jest in `apps/api`, Vitest in `apps/web`.
 
 `apps/web`:
 ```bash
 npm run build   # tsc -b && vite build  (the type check is part of the build)
 npm run lint    # eslint .
+npm test        # vitest (inherits vite.config.ts, including the @/ alias)
+npx vitest run src/components/widgets/engine/geometry.test.ts   # single file
 ```
 
 `apps/api`:
@@ -63,9 +66,9 @@ Adding a page means adding a `pages/X.tsx`, exporting it from `pages/index.ts`, 
 
 **Layout.** `MainLayout` is a CSS grid (header row above sidebar + content). `MainContent` renders the `<Outlet />`.
 
-**Widget system** (`components/widgets/`, in progress, used only by `pages/Dashboard.tsx`). The current decisions are in the latest entry (2026-09-24) of `.claude/memory/session-log.md`. `docs/widgets/01-analyse.md` and `docs/vol-cookbook/05-widget-framework.md` are partly outdated; the log wins on conflicts. Key points:
+**Widget system** (`components/widgets/`, in progress, used only by `pages/Dashboard.tsx`). The spec is `docs/widgets/00-cadrage-v1.md`. It overrides `01-analyse.md` and `docs/vol-cookbook/05-widget-framework.md`. Key points:
 - Domain-agnostic and "ready to plug": each archetype defines a data contract, and each catalog entry will provide a source function (fake in V1). No `domain`/`endpoint` in the target catalog.
-- *Catalog* (`catalog.ts`, `as const satisfies Record<string, WidgetDefinition>`, `WidgetType = keyof typeof widgetCatalog`) is code, never persisted. *Instance* (`WidgetInstance`: `{ id, type, size: {width, height}, position: {x, y} }`) is the persisted placement, in grid units, 0-indexed.
+- There are three levels. The *archetype* (how a widget renders) owns its `Body`, a required `defaultSize` and a `minSize`. The *catalog entry* (`type`, `as const satisfies`, `WidgetType = keyof typeof widgetCatalog`) is code that is never persisted, and it can override `defaultSize`. The *instance* (`{ id: uuid, type, size: {width, height}, position: {x, y} }`) is the persisted placement, in grid units, 0-indexed. The default size is copied into the instance when a widget is added and is never applied at render time.
 - The grid owns placement; `<Widget>`/`WidgetCard` never read size or position and just fill their cell.
 - `widget-grid.css` (in `@layer components`): `.widget-grid-frame` (container query, no padding) → `.widget-grid` → `.widget-cell` carrying CSS vars `--col`/`--row`/`--w`/`--h`. Above the container threshold: 12 columns scaled with `cqi` units, positions and holes kept. Below it: a single column in reading order (sorted by `y`, then `x`). No medium mode. Don't add Tailwind grid utilities on these elements, because the `utilities` layer would override the CSS.
 - Minimum widget size is 2×1. V1 covers add/remove with auto-placement, an edit mode, and localStorage persistence behind `load()`/`save()`. Drag and resize are V2. The layout engine is home-made. There is no global store (Redux/Zustand) by design.

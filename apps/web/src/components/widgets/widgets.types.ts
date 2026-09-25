@@ -1,6 +1,7 @@
 import type { ComponentType, SVGProps } from "react";
 import { MainDomain } from "@/shared/types/domain.types";
-
+import type { DefaultPosition, DefaultSize } from "@/shared/styles/defaultProperties.styles";
+import type { WidgetType } from "./catalog";
 
 export const WidgetArchetype = {
     ArchetypeStat: "stat",
@@ -20,3 +21,7 @@ export type WidgetDefinition = WidgetBase & (
     | { archetype: typeof WidgetArchetype.ArchetypeStat; unit: string}
     | { archetype: typeof WidgetArchetype.ArchetypeChart;}
 );
+
+export type WidgetInstance = {
+    id: number, type: WidgetType, size: DefaultSize, position: DefaultPosition
+};
