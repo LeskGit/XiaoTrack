@@ -9,6 +9,7 @@
     /* Phone mode (default) */
     .widget-grid {
         --gap: 0.6cqi;
+        --cols: 12;
         display: grid;
         grid-template-columns: 1fr;
         grid-auto-rows: 110px;
@@ -23,7 +24,7 @@
     @container grid (min-width: 780px) {
         .widget-grid {
             grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
-            grid-auto-rows: calc((100cqi (var(--cols) - 1) * var(--gap)) / var(--cols) * 1.3);
+            grid-auto-rows: calc((100cqi - (var(--cols) - 1) * var(--gap)) / var(--cols));
             gap: var(--gap);
         }
         .widget-cell {
