@@ -1,13 +1,13 @@
-import type { WidgetDefinition } from "../widgets.types";
-import { Icon } from "@/components/icons";
+import type { StatData } from "../widget-states.types";
 
-type StatBodyProps = {data: WidgetDefinition}
 
-export default function StatBody({data}: StatBodyProps) {
+type StatBodyProps = { readonly data: StatData };
+
+export default function StatBody({ data }: StatBodyProps) {
+    
     return (
-        <div className="flex w-full h-full m-3">
-            <Icon icon={data.icon} size="lg" />
-            {data.title}
+        <div className="flex border border-gray-300 rounded-sm">
+            <p> {data.value} {data.unit}</p>
         </div>
     )
 }

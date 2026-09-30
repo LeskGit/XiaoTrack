@@ -1,27 +1,36 @@
 import type { WidgetInstance } from './widgets.types';
 import WidgetCard from './WidgetCard'
 import {widgetCatalog} from './catalog'
-import { WidgetArchetype, type WidgetDefinition } from './widgets.types';
+import { type WidgetDefinition } from './widgets.types';
+import { WidgetArchetype } from "./widgets.types"
 import StatBody from './bodies/StatBody';
+import { useWidgetData } from './hooks/useWidgetData';
 
-type WidgetProps = {instance: WidgetInstance}
+type WidgetProps = {readonly instance: WidgetInstance}
 
 export default function Widget({instance}: WidgetProps) {
 
-    // useWidgetData ici
+    const definitionWidget = widgetCatalog[instance.type];
+    const dataWidget = useWidgetData(instance);
 
-    const typeWidget = widgetCatalog[instance.type];
-
-    const cardBody = (widget: WidgetDefinition) => {
-        switch (widget.archetype) {
+    const cardBody = (definitionWidget: WidgetDefinition) => {
+        switch (definitionWidget.archetype) {
             case WidgetArchetype.ArchetypeStat:
-                return <WidgetCard children={<StatBody data={typeWidget}/>}  />
+                return <WidgetCard definition={definitionWidget}>
+                            {dataWidget.status === "success"
+                            ? <StatBody data={dataWidget.data} />
+                            : <p>{dataWidget.status === "error" ? dataWidget.message : "Loading ..."}</p>}
+                        </WidgetCard>
             case WidgetArchetype.ArchetypeChart:
-                return <WidgetCard children={<StatBody data={typeWidget}/>}  />
+                return <WidgetCard definition={definitionWidget}>
+                            {dataWidget.status === "success"
+                            ? <StatBody data={dataWidget.data} />
+                            : <p>{dataWidget.status === "error" ? dataWidget.message : "Loading ..."}</p>}
+                        </WidgetCard>
         }
     }
 
     return(
-        cardBody(typeWidget)
+        cardBody(definitionWidget)
     );
 }

@@ -1,6 +1,4 @@
 import type { ComponentType, SVGProps } from "react";
-import { MainDomain } from "@/shared/types/domain.types";
-import type { DefaultPosition, DefaultSize } from "@/shared/styles/defaultProperties.styles";
 import type { WidgetType } from "./catalog";
 
 export const WidgetArchetype = {
@@ -13,15 +11,32 @@ export type WidgetArchetype = typeof WidgetArchetype[keyof typeof WidgetArchetyp
 type WidgetBase = {
     title: string;
     icon: ComponentType<SVGProps<SVGSVGElement>>;
-    domain: MainDomain;
     endpoint: string;
+    defaultSize?: GridSize;
 }
 
+export type StatWidgetDefinition = WidgetBase & ({ archetype: typeof WidgetArchetype.ArchetypeStat; unit: string});
+export type ChartWidgetDefinition = WidgetBase & ({ archetype: typeof WidgetArchetype.ArchetypeChart});
+
 export type WidgetDefinition = WidgetBase & (
-    | { archetype: typeof WidgetArchetype.ArchetypeStat; unit: string}
-    | { archetype: typeof WidgetArchetype.ArchetypeChart;}
+    | StatWidgetDefinition
+    | ChartWidgetDefinition
 );
 
-export type WidgetInstance = {
-    id: number, type: WidgetType, size: DefaultSize, position: DefaultPosition
+export type GridSize = {
+    readonly width: number;
+    readonly height: number;
+}
+
+export type GridPosition = {
+    readonly x: number;
+    readonly y: number;
+}
+
+export type GridRect = {
+    size: GridSize, position: GridPosition
+}
+
+export type WidgetInstance = GridRect & {
+    id: string, type: WidgetType
 };

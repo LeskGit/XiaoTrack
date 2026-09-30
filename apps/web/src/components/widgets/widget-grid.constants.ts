@@ -1,5 +1,5 @@
-import type { DefaultSize } from "@/shared/styles/defaultProperties.styles";
+import type { GridSize } from "./widgets.types";
 
 
-export const MIN_COLS: number = 12;
-export const MIN_SIZE: DefaultSize = {width: 2, height: 1};
+export const GRID_COLS: number = 12;
+export const MIN_SIZE: GridSize = {width: 2, height: 1};

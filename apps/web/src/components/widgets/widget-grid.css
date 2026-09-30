@@ -9,7 +9,6 @@
     /* Phone mode (default) */
     .widget-grid {
         --gap: 0.6cqi;
-        --cols: 12;
         display: grid;
         grid-template-columns: 1fr;
         grid-auto-rows: 110px;
@@ -17,7 +16,10 @@
     }
     .widget-cell {
         grid-row: span var(--h);
-        padding: calc(clamp(4px, 1cqi, 8px));
+    }
+
+    .widget-card {
+        padding: clamp(4px, 1cqi, 8px);
     }
 
     /* Desktop / tablet mode */
