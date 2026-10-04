@@ -3,30 +3,38 @@
  * Coordinates are in cells, 0-indexed. Inputs are never mutated.
  */
 
+import { GRID_COLS } from "../widget-grid.constants";
 import type { GridPosition, GridRect, GridSize } from "../widgets.types";
 
-
+type GridInterval = {
+    xStart: number;
+    xEnd: number;
+    yStart: number;
+    yEnd: number;
+}
 
 /**
- * Tells whether two rects share at least one cell.
- *
- * Intervals are half-open: a rect at `x` with width `w` covers columns `x` to `x + w - 1`.
- * Touching edges (`x 0 w 2` and `x 2 w 2`) or a single shared corner do not overlap.
- * Symmetric: `overlaps(a, b) === overlaps(b, a)`.
- * A rect always overlaps itself: when checking against a list that contains it, exclude it first.
+ * Check if two rects overlaps (border overlaps too)
+ * @param a GridRect
+ * @param b GridRect
+ * @returns boolean : if True, an overlap exists and WidgetGrid have to adjust the second rect   
  */
-export function overlaps(a: GridRect, b: GridRect) {
-    // TODO
+export function overlaps(a: GridRect, b: GridRect): boolean {
+    const aInterval: GridInterval = {xStart: a.position.x, xEnd: a.position.x + a.size.width, yStart: a.position.y, yEnd: a.position.y + a.size.height};
+    const bInterval: GridInterval = {xStart: b.position.x, xEnd: b.position.x + b.size.width, yStart: b.position.y, yEnd: b.position.y + b.size.height};
+
+    return (aInterval.xStart <= bInterval.xEnd && bInterval.xStart <= aInterval.xEnd
+        && aInterval.yStart <= bInterval.yEnd && bInterval.yStart <= aInterval.yEnd)  
 } 
 
 /**
- * Tells whether a rect lies within the grid: `x ≥ 0`, `y ≥ 0` and `x + width ≤ GRID_COLS`.
- *
- * There is no bottom limit: the grid grows downward.
- * Does not check the minimum size (see `clampSize`).
+ * Check if the rect is inside the grid's range
+ * @param rect 
+ * @returns boolean
  */
-export function isInsideGrid(rect: GridRect) {
-    // TODO
+export function isInsideGrid(rect: GridRect): boolean {
+    const rectInterval: GridInterval = {xStart: rect.position.x, xEnd: rect.position.x + rect.size.width, yStart: rect.position.y, yEnd: rect.position.y + rect.size.height};
+    return (rectInterval.xStart >= 0 && rectInterval.xEnd <= GRID_COLS && rectInterval.yEnd >= 0)
 } 
 
 /**

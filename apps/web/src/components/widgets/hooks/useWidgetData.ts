@@ -5,6 +5,6 @@ import type { StatData } from "../widget-states.types";
 
 
 export const useWidgetData = (instance: WidgetInstance): DataState<StatData> => {
-    const data:DataState<StatData> = { status: "success", data: { value: 1840, unit: "kcal" } };
+    const data:DataState<StatData> = { status: "error", message: "skibidi" };
     return data
 }
