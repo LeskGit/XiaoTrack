@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { overlaps } from './geometry'; 
+import { isInsideGrid, overlaps } from './geometry'; 
 import type { GridRect } from '../widgets.types'; 
 
 // Helper
@@ -20,13 +20,14 @@ describe('overlaps', () => {
         ['collés par un coin',          rect(0, 0, 2, 2), rect(2, 2, 2, 2)],
     ])('détecte un overlap : %s', (_, a, b) => {
         expect(overlaps(a, b)).toBe(true);
-        expect(overlaps(b, a)).toBe(true); // symétrie
+        expect(overlaps(b, a)).toBe(true); 
     });
 
     it.each([
         ['même colonne, éloignés',      rect(0, 0, 2, 2), rect(0, 10, 2, 2)],
         ['même ligne, éloignés',        rect(0, 0, 2, 2), rect(10, 0, 2, 2)],
         ['totalement séparés',          rect(0, 0, 2, 2), rect(5, 5, 2, 2)],
+        
     ])('pas d\'overlap : %s', (_, a, b) => {
         expect(overlaps(a, b)).toBe(false);
         expect(overlaps(b, a)).toBe(false);
@@ -34,5 +35,35 @@ describe('overlaps', () => {
 });
 
 describe('isInsideGrid', () => {
-    it.each
+    it.each([
+        ['Inside the grid', rect(4, 4, 4, 4)],
+        ['Inside the grid, but far (height)', rect(2, 100, 2, 2)],
+    ])('Is Inside the WidgetGrid %s', (_, a) => {
+        expect(isInsideGrid(a)).toBe(true);
+    });
+
+    it.each([
+        ['Outside cols', rect(13, 0, 10, 10)],
+        ['Outside rows', rect(-1, 0, 10, 10)],
+    ])('Is Outside the WidgetGrid %s', (_, a) => {
+        expect(isInsideGrid(a)).toBe(false);
+    });
+    
+})
+
+describe('clampSize', () => {
+    it.each([
+        ['Inside the grid', rect(4, 4, 4, 4)],
+        ['Inside the grid, but far (height)', rect(2, 100, 2, 2)],
+    ])('Is Inside the WidgetGrid %s', (_, a) => {
+        expect(isInsideGrid(a)).toBe(true);
+    });
+
+    it.each([
+        ['Outside cols', rect(13, 0, 10, 10)],
+        ['Outside rows', rect(-1, 0, 10, 10)],
+    ])('Is Outside the WidgetGrid %s', (_, a) => {
+        expect(isInsideGrid(a)).toBe(false);
+    });
+    
 })

@@ -28,24 +28,13 @@ export function overlaps(a: GridRect, b: GridRect): boolean {
 } 
 
 /**
- * Check if the rect is inside the grid's range
+ * Check if the rect is inside the grid's range, no need to handle height max because it is unlimited
  * @param rect 
  * @returns boolean
  */
 export function isInsideGrid(rect: GridRect): boolean {
     const rectInterval: GridInterval = {xStart: rect.position.x, xEnd: rect.position.x + rect.size.width, yStart: rect.position.y, yEnd: rect.position.y + rect.size.height};
     return (rectInterval.xStart >= 0 && rectInterval.xEnd <= GRID_COLS && rectInterval.yEnd >= 0)
-} 
-
-/**
- * Brings a size back within the allowed bounds.
- *
- * Width is kept between `min.width` and `GRID_COLS`. Height only has a floor (`min.height`), no ceiling.
- * A size is valid when `clampSize` returns the same values.
- * Clamp the size before checking the position: a narrower width changes `x + width`.
- */
-export function clampSize(size: GridSize, min: GridSize): GridSize {
-    // TODO
 } 
 
 /**
