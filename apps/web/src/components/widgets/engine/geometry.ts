@@ -34,18 +34,21 @@ export function overlaps(a: GridRect, b: GridRect): boolean {
  */
 export function isInsideGrid(rect: GridRect): boolean {
     const rectInterval: GridInterval = {xStart: rect.position.x, xEnd: rect.position.x + rect.size.width, yStart: rect.position.y, yEnd: rect.position.y + rect.size.height};
-    return (rectInterval.xStart >= 0 && rectInterval.xEnd <= GRID_COLS && rectInterval.yEnd >= 0)
+    return (rectInterval.xStart >= 0 && rectInterval.xEnd <= GRID_COLS && rectInterval.yStart >= 0)
 } 
 
 /**
  * Returns the first row below every rect, `max(y + height)`, or `0` for an empty list.
- *
- * Every row from this one down is free: it bounds the scan of `findFirstFreeSpot`,
- * and it is where repaired widgets are moved.
+ * @param rects 
+ * @returns number : indice of the last used row 
  */
 export function bottomY(rects: readonly GridRect[]): number {
-    // TODO
+    return Math.max(0, ...rects.map((r) => r.position.y + r.size.height))
 } 
+
+export function buildReferenceGrid(rects: readonly GridRect[]): number[][] {
+    // TODO
+}
 
 /**
  * Returns the first position where a rect of `size` fits without overlapping any of `rects`.
@@ -57,7 +60,11 @@ export function bottomY(rects: readonly GridRect[]): number {
  * Otherwise no column fits, and the widget would overflow the grid.
  */
 export function findFirstFreeSpot(rects: readonly GridRect[], size: GridSize): GridPosition {
-    // TODO
+    for (let i = 0; i < GRID_COLS; i++) {
+        for (let j = 0; j <= bottomY(rects); j++) {
+            if (rects[i][j].)
+        }
+    }
 } 
 
 /**
