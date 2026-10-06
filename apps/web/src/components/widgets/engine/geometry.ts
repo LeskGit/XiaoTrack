@@ -46,15 +46,6 @@ export function bottomY(rects: readonly GridRect[]): number {
     return Math.max(0, ...rects.map((r) => r.position.y + r.size.height))
 } 
 
-/**
- * Returns the first position where a rect of `size` fits without overlapping any of `rects`.
- *
- * Scans rows top to bottom, then columns left to right (reading order), so holes are filled first.
- * If nothing fits higher up, the row `bottomY(rects)` is always free: adding never fails.
- *
- * Precondition: `size` is already clamped (`size.width ≤ GRID_COLS`).
- * Otherwise no column fits, and the widget would overflow the grid.
- */
 export function findFirstFreeSpot(rects: readonly GridRect[], size: GridSize): GridPosition {
     const lastRange: number = bottomY(rects);
     const fallbackPosition: GridPosition = {x: 0, y: lastRange};
@@ -68,30 +59,8 @@ export function findFirstFreeSpot(rects: readonly GridRect[], size: GridSize): G
     return fallbackPosition;
 }
 
-/**
- * Returns a copy sorted in reading order: by `y`, then by `x`.
- *
- * Drives the stacking order in phone mode, where positions are ignored.
- * Generic so that sorting `WidgetInstance[]` keeps `id` and `type` in the result type.
- * Stable: two rects at the same position keep their original order.
- */
+
 export function sortReadingOrder<T extends GridRect>(rects: readonly T[]): T[] {
     const sortedList: T[] = rects.toSorted((w1, w2) => w1.position.y - w2.position.y || w1.position.x - w2.position.x);
     return sortedList;
-} 
-
-/**
- * Turns already-parsed storage data into a valid layout (cadrage §6.3, schema E of the plan).
- *
- * - Not an array: `[]`.
- * - Unreadable item (no string `id`, coordinates that are not numbers) or unknown `type`: dropped, with a warning.
- * - Invalid geometry (outside the columns, negative, below the minimum size): size clamped, then moved to the end of the grid.
- * - Overlap: the second one in reading order is moved to the end of the grid.
- *
- * Valid items are placed first. Items to repair follow in their original order,
- * each one at `y = bottomY` of everything placed before it. Same input, same output.
- * `JSON.parse` and saving belong to the storage layer: the repair is not saved until the user saves.
- */
-export function repairLayout(raw: unknown) {
-    // TODO
 } 
