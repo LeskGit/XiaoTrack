@@ -23,8 +23,8 @@ export function overlaps(a: GridRect, b: GridRect): boolean {
     const aInterval: GridInterval = {xStart: a.position.x, xEnd: a.position.x + a.size.width, yStart: a.position.y, yEnd: a.position.y + a.size.height};
     const bInterval: GridInterval = {xStart: b.position.x, xEnd: b.position.x + b.size.width, yStart: b.position.y, yEnd: b.position.y + b.size.height};
 
-    return (aInterval.xStart <= bInterval.xEnd && bInterval.xStart <= aInterval.xEnd
-        && aInterval.yStart <= bInterval.yEnd && bInterval.yStart <= aInterval.yEnd)  
+    return (aInterval.xStart < bInterval.xEnd && bInterval.xStart < aInterval.xEnd
+        && aInterval.yStart < bInterval.yEnd && bInterval.yStart < aInterval.yEnd)  
 } 
 
 /**
@@ -46,10 +46,6 @@ export function bottomY(rects: readonly GridRect[]): number {
     return Math.max(0, ...rects.map((r) => r.position.y + r.size.height))
 } 
 
-export function buildReferenceGrid(rects: readonly GridRect[]): number[][] {
-    // TODO
-}
-
 /**
  * Returns the first position where a rect of `size` fits without overlapping any of `rects`.
  *
@@ -60,12 +56,17 @@ export function buildReferenceGrid(rects: readonly GridRect[]): number[][] {
  * Otherwise no column fits, and the widget would overflow the grid.
  */
 export function findFirstFreeSpot(rects: readonly GridRect[], size: GridSize): GridPosition {
-    for (let i = 0; i < GRID_COLS; i++) {
-        for (let j = 0; j <= bottomY(rects); j++) {
-            if (rects[i][j].)
+    const lastRange: number = bottomY(rects);
+    const fallbackPosition: GridPosition = {x: 0, y: lastRange};
+
+    for (let y = 0; y <= lastRange; y++) {
+        for (let x = 0; x <= GRID_COLS - size.width; x++) {
+            const candidateRect: GridRect = {position: {x, y}, size};
+            if (rects.every((r) => !overlaps(candidateRect, r))) {return candidateRect.position;}
         }
     }
-} 
+    return fallbackPosition;
+}
 
 /**
  * Returns a copy sorted in reading order: by `y`, then by `x`.
@@ -75,7 +76,8 @@ export function findFirstFreeSpot(rects: readonly GridRect[], size: GridSize): G
  * Stable: two rects at the same position keep their original order.
  */
 export function sortReadingOrder<T extends GridRect>(rects: readonly T[]): T[] {
-    // TODO
+    const sortedList: T[] = rects.toSorted((w1, w2) => w1.position.y - w2.position.y || w1.position.x - w2.position.x);
+    return sortedList;
 } 
 
 /**

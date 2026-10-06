@@ -3,14 +3,13 @@ import Widget from "./Widget";
 import type { WidgetInstance } from "./widgets.types";
 import "./widget-grid.css";
 import { GRID_COLS } from "./widget-grid.constants";
+import { sortReadingOrder } from "./engine/geometry";
 
 type WidgetGridProps = { readonly widgets: WidgetInstance[] };
 
 export default function WidgetGrid({widgets}: WidgetGridProps) {
 
-    const sortedWidgets: WidgetInstance[] = widgets.toSorted((w1, w2) => w1.position.y - w2.position.y || w1.position.x - w2.position.x);
-
-    sortedWidgets.map((w) => console.log(w.id));
+    const sortedWidgets: WidgetInstance[] = sortReadingOrder(widgets);
 
     return (
         <div className="p-4">
