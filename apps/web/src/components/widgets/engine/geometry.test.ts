@@ -1,6 +1,7 @@
 import { describe, it, expect, expectTypeOf } from 'vitest';
-import { bottomY, findFirstFreeSpot, isInsideGrid, overlaps, sortReadingOrder } from './geometry'; 
-import type { GridRect } from '../widgets.types'; 
+import { bottomY, clampSize, findFirstFreeSpot, isInsideGrid, overlaps, sortReadingOrder } from './geometry'; 
+import type { GridRect, GridSize } from '../widgets.types'; 
+import { GRID_COLS, MIN_SIZE } from '../widget-grid.constants';
 
 // Helper
 const rect = (x: number, y: number, width: number, height: number): GridRect => ({
@@ -86,6 +87,45 @@ describe('bottomY', () => {
     });
     
 })
+
+describe('clampSize', () => {
+    const size = (width: number, height: number): GridSize => ({ width, height });
+
+    it.each([
+        { name: 'valid size is unchanged',           input: size(4, 2),   expected: size(4, 2) },
+        { name: 'exactly the minimum is unchanged',  input: size(2, 1),   expected: size(2, 1) },
+        { name: 'exactly the grid width is unchanged', input: size(GRID_COLS, 1), expected: size(GRID_COLS, 1) },
+        { name: 'too narrow → min width',            input: size(1, 1),   expected: size(2, 1) },
+        { name: 'too wide → grid width',             input: size(20, 1),  expected: size(GRID_COLS, 1) },
+        { name: 'zero height → min height',          input: size(2, 0),   expected: size(2, 1) },
+        { name: 'negative width → min width',        input: size(-3, 1),  expected: size(2, 1) },
+        { name: 'negative height → min height',      input: size(2, -5),  expected: size(2, 1) },
+        { name: 'both too small → min size',         input: size(0, 0),   expected: size(2, 1) },
+        { name: 'height is not capped',              input: size(1, 50),  expected: size(2, 50) },
+        { name: 'too wide and too short',            input: size(20, 0),  expected: size(GRID_COLS, 1) },
+    ])('$name', ({ input, expected }) => {
+        expect(clampSize(input, MIN_SIZE)).toEqual(expected);
+    });
+
+    it.each([
+        { name: 'raises to a bigger min',            input: size(1, 1),   min: size(4, 2), expected: size(4, 2) },
+        { name: 'keeps a size above a bigger min',   input: size(6, 3),   min: size(4, 2), expected: size(6, 3) },
+        { name: 'bigger min does not lift the max',  input: size(20, 1),  min: size(4, 2), expected: size(GRID_COLS, 2) },
+    ])('uses the given min: $name', ({ input, min, expected }) => {
+        expect(clampSize(input, min)).toEqual(expected);
+    });
+
+    it('does not mutate the input', () => {
+        const input = size(1, 0);
+        clampSize(input, MIN_SIZE);
+        expect(input).toEqual(size(1, 0));
+    });
+
+    it('returns a new object', () => {
+        const input = size(4, 2);
+        expect(clampSize(input, MIN_SIZE)).not.toBe(input);
+    });
+});
 
 describe('findFirstFreeSpot', () => {
 

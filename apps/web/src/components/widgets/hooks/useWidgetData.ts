@@ -4,7 +4,7 @@ import type { StatData } from "../widget-states.types";
 
 
 
-export const useWidgetData = (instance: WidgetInstance): DataState<StatData> => {
+export const useWidgetData = (_instance: WidgetInstance): DataState<StatData> => {
     const data:DataState<StatData> = { status: "error", message: "skibidi" };
     return data
 }

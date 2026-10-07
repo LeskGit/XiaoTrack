@@ -1,8 +1,3 @@
-/**
- * Pure grid geometry: no React, no DOM.
- * Coordinates are in cells, 0-indexed. Inputs are never mutated.
- */
-
 import { GRID_COLS } from "../widget-grid.constants";
 import type { GridPosition, GridRect, GridSize } from "../widgets.types";
 
@@ -46,6 +41,26 @@ export function bottomY(rects: readonly GridRect[]): number {
     return Math.max(0, ...rects.map((r) => r.position.y + r.size.height))
 } 
 
+export function clampSize(size: GridSize, minSize: GridSize): GridSize {
+    let newSize: GridSize = {...size};
+    if (size.width > GRID_COLS) {
+        newSize = {...newSize, width: GRID_COLS};
+    }
+    else if (size.width < minSize.width) {
+        newSize = {...newSize, width: minSize.width};
+    }
+    if (size.height < minSize.height) {
+        newSize = {...newSize, height: minSize.height};
+    }
+    return newSize;
+} 
+
+/**
+ * 
+ * @param rects 
+ * @param size 
+ * @returns GridPosition : The placement where the targeted rect will be placed
+ */
 export function findFirstFreeSpot(rects: readonly GridRect[], size: GridSize): GridPosition {
     const lastRange: number = bottomY(rects);
     const fallbackPosition: GridPosition = {x: 0, y: lastRange};
@@ -59,7 +74,11 @@ export function findFirstFreeSpot(rects: readonly GridRect[], size: GridSize): G
     return fallbackPosition;
 }
 
-
+/**
+ * Allow generic arrays to be sorted, 0 by default
+ * @param rects 
+ * @returns T[] : generic array (WidgetInstance, GridRect)
+ */
 export function sortReadingOrder<T extends GridRect>(rects: readonly T[]): T[] {
     const sortedList: T[] = rects.toSorted((w1, w2) => w1.position.y - w2.position.y || w1.position.x - w2.position.x);
     return sortedList;
