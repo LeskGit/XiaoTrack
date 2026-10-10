@@ -43,6 +43,6 @@ export type WidgetDefinition = WidgetBase & (
     | ChartWidgetDefinition
 );
 
-export type WidgetInstance = {
-    id: string, type: WidgetType, rect?: GridRect
+export type WidgetInstance = GridRect & {
+    id: string, type: WidgetType,
 };

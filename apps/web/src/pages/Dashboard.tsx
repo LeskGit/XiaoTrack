@@ -1,29 +1,33 @@
 import type { WidgetInstance } from "@/components/widgets/widgets.types"
 import WidgetGrid from "@/components/widgets/WidgetGrid"
 import { useState } from "react";
-import { sortReadingOrder } from "@/components/widgets/engine/geometry";
+import type { WidgetType } from "@/components/widgets/catalog";
+import { createInstance } from "@/components/widgets/engine/instance";
 
-const widgets: WidgetInstance[] = ([
-    {id: "1", type: "nutrition.dailyKcal"},
-    {id: "1", type: "nutrition.dailyKcal"},
-    {id: "1", type: "nutrition.dailyKcal"},
-    {id: "1", type: "nutrition.dailyKcal"},
-    
-]);
+const fixtureTypes: WidgetType[] = [
+    "nutrition.dailyKcal",
+    "nutrition.dailyKcal",
+    "chartExemple",
+    "chartExemple",
+    "nutrition.dailyKcal",
+    "chartExemple",
+];
 
-const displayWidgets = (instances) => {
-    
-    const sortedWidgets: WidgetInstance = sortReadingOrder(instances);
-}
+const fixture: WidgetInstance[] = fixtureTypes.reduce<WidgetInstance[]>(
+    (acc, type) => [...acc, createInstance(type, acc)],
+    [],
+);
 
 export default function Dashboard() {
 
-    const [savedWidgets, setSavedWidgets] = useState(widgets);
-    const [dirtyWidgets, setDirtyWidgets] = useState(widgets);
-    const [isEdited, setEdited] = useState(false);
-    const [isPaletteOpen, setPalette] = useState(false);
+    const [savedWidgets, setSavedWidgets] = useState(fixture);
+    const [draftWidgets, setDraftWidgets] = useState(fixture);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+
+    const isDirty: boolean = savedWidgets !== draftWidgets;
 
     return (
-        <WidgetGrid widgets={widgets} />
+        <WidgetGrid widgets={isEditing ? draftWidgets : savedWidgets} />
     )
 }
