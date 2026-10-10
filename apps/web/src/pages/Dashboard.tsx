@@ -28,6 +28,8 @@ export default function Dashboard() {
     const isDirty: boolean = savedWidgets !== draftWidgets;
 
     return (
-        <WidgetGrid widgets={isEditing ? draftWidgets : savedWidgets} />
+        <div className="">
+            <WidgetGrid widgets={isEditing ? draftWidgets : savedWidgets} />
+        </div>
     )
 }

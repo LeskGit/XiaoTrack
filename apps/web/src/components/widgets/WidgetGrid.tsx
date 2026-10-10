@@ -7,7 +7,7 @@ import { sortReadingOrder } from "./engine/geometry";
 
 type WidgetGridProps = { readonly widgets: WidgetInstance[] };
 
-export default function WidgetGrid({widgets}: WidgetGridProps) {
+export default function  WidgetGrid({widgets}: WidgetGridProps) {
 
     const sortedWidgets: WidgetInstance[] = sortReadingOrder(widgets);
 
