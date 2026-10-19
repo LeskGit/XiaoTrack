@@ -7,4 +7,4 @@ export { default as HamIcon } from '@/assets/icons/ham.svg?react'
 export { default as DumbellIcon } from '@/assets/icons/dumbbell.svg?react'
 export { default as NoteBookPenIcon } from '@/assets/icons/notebook-pen.svg?react'
 export { default as TrendingUpDownIcon } from '@/assets/icons/trending-up-down.svg?react'
-
+export { default as EditPenIcon } from '@/assets/icons/edit-pen.svg?react'

@@ -14,12 +14,20 @@
         grid-auto-rows: 110px;
         gap: 12px;
     }
+
     .widget-cell {
         grid-row: span var(--h);
     }
 
     .widget-card {
         padding: clamp(4px, 1cqi, 8px);
+    }
+
+    .widget-toolbar {
+        display: none;            
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
     }
 
     /* Desktop / tablet mode */
@@ -29,6 +37,11 @@
             grid-auto-rows: calc((100cqi - (var(--cols) - 1) * var(--gap)) / var(--cols));
             gap: var(--gap);
         }
+
+        .widget-toolbar {
+            display: flex;
+        }
+
         .widget-cell {
             grid-column: var(--col) / span var(--w);
             grid-row: var(--row) / span var(--h);

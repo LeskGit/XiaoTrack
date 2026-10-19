@@ -3,6 +3,7 @@ import WidgetGrid from "@/components/widgets/WidgetGrid"
 import { useState } from "react";
 import type { WidgetType } from "@/components/widgets/catalog";
 import { createInstance } from "@/components/widgets/engine/instance";
+import WidgetToolbar from "@/components/widgets/WidgetToolbar";
 
 const fixtureTypes: WidgetType[] = [
     "nutrition.dailyKcal",
@@ -18,6 +19,23 @@ const fixture: WidgetInstance[] = fixtureTypes.reduce<WidgetInstance[]>(
     [],
 );
 
+const onAdd = () => {
+    return null;
+}
+
+const onEdit = () => {
+    return null;
+}
+
+const onCancel = () => {
+    return null;
+}
+
+const onSave = () => {
+    return null;
+}
+
+
 export default function Dashboard() {
 
     const [savedWidgets, setSavedWidgets] = useState(fixture);
@@ -29,7 +47,7 @@ export default function Dashboard() {
 
     return (
         <div className="">
-            <WidgetGrid widgets={isEditing ? draftWidgets : savedWidgets} />
+            <WidgetGrid widgets={isEditing ? draftWidgets : savedWidgets} toolbar={<WidgetToolbar isEditing={isEditing} isDirty={isDirty} onAdd={onAdd} onEdit={onEdit} onCancel={onCancel} onSave={onSave}  />}/>
         </div>
     )
 }
