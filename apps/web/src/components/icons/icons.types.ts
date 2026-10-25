@@ -15,4 +15,5 @@ export type IconProps = {
 export type IconButtonProps = IconProps & {
     readonly classNameBtn?: string;
     readonly onClick?: () => void; 
+    readonly ariaLabel?: string;
 }
