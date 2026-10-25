@@ -9,11 +9,6 @@ import { ModalPlacement, ModalSize } from "@/components/modals/modal.types";
 import WidgetPalette from "@/components/widgets/palette/WidgetPalette";
 
 const fixtureTypes: WidgetType[] = [
-    "nutrition.dailyKcal",
-    "nutrition.dailyKcal",
-    "chartExemple",
-    "chartExemple",
-    "nutrition.dailyKcal",
     "chartExemple",
 ];
 
@@ -36,33 +31,48 @@ export default function Dashboard() {
     }
 
     const onEdit = () => {
+        setDraftWidgets(savedWidgets);
         setIsEditing(true);
     }
 
     const onCancel = () => {
+        setDraftWidgets(savedWidgets);
         setIsEditing(false);
+        setIsPaletteOpen(false);
     }
 
     const onSave = () => {
-        return null;
+        setSavedWidgets(draftWidgets);
+        setIsEditing(false);
+        setIsPaletteOpen(false);
     }
 
     const onAddWidget = (type: WidgetType) => {
-        //TODO
+        setDraftWidgets((prev) => {
+            if (prev.some((w) => w.type === type)) return prev;
+            return [...prev, createInstance(type, prev)];
+        })
+    }
+
+    const onRemoveWidget = (id: string) => {
+        setDraftWidgets((prev) => prev.filter((w) => w.id !== id)); 
     }
 
 
     return (
         <div className="">
             <WidgetGrid 
-                widgets={isEditing ? draftWidgets : savedWidgets} 
+                widgets={isEditing ? draftWidgets : savedWidgets}
+                onRemoveWidget={onRemoveWidget}
+                isEditing={isEditing} 
                 toolbar={<WidgetToolbar 
                 isEditing={isEditing} 
                 isDirty={isDirty} 
                 onAdd={onAdd} 
                 onEdit={onEdit} 
                 onCancel={onCancel} 
-                onSave={onSave}/>}
+                onSave={onSave}
+                />}
             />
             <Modal
                 isOpen={isPaletteOpen} 

@@ -7,7 +7,7 @@ type WidgetPaletteProps = {
     readonly onAdd: (type: WidgetType) => void;
 }
 
-const paletteEntries =  (Object.keys(widgetCatalog) as WidgetType[]).map((type) => {
+const paletteEntries = (Object.keys(widgetCatalog) as WidgetType[]).map((type) => {
     const definition = widgetCatalog[type];
     const size = resolveWidgetDefaultSize(type);
     return {
@@ -16,7 +16,7 @@ const paletteEntries =  (Object.keys(widgetCatalog) as WidgetType[]).map((type) 
         icon: definition.icon,
         description: `${definition.archetype} · ${size.width} x ${size.height}`,
     };
-});
+    });
 
 export default function WidgetPalette({placedTypes, onAdd}: WidgetPaletteProps) {
 
