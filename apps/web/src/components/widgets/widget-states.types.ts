@@ -1,7 +1,11 @@
 
 
 export type StatData = {
-    value: number
-    caption?: string;
-    unit?: string
+    readonly value: number
+    readonly caption?: string;
+    readonly unit?: string
+}
+
+export type ChartData = {
+    readonly points: number[];
 }

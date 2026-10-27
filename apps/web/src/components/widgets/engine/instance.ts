@@ -1,6 +1,6 @@
 import { widgetArchetypes } from "../archetypes";
 import { widgetCatalog, type WidgetType } from "../catalog";
-import type { ArchetypeDefinition, GridPosition, GridRect, GridSize, WidgetDefinition, WidgetInstance } from "../widgets.types";
+import type { ArchetypeSizes, GridPosition, GridRect, GridSize, WidgetDefinition, WidgetInstance } from "../widgets.types";
 import { clampSize, findFirstFreeSpot } from "./geometry";
 
 
@@ -12,7 +12,7 @@ import { clampSize, findFirstFreeSpot } from "./geometry";
  */
 export function resolveWidgetDefaultSize(catalogKey: WidgetType): GridSize {
     const catalogValue: WidgetDefinition = widgetCatalog[catalogKey];
-    const archetypeDef: ArchetypeDefinition = widgetArchetypes[catalogValue.archetype];
+    const archetypeDef: ArchetypeSizes = widgetArchetypes[catalogValue.archetype];
     const defaultSize: GridSize = catalogValue.defaultSize ?? archetypeDef.defaultSize;
     return clampSize(defaultSize, archetypeDef.minSize);
 }

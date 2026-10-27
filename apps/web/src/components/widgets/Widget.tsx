@@ -1,41 +1,30 @@
-import type { WidgetInstance } from './widgets.types';
-import WidgetCard from './WidgetCard'
-import {widgetCatalog, type WidgetType} from './catalog'
-import { type WidgetDefinition } from './widgets.types';
-import { WidgetArchetype } from "./widgets.types"
-import StatBody from './bodies/StatBody';
-import { useWidgetData } from './hooks/useWidgetData';
+import WidgetCard from "./WidgetCard";
+import { widgetCatalog } from "./catalog";
+import { widgetArchetypes } from "./archetypes";
+import { useWidgetData } from "./hooks/useWidgetData";
+import type { ArchetypeData, WidgetArchetype, WidgetInstance } from "./widgets.types";
 
 type WidgetProps = {
-    readonly instance: WidgetInstance
-    readonly onRemove: (id: string) => void;
+    readonly instance: WidgetInstance;
+    readonly onRemove?: (id: string) => void;
+};
+
+function renderBody<A extends WidgetArchetype>(input: ArchetypeData<A>) {
+    const { Body } = widgetArchetypes[input.archetype];
+    return <Body data={input.data} />;
 }
 
-export default function Widget({instance, onRemove}: WidgetProps) {
+export default function Widget({ instance, onRemove }: WidgetProps) {
+    const definition = widgetCatalog[instance.type];
+    const dataState = useWidgetData(instance);
 
-    const definitionWidget = widgetCatalog[instance.type];
-    const dataWidget = useWidgetData(instance);
+    const handleRemoveClick = onRemove ? () => onRemove(instance.id) : undefined;
 
-    const handleRemoveClick = () => {onRemove(instance.id)};
-
-    const cardBody = (definitionWidget: WidgetDefinition) => {
-        switch (definitionWidget.archetype) {
-            case WidgetArchetype.ArchetypeStat:
-                return <WidgetCard definition={definitionWidget} onRemove={handleRemoveClick}>
-                            {dataWidget.status === "success"
-                            ? <StatBody data={dataWidget.data} />
-                            : <p>{dataWidget.status === "error" ? dataWidget.message : "Loading ..."}</p>}
-                        </WidgetCard>
-            case WidgetArchetype.ArchetypeChart:
-                return <WidgetCard definition={definitionWidget} onRemove={handleRemoveClick}>
-                            {dataWidget.status === "success"
-                            ? <StatBody data={dataWidget.data} />
-                            : <p>{dataWidget.status === "error" ? dataWidget.message : "Loading ..."}</p>}
-                        </WidgetCard>
-        }
-    }
-
-    return(
-        cardBody(definitionWidget)
+    return (
+        <WidgetCard definition={definition} onRemove={handleRemoveClick}>
+            {dataState.status === "success" && renderBody(dataState.data)}
+            {dataState.status === "loading" && <p>Loading…</p>}
+            {dataState.status === "error" && <p>{dataState.message}</p>}
+        </WidgetCard>
     );
 }

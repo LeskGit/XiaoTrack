@@ -9,7 +9,7 @@ type WidgetGridProps = {
     readonly widgets: WidgetInstance[];
     readonly toolbar?: ReactNode;
     readonly isEditing: boolean;
-    readonly onRemoveWidget: (id: string) => void;
+    readonly onRemoveWidget?: (id: string) => void;
 };
 
 export default function  WidgetGrid({widgets, toolbar, onRemoveWidget, isEditing}: WidgetGridProps) {
@@ -23,7 +23,7 @@ export default function  WidgetGrid({widgets, toolbar, onRemoveWidget, isEditing
                 <div className="widget-grid" style={{"--cols": GRID_COLS} as CSSProperties}>
                     {sortedWidgets.map((w) => (
                     <div className="widget-cell" style={{"--col": w.position.x + 1, "--row": w.position.y + 1, "--w": w.size.width, "--h": w.size.height} as CSSProperties} key={w.id}>
-                        <Widget instance={w} onRemove={onRemoveWidget} />
+                        <Widget instance={w} onRemove={isEditing ? onRemoveWidget : undefined} />
                     </div>
                     ))}
                 </div>

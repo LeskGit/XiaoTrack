@@ -1,7 +1,7 @@
-import type { StatData } from "../widget-states.types";
+import type { BodyProps, WidgetArchetype } from "../widgets.types";
 
 
-type StatBodyProps = { readonly data: StatData };
+type StatBodyProps = BodyProps<typeof WidgetArchetype.ArchetypeStat>;
 
 export default function StatBody({ data }: StatBodyProps) {
     
