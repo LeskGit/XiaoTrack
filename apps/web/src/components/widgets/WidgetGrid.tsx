@@ -8,25 +8,30 @@ import { sortReadingOrder } from "./engine/geometry";
 type WidgetGridProps = {
     readonly widgets: WidgetInstance[];
     readonly toolbar?: ReactNode;
+    readonly emptyState?: ReactNode;
     readonly isEditing: boolean;
     readonly onRemoveWidget?: (id: string) => void;
 };
 
-export default function  WidgetGrid({widgets, toolbar, onRemoveWidget, isEditing}: WidgetGridProps) {
+export default function  WidgetGrid({widgets, toolbar, emptyState, onRemoveWidget, isEditing}: WidgetGridProps) {
 
     const sortedWidgets: WidgetInstance[] = sortReadingOrder(widgets);
 
     return (
         <div className="p-4">
             <div className="widget-grid-frame">
-                {toolbar}
-                <div className="widget-grid" style={{"--cols": GRID_COLS} as CSSProperties}>
-                    {sortedWidgets.map((w) => (
-                    <div className="widget-cell" style={{"--col": w.position.x + 1, "--row": w.position.y + 1, "--w": w.size.width, "--h": w.size.height} as CSSProperties} key={w.id}>
-                        <Widget instance={w} onRemove={isEditing ? onRemoveWidget : undefined} />
-                    </div>
-                    ))}
-                </div>
+                {emptyState ?? (
+                    <>
+                        {toolbar}
+                        <div className="widget-grid" style={{"--cols": GRID_COLS} as CSSProperties}>
+                            {sortedWidgets.map((w) => (
+                            <div className="widget-cell" style={{"--col": w.position.x + 1, "--row": w.position.y + 1, "--w": w.size.width, "--h": w.size.height} as CSSProperties} key={w.id}>
+                                <Widget instance={w} onRemove={isEditing ? onRemoveWidget : undefined} />
+                            </div>
+                            ))}
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

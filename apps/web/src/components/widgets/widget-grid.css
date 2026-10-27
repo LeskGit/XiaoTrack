@@ -30,6 +30,11 @@
         margin-bottom: 0.75rem;
     }
 
+    /* Phone mode: no editing, so a hint replaces the call to action */
+    .empty-dashboard-cta {
+        display: none;
+    }
+
     /* Desktop / tablet mode */
     @container grid (min-width: 780px) {
         .widget-grid {
@@ -40,6 +45,10 @@
 
         .widget-toolbar {
             display: flex;
+        }
+
+        .empty-dashboard-cta {
+            display: inline-flex;
         }
 
         .widget-cell {
