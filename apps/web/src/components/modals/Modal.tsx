@@ -4,7 +4,7 @@ import { placementClasses, sizeClasses, type ModalProps } from "./modal.types";
 import { useEffect, useRef, type MouseEvent } from "react";
 
 
-export default function Modal({isOpen, onClose, title, children, placement = "center", size = "md", classname, closeOnBackdropClick = true}: ModalProps) {
+export default function Modal({isOpen, onClose, title, children, placement = "center", size = "md", classname, closeOnBackdropClick = true, closeModalButton = true}: ModalProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
     const pressedOnBackdrop = useRef(false);
     
@@ -41,7 +41,8 @@ export default function Modal({isOpen, onClose, title, children, placement = "ce
         >
         <div className="flex h-full flex-col p-6">
             <header className="mb-4 flex items-center justify-between gap-4">
-                <h2 id="modal-title" className="text-lg font-semibold">{title}</h2>
+                <h2 className="text-lg font-semibold">{title}</h2>
+                {closeModalButton &&
                 <IconButton
                     icon={PlusIcon}
                     size="sm"
@@ -49,7 +50,7 @@ export default function Modal({isOpen, onClose, title, children, placement = "ce
                     ariaLabel="Close"
                     className="rotate-45"
                     classNameBtn="h-8 w-8 shrink-0 rounded-lg text-gray-500 hover:bg-gray-100"
-                />
+                />}
             </header>
             {children}
         </div>

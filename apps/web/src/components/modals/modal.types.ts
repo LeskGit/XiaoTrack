@@ -9,6 +9,7 @@ export type ModalProps = {
     readonly size?: ModalSize;
     readonly classname?: string;
     readonly closeOnBackdropClick?: boolean;
+    readonly closeModalButton?: boolean;
 }
 
 export const ModalPlacement = {

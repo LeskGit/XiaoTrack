@@ -9,6 +9,8 @@ import { ModalPlacement, ModalSize } from "@/components/modals/modal.types";
 import WidgetPalette from "@/components/widgets/palette/WidgetPalette";
 import { Icon } from "@/components/icons";
 import { PlusIcon } from "@/components/icons/library";
+import { useBlocker } from "react-router";
+import ConfirmDialog from "@/components/modals/ConfirmDialog";
 
 
 type EmptyDashboardProps = {
@@ -19,7 +21,7 @@ function EmptyDashboard({ onStart }: EmptyDashboardProps) {
     return (
         <section
             aria-labelledby="empty-dashboard-title"
-            className="flex min-h-[100vh] flex-col items-center justify-center gap-4 rounded-xl border-[1.5px] border-dashed border-gray-300 bg-gray-50 px-6 py-16 text-center"
+            className="flex min-h-[440px] flex-col items-center justify-center gap-4 rounded-xl border-[1.5px] border-dashed border-gray-300 bg-gray-50 px-6 py-16 text-center"
         >
             <div aria-hidden="true" className="mb-2 grid w-33 grid-cols-3 auto-rows-[28px] gap-1.5">
                 <div className="col-span-2 rounded-md border border-gray-200 bg-white" />
@@ -65,6 +67,8 @@ export default function Dashboard() {
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
 
     const isDirty: boolean = savedWidgets !== draftWidgets;
+
+    const blocker = useBlocker(isEditing && isDirty);
 
     const onAdd = () => {
         setIsPaletteOpen(true);
@@ -130,6 +134,16 @@ export default function Dashboard() {
                 closeOnBackdropClick={true}>
                 <WidgetPalette placedTypes={draftWidgets.map((w) => w.type)} onAdd={onAddWidget} />
             </Modal>
+            <ConfirmDialog
+                isOpen={blocker.state === "blocked"}
+                title="Unsaved changes"
+                message="Your changes to the dashboard will be lost if you leave this page."
+                confirmLabel="Discard and leave"
+                declineLabel="Stay"
+                isDestructive
+                onConfirm={() => blocker.proceed?.()}
+                onDecline={() => blocker.reset?.()}
+            />
         </div>
     )
 }
