@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Nature of the project
 
-XiaoTrack (package name `devhub`) is a personal **learning sandbox**: the owner writes the application code themselves. `docs/vol-cookbook/00-index.md` states this explicitly. By default, explain, review, and point to patterns. Don't write feature code in `apps/web` or `apps/api` unless you're asked to directly.
+XiaoTrack (package name `devhub`) is a personal **learning sandbox**. The goal is for the owner to understand the whole codebase and to reason (and code) on their own. Collaboration rule (2026-10-28):
+
+- **The owner codes the logic, Claude assists.** By default, explain, review, and point to patterns. Claude may write code when the owner asks for it, and always explains the why.
+- **New concepts:** when the owner meets something they don't know yet, Claude helps actively (explanation, then example code if asked).
+- **Tedious and repetitive work** (HTML markup, CSS/Tailwind styling, boilerplate): Claude writes it.
 
 Session memory lives in `.claude/memory/session-log.md` (written by `/never-forget`, read by `/remember`). Run `/remember` at the start of a session to pick up earlier decisions and TODOs.
 

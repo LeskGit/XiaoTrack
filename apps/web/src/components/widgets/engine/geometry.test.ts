@@ -1,6 +1,8 @@
 import { describe, it, expect, expectTypeOf } from 'vitest';
-import { bottomY, clampSize, findFirstFreeSpot, isInsideGrid, overlaps, sortReadingOrder } from './geometry'; 
-import type { GridRect, GridSize } from '../widgets.types'; 
+import { bottomY, clampSize, findFirstFreeSpot, hasValidSize, isInsideGrid, minSizeOf, overlaps, sortReadingOrder } from './geometry';
+import type { GridRect, GridSize, WidgetInstance } from '../widgets.types';
+import type { WidgetType } from '../catalog';
+import { widgetArchetypes } from '../archetypes';
 import { GRID_COLS, MIN_SIZE } from '../widget-grid.constants';
 
 // Helper
@@ -224,5 +226,48 @@ describe('sortReadingOrder', () => {
     it('keeps the element type (generic)', () => {
         const sorted = sortReadingOrder([tagged('a', 0, 0)]);
         expectTypeOf(sorted).toEqualTypeOf<TaggedRect[]>();
+    });
+});
+describe('minSizeOf', () => {
+    it.each([
+        { name: 'stat archetype',  type: 'nutrition.dailyKcal' as WidgetType, expected: { width: 2, height: 1 } },
+        { name: 'chart archetype', type: 'chartExemple' as WidgetType,        expected: { width: 3, height: 2 } },
+    ])('$name → $expected.width×$expected.height', ({ type, expected }) => {
+        expect(minSizeOf(type)).toEqual(expected);
+    });
+
+    it('reads the archetype min, not the catalog defaultSize', () => {
+        // chartExemple overrides defaultSize (4×3) but not minSize
+        expect(minSizeOf('chartExemple')).toBe(widgetArchetypes.chart.minSize);
+    });
+});
+
+describe('hasValidSize', () => {
+    // Helper: a widget of the given type and size
+    const widget = (type: WidgetType, width: number, height: number): WidgetInstance => ({
+        id: 'w',
+        type,
+        size: { width, height },
+        position: { x: 0, y: 0 },
+    });
+
+    it.each([
+        { name: 'stat, exactly the min',      w: widget('nutrition.dailyKcal', 2, 1) },
+        { name: 'stat, above the min',        w: widget('nutrition.dailyKcal', 4, 3) },
+        { name: 'chart, exactly the min',     w: widget('chartExemple', 3, 2) },
+        { name: 'chart, full grid width',     w: widget('chartExemple', GRID_COLS, 2) },
+    ])('valid: $name', ({ w }) => {
+        expect(hasValidSize(w)).toBe(true);
+    });
+
+    it.each([
+        { name: 'stat, too narrow',                   w: widget('nutrition.dailyKcal', 1, 1) },
+        { name: 'stat, zero height',                  w: widget('nutrition.dailyKcal', 2, 0) },
+        { name: 'chart, too narrow',                  w: widget('chartExemple', 2, 2) },
+        { name: 'chart, too short',                   w: widget('chartExemple', 3, 1) },
+        { name: 'chart, valid for stat but not chart', w: widget('chartExemple', 2, 1) },
+        { name: 'negative size',                      w: widget('nutrition.dailyKcal', -2, -1) },
+    ])('invalid: $name', ({ w }) => {
+        expect(hasValidSize(w)).toBe(false);
     });
 });
