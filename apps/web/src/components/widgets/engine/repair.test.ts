@@ -42,7 +42,7 @@ describe('repairLayout', () => {
     });
 
     describe('unreadable item → dropped with a warning', () => {
-        const { id: _id, ...withoutId } = stat('a', 0, 0);
+        const withoutId = { type: 'nutrition.dailyKcal', size: { width: 2, height: 1 }, position: { x: 0, y: 0 } };
 
         it.each([
             { name: 'not an object',        item: 42 },

@@ -1,6 +1,6 @@
 import type { WidgetInstance } from "@/components/widgets/widgets.types"
 import WidgetGrid from "@/components/widgets/WidgetGrid"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { WidgetType } from "@/components/widgets/catalog";
 import { createInstance } from "@/components/widgets/engine/instance";
 import WidgetToolbar from "@/components/widgets/WidgetToolbar";
@@ -11,6 +11,7 @@ import { Icon } from "@/components/icons";
 import { PlusIcon } from "@/components/icons/library";
 import { useBlocker } from "react-router";
 import ConfirmDialog from "@/components/modals/ConfirmDialog";
+import { localLayoutStorage } from "@/components/widgets/storage/localLayoutStorage";
 
 
 type EmptyDashboardProps = {
@@ -50,25 +51,25 @@ function EmptyDashboard({ onStart }: EmptyDashboardProps) {
     );
 }
 
-const fixtureTypes: WidgetType[] = [
-    "chartExemple",
-];
-
-const fixture: WidgetInstance[] = fixtureTypes.reduce<WidgetInstance[]>(
-    (acc, type) => [...acc, createInstance(type, acc)],
-    [],
-);
-
 export default function Dashboard() {
 
-    const [savedWidgets, setSavedWidgets] = useState(fixture);
-    const [draftWidgets, setDraftWidgets] = useState(fixture);
+    const [savedWidgets, setSavedWidgets] = useState<WidgetInstance[]>([]);
+    const [draftWidgets, setDraftWidgets] = useState<WidgetInstance[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const isDirty: boolean = savedWidgets !== draftWidgets;
 
     const blocker = useBlocker(isEditing && isDirty);
+
+    useEffect(() => {
+        localLayoutStorage.load().then((loaded) => {
+            setSavedWidgets(loaded);
+            setIsLoading(false);                                   
+        });
+    }, []);
+
 
     const onAdd = () => {
         setIsPaletteOpen(true);
@@ -85,7 +86,14 @@ export default function Dashboard() {
         setIsPaletteOpen(false);
     }
 
-    const onSave = () => {
+    const onSave = async () => {
+        try {
+            await localLayoutStorage.save(draftWidgets);
+        } catch (error) {
+            console.error("[layout] save failed", error);
+            return;
+        }
+
         setSavedWidgets(draftWidgets);
         setIsEditing(false);
         setIsPaletteOpen(false);
@@ -109,7 +117,12 @@ export default function Dashboard() {
 
     const isEmpty: boolean = !isEditing && savedWidgets.length === 0;
 
+    if (isLoading) {
+        return <div className="h-full w-full" aria-busy="true" />;
+    }
+
     return (
+
         <div className="h-full w-full">
             <WidgetGrid
                 widgets={isEditing ? draftWidgets : savedWidgets}

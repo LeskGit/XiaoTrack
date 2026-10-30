@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createInstance, resolveWidgetDefaultSize } from './instance';
+import { createInstance, hasValidSize, minSizeOf, resolveWidgetDefaultSize } from './instance';
 import { overlaps } from './geometry';
 import { widgetArchetypes } from '../archetypes';
 import { GRID_COLS } from '../widget-grid.constants';
 import type { WidgetType } from '../catalog';
-import type { GridRect } from '../widgets.types';
+import type { GridRect, WidgetInstance } from '../widgets.types';
 
 // Faux catalogue : remplace '../catalog' pour TOUT ce fichier (hoisté en haut).
 // La factory ne doit dépendre d'aucun import du fichier.
@@ -100,5 +100,49 @@ describe('createInstance', () => {
         const existing = Object.freeze([rect(0, 0, 2, 1)]);
         createInstance(type('test.stat'), existing);
         expect(existing).toHaveLength(1);
+    });
+});
+
+describe('minSizeOf', () => {
+    it.each([
+        { name: 'stat archetype',  key: 'test.stat',  expected: stat.minSize },
+        { name: 'chart archetype', key: 'test.chart', expected: chart.minSize },
+    ])('$name', ({ key, expected }) => {
+        expect(minSizeOf(type(key))).toEqual(expected);
+    });
+
+    it("lit le min de l'archétype, pas le défaut du catalogue", () => {
+        // test.chartCustom surcharge defaultSize (6×3), mais pas minSize
+        expect(minSizeOf(type('test.chartCustom'))).toBe(chart.minSize);
+    });
+});
+
+describe('hasValidSize', () => {
+    // Helper : un widget du type et de la taille donnés
+    const widget = (key: string, width: number, height: number): WidgetInstance => ({
+        id: 'w',
+        type: type(key),
+        size: { width, height },
+        position: { x: 0, y: 0 },
+    });
+
+    it.each([
+        { name: 'stat, exactement le min',  w: widget('test.stat', 2, 1) },
+        { name: 'stat, au-dessus du min',   w: widget('test.stat', 4, 3) },
+        { name: 'chart, exactement le min', w: widget('test.chart', 3, 2) },
+        { name: 'chart, pleine largeur',    w: widget('test.chart', GRID_COLS, 2) },
+    ])('valide : $name', ({ w }) => {
+        expect(hasValidSize(w)).toBe(true);
+    });
+
+    it.each([
+        { name: 'stat, trop étroit',                     w: widget('test.stat', 1, 1) },
+        { name: 'stat, hauteur nulle',                   w: widget('test.stat', 2, 0) },
+        { name: 'chart, trop étroit',                    w: widget('test.chart', 2, 2) },
+        { name: 'chart, trop bas',                       w: widget('test.chart', 3, 1) },
+        { name: 'chart, valide pour stat mais pas chart', w: widget('test.chart', 2, 1) },
+        { name: 'taille négative',                       w: widget('test.stat', -2, -1) },
+    ])('invalide : $name', ({ w }) => {
+        expect(hasValidSize(w)).toBe(false);
     });
 });

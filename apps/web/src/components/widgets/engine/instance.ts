@@ -18,6 +18,25 @@ export function resolveWidgetDefaultSize(catalogKey: WidgetType): GridSize {
 }
 
 /**
+ * Minimum size of a widget type, read from its archetype
+ * @param type
+ * @returns GridSize
+ */
+export function minSizeOf(type: WidgetType): GridSize {
+    return widgetArchetypes[widgetCatalog[type].archetype].minSize;
+}
+
+/**
+ * Check that a widget is at least as large as its archetype's minimum size
+ * @param widget
+ * @returns boolean
+ */
+export function hasValidSize(widget: WidgetInstance): boolean {
+    const min = minSizeOf(widget.type);
+    return widget.size.width >= min.width && widget.size.height >= min.height;
+}
+
+/**
  * Create a brand new WidgetInstance from the catalog, this function must not be called for persisted widgets being re-displayed
  * @param type 
  * @param existing 

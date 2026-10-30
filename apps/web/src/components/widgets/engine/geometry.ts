@@ -1,7 +1,5 @@
-import { widgetArchetypes } from "../archetypes";
-import { widgetCatalog, type WidgetType } from "../catalog";
 import { GRID_COLS } from "../widget-grid.constants";
-import type { GridPosition, GridRect, GridSize, WidgetInstance } from "../widgets.types";
+import type { GridPosition, GridRect, GridSize } from "../widgets.types";
 
 type GridInterval = {
     xStart: number;
@@ -42,25 +40,6 @@ export function isInsideGrid(rect: GridRect): boolean {
 export function bottomY(rects: readonly GridRect[]): number {
     return Math.max(0, ...rects.map((r) => r.position.y + r.size.height))
 } 
-
-/**
- * Minimum size of a widget type, read from its archetype
- * @param type
- * @returns GridSize
- */
-export function minSizeOf(type: WidgetType): GridSize {
-    return widgetArchetypes[widgetCatalog[type].archetype].minSize;
-}
-
-/**
- * Check that a widget is at least as large as its archetype's minimum size
- * @param widget
- * @returns boolean
- */
-export function hasValidSize(widget: WidgetInstance): boolean {
-    const min = minSizeOf(widget.type);
-    return widget.size.width >= min.width && widget.size.height >= min.height;
-}
 
 export function clampSize(size: GridSize, minSize: GridSize): GridSize {
     let newSize: GridSize = {...size};

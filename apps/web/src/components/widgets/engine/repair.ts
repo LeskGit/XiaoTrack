@@ -1,6 +1,7 @@
 import { widgetCatalog } from "../catalog";
 import type { WidgetInstance } from "../widgets.types";
-import { bottomY, clampSize, hasValidSize, isInsideGrid, minSizeOf, overlaps, sortReadingOrder } from "./geometry";
+import { bottomY, clampSize, isInsideGrid, overlaps, sortReadingOrder } from "./geometry";
+import { hasValidSize, minSizeOf } from "./instance";
 
 /**
  * Check that a value is a non-null object, so its fields can be read
@@ -31,7 +32,7 @@ function isWidgetInstance(value: unknown): value is WidgetInstance {
 }
 
 /**
- * Turn untrusted persisted data into a layout the grid can display (cadrage §6.3)
+ * Turn untrusted persisted data into a layout the grid can display
  * @param raw already parsed data, shape unknown
  * @returns WidgetInstance[] : valid, inside the grid, no overlap
  */

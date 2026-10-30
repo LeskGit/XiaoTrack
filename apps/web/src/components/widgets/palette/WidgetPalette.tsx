@@ -25,6 +25,7 @@ export default function WidgetPalette({placedTypes, onAdd}: WidgetPaletteProps) 
             <ul className="flex flex-col gap-2">
                 {paletteEntries.map((entry) => (
                         <WidgetPaletteItem  
+                            key={entry.title}
                             title={entry.title}
                             description={entry.description}
                             icon={entry.icon}

@@ -23,6 +23,8 @@ An npm workspaces monorepo (`workspaces: ["apps/*"]`):
   - `docs/coding-conventions.md`: the project's coding rules. Read this before reviewing or writing frontend code. §10 lists known legacy debt.
   - `docs/widgets/00-cadrage-v1.md`: the current spec for the dashboard widget system, and the source of truth. `01-analyse.md` is outdated and kept only for history.
   - `docs/widgets/03-plan-v1.md`: the step-by-step build plan the owner follows by hand (phases 0 to 7). When helping, locate the current step and stay within it.
+  - `docs/widgets/04-cadrage-v2.md`: the V2 spec (drag, push right then down, auto compaction). It adds to the V1 spec and replaces the V1 rules listed in its §2.
+  - `docs/widgets/05-plan-v2.md`: the V2 build plan (phases 0 to 6), same format as the V1 plan. The layout engine stays home-made (confirmed 2026-10-30).
   - `docs/widgets/prerequis/`: concept primers for building the widget system.
   - `docs/vol-cookbook/`: an offline cookbook (TS, React, Router, state, widget framework, testing).
 - `Claude outputs/`: earlier Claude-generated notes and session logs. Not source code.
@@ -75,7 +77,7 @@ Adding a page means adding a `pages/X.tsx`, exporting it from `pages/index.ts`, 
 - There are three levels. The *archetype* (how a widget renders) owns its `Body`, a required `defaultSize` and a `minSize`. The *catalog entry* (`type`, `as const satisfies`, `WidgetType = keyof typeof widgetCatalog`) is code that is never persisted, and it can override `defaultSize`. The *instance* (`{ id: uuid, type, size: {width, height}, position: {x, y} }`) is the persisted placement, in grid units, 0-indexed. The default size is copied into the instance when a widget is added and is never applied at render time.
 - The grid owns placement; `<Widget>`/`WidgetCard` never read size or position and just fill their cell.
 - `widget-grid.css` (in `@layer components`): `.widget-grid-frame` (container query, no padding) → `.widget-grid` → `.widget-cell` carrying CSS vars `--col`/`--row`/`--w`/`--h`. Above the container threshold: 12 columns scaled with `cqi` units, positions and holes kept. Below it: a single column in reading order (sorted by `y`, then `x`). No medium mode. Don't add Tailwind grid utilities on these elements, because the `utilities` layer would override the CSS.
-- Minimum widget size is 2×1. V1 covers add/remove with auto-placement, an edit mode, and localStorage persistence behind `load()`/`save()`. Drag and resize are V2. The layout engine is home-made. There is no global store (Redux/Zustand) by design.
+- Minimum widget size is 2×1. V1 (done) covers add/remove with auto-placement, an edit mode, and localStorage persistence behind `load()`/`save()`. V2 (in progress, `04-cadrage-v2.md`) adds drag with auto compaction; resize is postponed. The layout engine is home-made. There is no global store (Redux/Zustand) by design.
 
 **Enum pattern.** "Enums" are `const` objects plus a same-named type: `export const X = {...} as const; export type X = typeof X[keyof typeof X];` (see `DisplayMode`, `MainDomain`, `WidgetSize`). `erasableSyntaxOnly` forbids TS `enum`, so use this pattern for new ones.
 
