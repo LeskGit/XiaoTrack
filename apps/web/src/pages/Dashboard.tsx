@@ -12,6 +12,7 @@ import { PlusIcon } from "@/components/icons/library";
 import { useBlocker } from "react-router";
 import ConfirmDialog from "@/components/modals/ConfirmDialog";
 import { localLayoutStorage } from "@/components/widgets/storage/localLayoutStorage";
+import { compactLayout } from "@/components/widgets/engine/compact";
 
 
 type EmptyDashboardProps = {
@@ -102,12 +103,15 @@ export default function Dashboard() {
     const onAddWidget = (type: WidgetType) => {
         setDraftWidgets((prev) => {
             if (prev.some((w) => w.type === type)) return prev;
-            return [...prev, createInstance(type, prev)];
+            const compactedLayout: WidgetInstance[] = compactLayout([...prev, createInstance(type, prev)]);
+            return compactedLayout;
         })
     }
 
     const onRemoveWidget = (id: string) => {
-        setDraftWidgets((prev) => prev.filter((w) => w.id !== id)); 
+        setDraftWidgets((prev) => {
+            return compactLayout(prev.filter((w) => w.id !== id));
+        })
     }
 
     const onStart = () => {
