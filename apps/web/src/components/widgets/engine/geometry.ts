@@ -23,6 +23,27 @@ export function overlaps(a: GridRect, b: GridRect): boolean {
 } 
 
 /**
+ * Check if a rect and a list of rects overlaps (border overlaps too)
+ * @param a GridRect
+ * @param listRects GridRect[]
+ * @returns boolean : if True, an overlap exists
+ */
+export function overlapsList(a: GridRect, listRects: readonly GridRect[]) {
+    return listRects.some((w) => overlaps(a, w));
+}
+
+/**
+ * Returns a copy of the rect at another position, same size
+ * @param rect
+ * @param x
+ * @param y
+ * @returns T : the moved copy, the original rect is not modified
+ */
+export function moveTo<T extends GridRect>(rect: T, x: number, y: number): T {
+    return {...rect, position: {x, y}};
+}
+
+/**
  * Check if the rect is inside the grid's range, no need to handle height max because it is unlimited
  * @param rect 
  * @returns boolean
