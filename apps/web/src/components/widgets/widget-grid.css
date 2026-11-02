@@ -23,6 +23,22 @@
         padding: clamp(4px, 1cqi, 8px);
     }
 
+    /* Edit mode: the card's title bar is the drag handle (cadrage V2 §3.1) */
+    .widget-card-handle {
+        cursor: grab;
+        touch-action: none;       /* a finger drags the widget instead of scrolling the page */
+        user-select: none;        /* the title is not selected while dragging */
+    }
+
+    .widget-card-handle:active {
+        cursor: grabbing;
+    }
+
+    /* The close button keeps its own pointer inside the handle */
+    .widget-card-handle button {
+        cursor: pointer;
+    }
+
     .widget-toolbar {
         display: none;            
         justify-content: flex-end;

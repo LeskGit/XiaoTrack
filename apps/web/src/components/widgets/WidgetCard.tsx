@@ -14,7 +14,9 @@ export default function WidgetCard({definition, children, onRemove}: WidgetCardP
 
     return (
         <div className={`widget-card bg-white border border-gray-200 rounded-xl h-full shadow-sm gap-2.5`}>
-            <div className="flex gap-3 items-center h-8">
+            {/* onRemove is only passed in edit mode: it marks the title bar as the drag handle.
+                Step 2.1 will replace this test with the handle prop. */}
+            <div className={`flex gap-3 items-center h-8 ${onRemove ? "widget-card-handle" : ""}`}>
                 <Icon icon={definition.icon} size="sm" />
                 <h1>{definition.title}</h1>
                 {onRemove && 
