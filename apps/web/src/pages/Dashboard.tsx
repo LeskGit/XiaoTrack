@@ -13,6 +13,7 @@ import { useBlocker } from "react-router";
 import ConfirmDialog from "@/components/modals/ConfirmDialog";
 import { localLayoutStorage } from "@/components/widgets/storage/localLayoutStorage";
 import { compactLayout } from "@/components/widgets/engine/compact";
+import type { PointerEvent } from "react";
 
 
 type EmptyDashboardProps = {
@@ -114,10 +115,14 @@ export default function Dashboard() {
         })
     }
 
+    const onDropWidget = (layout: WidgetInstance[]) => {
+        setDraftWidgets(layout);
+    }
+    
     const onStart = () => {
         onEdit();
         onAdd();
-    };
+    }
 
     const isEmpty: boolean = !isEditing && savedWidgets.length === 0;
 
@@ -131,6 +136,7 @@ export default function Dashboard() {
             <WidgetGrid
                 widgets={isEditing ? draftWidgets : savedWidgets}
                 onRemoveWidget={onRemoveWidget}
+                onDropWidget={onDropWidget}
                 isEditing={isEditing}
                 emptyState={isEmpty ? <EmptyDashboard onStart={onStart} /> : undefined}
                 toolbar={<WidgetToolbar
