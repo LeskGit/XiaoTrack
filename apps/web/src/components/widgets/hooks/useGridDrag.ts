@@ -12,14 +12,15 @@ export type  UseGridDragOptions = {
 
 export type UseGridDragResult = {
     readonly draggingId: string | null;
+    readonly dragDelta: {x: number, y: number} | null;
     readonly startDrag: (id: string, event: React.PointerEvent<HTMLDivElement>) => void;
 }
 
 export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): UseGridDragResult  => {
     const [draggingId, setDraggingId] = useState<string|null>(null)
+    const [dragDelta, setDragDelta] = useState<{x: number, y: number} | null>(null);
 
     const startDrag = (id: string, event: React.PointerEvent<HTMLDivElement>) => {
-        console.log(event);
         const moved = widgets.find((w) => w.id === id);
         const handle = event.currentTarget;
         const cell = handle.closest(".widget-cell");
@@ -28,9 +29,7 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
         const snapshot = widgets;
 
         const cellRect = cell.getBoundingClientRect();
-        console.log(cellRect);
         const grabOffset = {x: event.clientX - cellRect.left, y: event.clientY - cellRect.top};
-        console.log(grabOffset);
 
         let targetCell: GridPosition | null = null;
 
@@ -38,6 +37,7 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
             // If another pointer on a touch screen : not the same that started the gesture, return
             const grid = gridRef.current;
             if (e.pointerId !== event.pointerId || !grid) return;
+            setDragDelta({x: e.clientX - event.clientX, y: e.clientY - event.clientY});
 
             // Measured at every move: the page may have scrolled or been resized
             const rect = grid.getBoundingClientRect();
@@ -67,14 +67,13 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
             handle.removeEventListener("pointermove", onMove);
             handle.removeEventListener("pointerup", onUp);
             setDraggingId(null);
+            setDragDelta(null);
 
             // Simple click, no movement: nothing to write
             if (!targetCell) return;
 
             // Moved a few pixels but back on the starting cell: nothing to write
             const { x, y } = moved.position;
-            console.log(targetCell.x);
-            console.log(targetCell.y);
             if (targetCell.x === x && targetCell.y === y) return;
 
             onDrop(resolveLayout(snapshot, id, targetCell));
@@ -86,5 +85,5 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
         setDraggingId(id);
     }
 
-    return { draggingId, startDrag };
+    return { draggingId, dragDelta, startDrag };
 }

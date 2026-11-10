@@ -51,6 +51,12 @@
         display: none;
     }
 
+    /* The held widget follows the pointer without leaving its grid cell (cadrage V2 §3.4) */
+    .widget-cell.is-dragging {
+        transform: translate(var(--dx), var(--dy));
+        z-index: 10;
+    }
+
     /* Desktop / tablet mode */
     @container grid (min-width: 780px) {
         .widget-grid {
