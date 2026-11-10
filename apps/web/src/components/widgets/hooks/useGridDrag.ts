@@ -1,4 +1,4 @@
-import { useState, type RefObject } from "react"
+import { useEffect, useRef, useState, type RefObject } from "react"
 import type { GridPosition, WidgetInstance } from "../widgets.types";
 import { GRID_COLS } from "../widget-grid.constants";
 import { pointToCell } from "../engine/pointer";
@@ -20,7 +20,18 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
     const [draggingId, setDraggingId] = useState<string|null>(null)
     const [dragDelta, setDragDelta] = useState<{x: number, y: number} | null>(null);
 
+    // Ends the gesture in progress without writing anything
+    const cleanupRef = useRef<(() => void) | null>(null);
+
+    // Unmount in the middle of a gesture (e.g. navigation): remove the listeners left behind
+    useEffect(() => {
+        return () => cleanupRef.current?.();
+    }, []);
+
     const startDrag = (id: string, event: React.PointerEvent<HTMLDivElement>) => {
+        // A gesture is already running (second finger on another handle): ignore this one
+        if (cleanupRef.current) return;
+
         const moved = widgets.find((w) => w.id === id);
         const handle = event.currentTarget;
         const cell = handle.closest(".widget-cell");
@@ -60,14 +71,39 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
             });
         }
 
+        // The only way out of a gesture: every exit (drop, Escape, cancel, unmount) goes through here
+        const cleanup = () => {
+            handle.removeEventListener("pointermove", onMove);
+            handle.removeEventListener("pointerup", onUp);
+            handle.removeEventListener("pointercancel", onCancel);
+            window.removeEventListener("keydown", onKeyDown);
+            // After Escape the button is still pressed: give the pointer back to the page
+            if (handle.hasPointerCapture(event.pointerId)) {
+                handle.releasePointerCapture(event.pointerId);
+            }
+            setDraggingId(null);
+            setDragDelta(null);
+            cleanupRef.current = null;
+        };
+
+        // The system interrupted the gesture (incoming call, OS gesture on a tablet): nothing is written
+        const onCancel = (e: globalThis.PointerEvent) => {
+            if (e.pointerId !== event.pointerId) return;
+            cleanup();
+        };
+
+        // Escape: the widget goes back to its place, the draft is untouched
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key !== "Escape") return;
+            e.preventDefault();
+            cleanup();
+        };
+
         const onUp = (e: globalThis.PointerEvent) => {
             if (e.pointerId !== event.pointerId) return;
 
             // Stop listening first: nothing may change targetCell from now on
-            handle.removeEventListener("pointermove", onMove);
-            handle.removeEventListener("pointerup", onUp);
-            setDraggingId(null);
-            setDragDelta(null);
+            cleanup();
 
             // Simple click, no movement: nothing to write
             if (!targetCell) return;
@@ -82,6 +118,10 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
         handle.setPointerCapture(event.pointerId);
         handle.addEventListener("pointermove", onMove);
         handle.addEventListener("pointerup", onUp);
+        handle.addEventListener("pointercancel", onCancel);
+        // On window: the keyboard is not tied to the handle, nor to the pointer capture
+        window.addEventListener("keydown", onKeyDown);
+        cleanupRef.current = cleanup;
         setDraggingId(id);
     }
 
