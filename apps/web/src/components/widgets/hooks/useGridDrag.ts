@@ -13,12 +13,14 @@ export type  UseGridDragOptions = {
 export type UseGridDragResult = {
     readonly draggingId: string | null;
     readonly dragDelta: {x: number, y: number} | null;
+    readonly previewLayout: WidgetInstance[] | null;
     readonly startDrag: (id: string, event: React.PointerEvent<HTMLDivElement>) => void;
 }
 
 export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): UseGridDragResult  => {
     const [draggingId, setDraggingId] = useState<string|null>(null)
     const [dragDelta, setDragDelta] = useState<{x: number, y: number} | null>(null);
+    const [previewLayout, setPreviewLayout] = useState<WidgetInstance[] | null>(null);
 
     // Ends the gesture in progress without writing anything
     const cleanupRef = useRef<(() => void) | null>(null);
@@ -61,7 +63,7 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
             const stepX = (rect.width + columnGap) / GRID_COLS;
             const stepY = rowHeight + rowGap;
 
-            targetCell = pointToCell({
+            const nextCell = pointToCell({
                 pointer: { x: e.clientX, y: e.clientY },
                 grabOffset,
                 gridRect: rect,
@@ -69,6 +71,10 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
                 stepY,
                 size: moved.size,
             });
+
+            if (targetCell && nextCell.x === targetCell.x && nextCell.y === targetCell.y) return
+            targetCell = nextCell;
+            setPreviewLayout(resolveLayout(snapshot, id, nextCell));
         }
 
         // The only way out of a gesture: every exit (drop, Escape, cancel, unmount) goes through here
@@ -83,6 +89,7 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
             }
             setDraggingId(null);
             setDragDelta(null);
+            setPreviewLayout(null);
             cleanupRef.current = null;
         };
 
@@ -125,5 +132,5 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
         setDraggingId(id);
     }
 
-    return { draggingId, dragDelta, startDrag };
+    return { draggingId, dragDelta, previewLayout, startDrag };
 }
