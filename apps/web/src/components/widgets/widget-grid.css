@@ -57,6 +57,14 @@
         z-index: 10;
     }
 
+    /* Where the held widget will land (cadrage V2 §3.3). Never catches the pointer. */
+    .widget-placeholder {
+        border: 2px dashed rgb(56 189 248);          /* sky-400 */
+        border-radius: 0.75rem;                      /* same corners as .widget-card (rounded-xl) */
+        background-color: rgb(240 249 255 / 0.6);    /* sky-50, see-through */
+        pointer-events: none;
+    }
+
     /* Desktop / tablet mode */
     @container grid (min-width: 780px) {
         .widget-grid {
@@ -73,7 +81,8 @@
             display: inline-flex;
         }
 
-        .widget-cell {
+        .widget-cell,
+        .widget-placeholder {
             grid-column: var(--col) / span var(--w);
             grid-row: var(--row) / span var(--h);
         }

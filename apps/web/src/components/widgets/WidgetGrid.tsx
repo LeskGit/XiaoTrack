@@ -21,6 +21,8 @@ export default function  WidgetGrid({widgets, toolbar, emptyState, onRemoveWidge
     // Dragging mode
     const gridRef: RefObject<HTMLDivElement | null> = useRef(null);
     const { draggingId, dragDelta, previewLayout, startDrag } = useGridDrag({gridRef: gridRef, widgets: sortedWidgets, onDrop: onDropWidget});
+    // Where the held widget would really land if dropped now (after push and compaction)
+    const landing: WidgetInstance | undefined = draggingId ? previewLayout?.find((p) => p.id === draggingId) : undefined;
 
     return (
         <div className="p-4">
@@ -45,6 +47,15 @@ export default function  WidgetGrid({widgets, toolbar, emptyState, onRemoveWidge
                                     <Widget instance={w} onRemove={isEditing ? onRemoveWidget : undefined} onHandlePointerDown={isEditing ? (e) => startDrag(w.id, e) : undefined}/>
                                 </div>
                             )})}
+                            {/* Last child: the cells keep their DOM order, so the held handle keeps its pointer capture */}
+                            {landing && (
+                                <div className="widget-placeholder" aria-hidden="true" style={{
+                                        "--col": landing.position.x + 1,
+                                        "--row": landing.position.y + 1,
+                                        "--w":   landing.size.width,
+                                        "--h":   landing.size.height,
+                                } as CSSProperties} />
+                            )}
                         </div>
                     </>
                 )}
