@@ -1,7 +1,6 @@
-
-
-
 @layer components {
+    /* ───────────────────────── Frame and grid ───────────────────────── */
+
     .widget-grid-frame {
         container: grid / inline-size;
     }
@@ -9,21 +8,181 @@
     /* Phone mode (default) */
     .widget-grid {
         --gap: 0.6cqi;
+        /* One column (= one row, the cells are square), in desktop mode */
+        --col-w: calc((100cqi - (var(--cols) - 1) * var(--gap)) / var(--cols));
+        /* positioned: the cells' offsetLeft / offsetTop (FLIP) and the guides are relative to the grid */
+        position: relative;
         display: grid;
         grid-template-columns: 1fr;
         grid-auto-rows: 110px;
         gap: 12px;
     }
 
-    /* Stacking order inside the grid: placeholder (0) < widgets (1) < held widget (10).
+    /* Stacking order inside the grid: guides / placeholder (0) < widgets (1) < held widget (10).
        Grid items accept z-index without position. */
     .widget-cell {
         grid-row: span var(--h);
         z-index: 1;
+        position: relative;
+        /* Size container: the bodies scale their text with the cell (cqi / cqh units) */
+        container: cell / size;
+        /* Entrance: cascade on first display, pop-in for a widget added later.
+           fill-mode backwards (not both): once over, the animation must not hold translate / scale,
+           the drag needs them. */
+        animation: widget-enter var(--motion-slow) var(--ease-out-soft) backwards;
+        animation-delay: var(--enter-delay, 0ms);
+        /* The lift of a held widget comes back smoothly after the drop */
+        transition: scale var(--motion-base) var(--ease-out-soft);
     }
 
+    @keyframes widget-enter {
+        from {
+            opacity: 0;
+            translate: 0 10px;
+            scale: 0.96;
+        }
+    }
+
+    /* Removed: shrinks and fades, then leaves the draft (WIDGET_EXIT_MS = 200ms) */
+    .widget-cell.is-exiting {
+        animation: widget-exit 200ms ease-in forwards;
+        pointer-events: none;
+    }
+
+    @keyframes widget-exit {
+        to {
+            opacity: 0;
+            scale: 0.9;
+        }
+    }
+
+    /* Just added: a ring that fades out */
+    .widget-cell.is-new::after {
+        content: "";
+        position: absolute;
+        inset: -4px;
+        border-radius: calc(var(--radius-card) + 4px);
+        pointer-events: none;
+        animation: widget-ring 1.4s var(--ease-out-soft) 200ms backwards;
+        opacity: 0;
+    }
+
+    @keyframes widget-ring {
+        from {
+            opacity: 1;
+            box-shadow: 0 0 0 3px var(--color-accent-line);
+        }
+        to {
+            opacity: 0;
+            box-shadow: 0 0 0 10px var(--color-accent-soft);
+        }
+    }
+
+    /* ───────────────────────── Card ───────────────────────── */
+
     .widget-card {
-        padding: clamp(4px, 1cqi, 8px);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(4px, 3cqh, 10px);
+        height: 100%;
+        padding: clamp(10px, 4cqi, 16px);
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-line);
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-card);
+        transition:
+            box-shadow var(--motion-base) var(--ease-out-soft),
+            border-color var(--motion-base) var(--ease-out-soft);
+    }
+
+    .widget-card:hover {
+        box-shadow: var(--shadow-card-hover);
+    }
+
+    /* Edit mode: a stronger border, accent on hover */
+    .widget-card.is-editable {
+        border-color: var(--color-line-strong);
+    }
+
+    .widget-card.is-editable:hover {
+        border-color: var(--color-accent-line);
+    }
+
+    .widget-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 1.75rem;
+        min-width: 0;
+    }
+
+    .widget-card-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 0.5rem;
+        background-color: var(--color-accent-soft);
+        color: var(--color-accent);
+    }
+
+    .widget-card-title {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--color-gray-600);
+    }
+
+    .widget-card-body {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Grip and ✕ only exist in edit mode: they pop in when it starts */
+    .widget-card-grip {
+        display: inline-flex;
+        flex-shrink: 0;
+        margin-left: -0.25rem;
+        color: var(--color-gray-400);
+        animation: widget-control-in var(--motion-base) var(--ease-spring) backwards;
+        transition: color var(--motion-fast);
+    }
+
+    .widget-card-handle:hover .widget-card-grip {
+        color: var(--color-accent);
+    }
+
+    .widget-card-remove {
+        flex-shrink: 0;
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 0.5rem;
+        color: var(--color-gray-400);
+        cursor: pointer;
+        animation: widget-control-in var(--motion-base) var(--ease-spring) backwards;
+        transition:
+            color var(--motion-fast),
+            background-color var(--motion-fast);
+    }
+
+    .widget-card-remove:hover {
+        color: var(--color-red-600);
+        background-color: var(--color-red-50);
+    }
+
+    @keyframes widget-control-in {
+        from {
+            opacity: 0;
+            scale: 0.5;
+        }
     }
 
     /* Edit mode: the card's title bar is the drag handle (cadrage V2 §3.1) */
@@ -37,22 +196,153 @@
         cursor: grabbing;
     }
 
-    /* The close button keeps its own pointer inside the handle */
-    .widget-card-handle button {
-        cursor: pointer;
+    /* ───────────────────────── Bodies ───────────────────────── */
+
+    /* Stat: one big number, scaled with the cell (cqi = cell width, cqh = cell height) */
+    .stat-body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        justify-content: flex-end;
+        min-height: 0;
     }
 
-    .widget-toolbar {
-        display: none;            
+    .stat-body-value {
+        display: flex;
+        align-items: baseline;
+        gap: 0.3em;
+        font-size: clamp(1.25rem, min(12cqi, 26cqh), 3rem);
+        font-weight: 600;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;   /* the digits keep the same width while counting up */
+        color: var(--color-gray-900);
+        white-space: nowrap;
+    }
+
+    .stat-body-unit {
+        font-size: 0.4em;
+        font-weight: 500;
+        letter-spacing: 0;
+        color: var(--color-gray-500);
+    }
+
+    .stat-body-caption {
+        margin-top: 0.35rem;
+        font-size: 0.75rem;
+        color: var(--color-gray-500);
+    }
+
+    /* Chart: latest value on top, the line fills the rest */
+    .chart-body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 0.25rem;
+        min-height: 0;
+    }
+
+    .chart-body-latest {
+        display: flex;
+        align-items: baseline;
+        gap: 0.4rem;
+        font-size: clamp(1rem, 6cqh, 1.5rem);
+        font-weight: 600;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .chart-body-latest-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--color-gray-500);
+    }
+
+    .chart-body-plot {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+        color: var(--color-accent);
+        /* Drawn from left to right on first display */
+        animation: chart-reveal 900ms var(--ease-out-soft) 150ms backwards;
+    }
+
+    /* Negative insets: the last point's dot sits on the edge and must not be cut */
+    @keyframes chart-reveal {
+        from {
+            clip-path: inset(-8px 100% -8px -8px);
+        }
+        to {
+            clip-path: inset(-8px -8px -8px -8px);
+        }
+    }
+
+    .chart-body-svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+    }
+
+    .chart-body-dot {
+        position: absolute;
+        left: var(--dot-x);
+        top: var(--dot-y);
+        width: 0.5rem;
+        height: 0.5rem;
+        translate: -50% -50%;
+        border-radius: 9999px;
+        background-color: var(--color-surface);
+        box-shadow: 0 0 0 2px currentColor;
+    }
+
+    .chart-body-empty {
+        margin: auto;
+        font-size: 0.8125rem;
+        color: var(--color-gray-400);
+    }
+
+    /* Loading: grey bars with a moving shine */
+    .widget-skeleton {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
         justify-content: flex-end;
         gap: 0.5rem;
-        margin-bottom: 0.75rem;
     }
 
-    /* Phone mode: no editing, so a hint replaces the call to action */
-    .empty-dashboard-cta {
-        display: none;
+    .widget-skeleton-bar {
+        display: block;
+        height: 0.75rem;
+        border-radius: 9999px;
+        background: linear-gradient(90deg, var(--color-gray-100) 25%, var(--color-gray-200) 50%, var(--color-gray-100) 75%);
+        background-size: 200% 100%;
+        animation: skeleton-shine 1.4s linear infinite;
     }
+
+    .widget-skeleton-bar:first-child {
+        height: 1.5rem;
+    }
+
+    @keyframes skeleton-shine {
+        from { background-position: 100% 0; }
+        to { background-position: -100% 0; }
+    }
+
+    .widget-error {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-red-600);
+    }
+
+    .widget-error-message {
+        font-size: 0.8125rem;
+        color: var(--color-gray-600);
+    }
+
+    /* ───────────────────────── Drag ───────────────────────── */
 
     /* A gesture is running (cadrage V2 §7): the hand stays closed over the whole grid,
        and no text gets selected on the way */
@@ -69,16 +359,17 @@
         translate: var(--dx) var(--dy);
         scale: 1.03;
         z-index: 10;
-        opacity: 0.92;
-        /* filter, not box-shadow: the card's Tailwind shadow-sm (utilities layer) would win over box-shadow */
-        filter: drop-shadow(0 12px 24px rgb(15 23 42 / 0.18)) drop-shadow(0 4px 8px rgb(15 23 42 / 0.12));
-        transition: scale 150ms ease-out, filter 150ms ease-out, opacity 150ms ease-out;
+        opacity: 0.94;
+        /* filter, not box-shadow: it applies to the whole cell, whatever the card's own shadow */
+        filter: drop-shadow(0 16px 28px rgb(15 23 42 / 0.18)) drop-shadow(0 4px 8px rgb(15 23 42 / 0.1));
+        transition:
+            scale var(--motion-fast) var(--ease-out-soft),
+            filter var(--motion-fast) var(--ease-out-soft),
+            opacity var(--motion-fast) var(--ease-out-soft);
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        .widget-cell.is-dragging {
-            transition: none;
-        }
+    .widget-cell.is-dragging .widget-card {
+        border-color: var(--color-accent-line);
     }
 
     /* Where the held widget will land (cadrage V2 §3.3). Never catches the pointer.
@@ -86,25 +377,184 @@
        hides it, and it shows up as the neighbour makes room. */
     .widget-placeholder {
         z-index: 0;
-        border: 2px dashed rgb(125 211 252);         /* sky-300 */
-        border-radius: 0.75rem;                      /* same corners as .widget-card (rounded-xl) */
-        background-color: rgb(224 242 254 / 0.5);    /* sky-100, see-through */
+        border: 2px dashed var(--color-accent-line);
+        border-radius: var(--radius-card);
+        background-color: oklch(0.951 0.026 236.824 / 0.5);   /* accent-soft, see-through */
         pointer-events: none;
+        animation: placeholder-in var(--motion-fast) var(--ease-out-soft);
     }
 
-    /* Desktop / tablet mode */
+    @keyframes placeholder-in {
+        from {
+            opacity: 0;
+            scale: 0.97;
+        }
+    }
+
+    /* ───────────────────────── Toolbar and edit bar ───────────────────────── */
+
+    .widget-toolbar {
+        display: none;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        min-height: 2.25rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .widget-toolbar > * {
+        animation: fade-in var(--motion-base) var(--ease-out-soft);
+    }
+
+    .widget-toolbar-hint {
+        margin-right: auto;
+        font-size: 0.8125rem;
+        color: var(--color-gray-500);
+    }
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+            translate: 0 -4px;
+        }
+    }
+
+    /* Edit bar: sticks to the bottom of the screen, centred in the content column */
+    .widget-edit-bar {
+        position: sticky;
+        bottom: 1rem;
+        z-index: 20;
+        display: none;
+        align-items: center;
+        gap: 0.25rem;
+        width: fit-content;
+        margin: 1.25rem auto 0;
+        padding: 0.375rem 0.375rem 0.375rem 1rem;
+        border: 1px solid var(--color-line);
+        border-radius: 9999px;
+        background-color: rgb(255 255 255 / 0.85);
+        backdrop-filter: blur(12px);
+        box-shadow: var(--shadow-float);
+        animation: edit-bar-in var(--motion-slow) var(--ease-spring);
+    }
+
+    @keyframes edit-bar-in {
+        from {
+            opacity: 0;
+            translate: 0 24px;
+            scale: 0.96;
+        }
+    }
+
+    .widget-edit-bar-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-right: 0.25rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--color-gray-700);
+        white-space: nowrap;
+    }
+
+    .widget-edit-bar-dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 9999px;
+        background-color: var(--color-accent);
+        transition: background-color var(--motion-base);
+    }
+
+    /* Unsaved changes: amber, with a slow pulse */
+    .widget-edit-bar-dot.is-dirty {
+        background-color: var(--color-amber-500);
+        animation: dot-pulse 1.6s ease-out infinite;
+    }
+
+    @keyframes dot-pulse {
+        from { box-shadow: 0 0 0 0 oklch(0.769 0.188 70.08 / 0.5); }
+        to { box-shadow: 0 0 0 8px oklch(0.769 0.188 70.08 / 0); }
+    }
+
+    .widget-edit-bar-separator {
+        width: 1px;
+        height: 1.25rem;
+        margin: 0 0.375rem;
+        background-color: var(--color-line);
+    }
+
+    .widget-edit-bar .btn {
+        border-radius: 9999px;
+    }
+
+    /* Phone mode: no editing, so a hint replaces the call to action */
+    .btn.empty-dashboard-cta {
+        display: none;
+    }
+
+    /* ───────────────────────── Empty state ───────────────────────── */
+
+    .empty-dashboard {
+        animation: fade-in var(--motion-slow) var(--ease-out-soft);
+    }
+
+    /* The "+" tile of the illustration breathes gently */
+    .empty-dashboard-art > :last-child {
+        animation: empty-breathe 2.4s ease-in-out infinite;
+    }
+
+    @keyframes empty-breathe {
+        50% {
+            scale: 1.04;
+            border-color: var(--color-accent);
+        }
+    }
+
+    /* ───────────────────────── Desktop / tablet mode ───────────────────────── */
+
     @container grid (min-width: 780px) {
         .widget-grid {
             grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
-            grid-auto-rows: calc((100cqi - (var(--cols) - 1) * var(--gap)) / var(--cols));
+            grid-auto-rows: var(--col-w);
             gap: var(--gap);
+        }
+
+        /* Edit mode: room for at least 3 rows, plus one free row under the last widget to drop into */
+        .widget-grid.is-editing {
+            min-height: calc(3 * (var(--col-w) + var(--gap)));
+            padding-bottom: calc(var(--col-w) + var(--gap));
+        }
+
+        /* Guides: one faint slot per cell, only in edit mode.
+           Columns are drawn by the background, rows cut by the mask. Out of the flow (absolute),
+           so it never takes a grid cell. */
+        .widget-grid::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0;
+            background-image: linear-gradient(to right, oklch(0.95 0.012 240 / 0.55) var(--col-w), transparent var(--col-w));
+            background-size: calc(var(--col-w) + var(--gap)) 100%;
+            mask-image: linear-gradient(to bottom, #000 var(--col-w), transparent var(--col-w));
+            mask-size: 100% calc(var(--col-w) + var(--gap));
+            transition: opacity var(--motion-slow) var(--ease-out-soft);
+        }
+
+        .widget-grid.is-editing::before {
+            opacity: 1;
         }
 
         .widget-toolbar {
             display: flex;
         }
 
-        .empty-dashboard-cta {
+        .widget-edit-bar {
+            display: flex;
+        }
+
+        .btn.empty-dashboard-cta {
             display: inline-flex;
         }
 

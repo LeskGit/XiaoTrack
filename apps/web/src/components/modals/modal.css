@@ -1,0 +1,67 @@
+@layer components {
+    /*
+     * Open / close animations of <dialog>, in CSS only.
+     * - @starting-style gives the "before" state when the dialog appears (display: none → block);
+     * - transition-behavior: allow-discrete (the "allow-discrete" keyword) lets display and overlay
+     *   wait for the end of the closing transition, otherwise the dialog would vanish at once.
+     */
+    .modal {
+        opacity: 0;
+        transition:
+            opacity var(--motion-base) var(--ease-out-soft),
+            translate var(--motion-slow) var(--ease-out-soft),
+            scale var(--motion-base) var(--ease-out-soft),
+            overlay var(--motion-slow) allow-discrete,
+            display var(--motion-slow) allow-discrete;
+    }
+
+    .modal[open] {
+        opacity: 1;
+        translate: 0 0;
+        scale: 1;
+    }
+
+    /* Drawer: slides in from the right edge */
+    .modal-right {
+        translate: 100% 0;
+    }
+
+    /* Centered dialog: grows slightly */
+    .modal-center {
+        scale: 0.96;
+    }
+
+    .modal::backdrop {
+        background-color: rgb(15 23 42 / 0);
+        backdrop-filter: blur(0);
+        transition:
+            background-color var(--motion-slow) var(--ease-out-soft),
+            backdrop-filter var(--motion-slow) var(--ease-out-soft),
+            overlay var(--motion-slow) allow-discrete,
+            display var(--motion-slow) allow-discrete;
+    }
+
+    .modal[open]::backdrop {
+        background-color: rgb(15 23 42 / 0.3);
+        backdrop-filter: blur(2px);
+    }
+
+    @starting-style {
+        .modal[open] {
+            opacity: 0;
+        }
+
+        .modal-right[open] {
+            translate: 100% 0;
+        }
+
+        .modal-center[open] {
+            scale: 0.96;
+        }
+
+        .modal[open]::backdrop {
+            background-color: rgb(15 23 42 / 0);
+            backdrop-filter: blur(0);
+        }
+    }
+}

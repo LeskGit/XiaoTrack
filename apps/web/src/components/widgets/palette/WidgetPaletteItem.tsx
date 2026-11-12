@@ -1,40 +1,56 @@
 import { Icon, IconButton } from "@/components/icons";
-import { PlusIcon } from "@/components/icons/library";
+import { CheckIcon, PlusIcon } from "@/components/icons/library";
 import type React from "react";
-
+import type { CSSProperties } from "react";
+import type { GridSize } from "../widgets.types";
+import { GRID_COLS } from "../widget-grid.constants";
 
 type WidgetPaletteItemProps = {
     readonly title: string;
-    readonly description: string;
+    readonly size: GridSize;
     readonly icon: React.ComponentType;
     readonly isPlaced: boolean;
     readonly onAdd: () => void;
 }
 
-export default function WidgetPaletteItem({title, description, icon, isPlaced, onAdd}: WidgetPaletteItemProps) {
+export default function WidgetPaletteItem({title, size, icon, isPlaced, onAdd}: WidgetPaletteItemProps) {
 
     return (
-        <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 transition-colors hover:border-gray-300">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
-                {<Icon icon={icon} />}
+        <li className={`palette-item ${isPlaced ? "is-placed" : ""}`}>
+            <span className="palette-item-icon">
+                <Icon icon={icon} size="custom" className="h-5 w-5" />
             </span>
 
             <div className="min-w-0 flex-1">
-                <h3>{title}</h3>
-                <p>{description}</p>
+                <h4 className="truncate text-sm font-medium text-gray-900">{title}</h4>
+                <p className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+                    {/* Mini map of the default size: w × h cells of a 12-column row */}
+                    <span
+                        className="palette-size"
+                        aria-hidden="true"
+                        style={{ "--cols": GRID_COLS, "--w": size.width, "--h": size.height } as CSSProperties}
+                    >
+                        <span className="palette-size-fill" />
+                    </span>
+                    {size.width} × {size.height}
+                </p>
             </div>
+
             {isPlaced ? (
-                <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+                <span className="palette-item-added">
+                    <Icon icon={CheckIcon} size="custom" className="h-3.5 w-3.5" iconWeight="bold" />
                     Added
                 </span>
             ) : (
-                <IconButton 
-                    className="background-blue-300" 
-                    icon={PlusIcon} 
-                    onClick={onAdd} 
+                <IconButton
+                    icon={PlusIcon}
+                    size="custom"
+                    className="h-4 w-4"
+                    iconWeight="bold"
+                    onClick={onAdd}
                     ariaLabel={`Add ${title}`}
-                    classNameBtn="h-8 w-8 shrink-0 rounded-lg bg-blue-600 text-white transition-colors hover:bg-blue-700" />
+                    classNameBtn="palette-item-add" />
             )}
-        </div>
+        </li>
     )
 }

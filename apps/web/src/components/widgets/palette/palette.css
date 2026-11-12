@@ -1,0 +1,117 @@
+@layer components {
+    .palette-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        border: 1px solid var(--color-line);
+        border-radius: 0.75rem;
+        background-color: var(--color-surface);
+        transition:
+            border-color var(--motion-fast),
+            box-shadow var(--motion-fast),
+            background-color var(--motion-base);
+    }
+
+    .palette-item:not(.is-placed):hover {
+        border-color: var(--color-accent-line);
+        box-shadow: var(--shadow-card-hover);
+    }
+
+    .palette-item.is-placed {
+        background-color: var(--color-gray-50);
+    }
+
+    .palette-item-icon {
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.625rem;
+        background-color: var(--color-accent-soft);
+        color: var(--color-accent);
+    }
+
+    .palette-item.is-placed .palette-item-icon {
+        background-color: var(--color-gray-100);
+        color: var(--color-gray-400);
+    }
+
+    /* Mini map: a 12-column strip, h rows tall, with the widget's w × h filled in */
+    .palette-size {
+        display: grid;
+        grid-template-columns: repeat(var(--cols), 4px);
+        grid-template-rows: repeat(var(--h), 4px);
+        gap: 1px;
+        padding: 2px;
+        border-radius: 3px;
+        background-color: var(--color-gray-100);
+    }
+
+    .palette-size-fill {
+        grid-column: 1 / span var(--w);
+        grid-row: 1 / span var(--h);
+        border-radius: 1px;
+        background-color: var(--color-accent-line);
+    }
+
+    .palette-item.is-placed .palette-size-fill {
+        background-color: var(--color-gray-300);
+    }
+
+    .palette-item-add {
+        flex-shrink: 0;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        background-color: var(--color-blue-600);
+        color: white;
+        cursor: pointer;
+        transition:
+            background-color var(--motion-fast),
+            scale var(--motion-fast);
+    }
+
+    .palette-item-add:hover {
+        background-color: var(--color-blue-700);
+    }
+
+    .palette-item-add:active {
+        scale: 0.92;
+    }
+
+    /* Appears when the widget is added: the badge pops, then the check draws itself */
+    .palette-item-added {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        background-color: var(--color-emerald-50);
+        color: var(--color-emerald-700);
+        font-size: 0.75rem;
+        font-weight: 500;
+        animation: added-pop var(--motion-slow) var(--ease-spring);
+    }
+
+    .palette-item-added svg path {
+        stroke-dasharray: 24;
+        animation: check-draw var(--motion-slow) var(--ease-out-soft) 120ms backwards;
+    }
+
+    @keyframes added-pop {
+        from {
+            opacity: 0;
+            scale: 0.6;
+        }
+    }
+
+    @keyframes check-draw {
+        from {
+            stroke-dashoffset: 24;
+        }
+    }
+}

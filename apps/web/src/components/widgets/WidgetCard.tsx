@@ -2,7 +2,7 @@ import "./widget-grid.css";
 import type { WidgetDefinition } from "./widgets.types";
 import { Icon, IconButton } from "../icons";
 import type { ReactNode, PointerEvent } from "react";
-import { PlusIcon } from "../icons/library";
+import { GripIcon, PlusIcon } from "../icons/library";
 
 type WidgetCardProps = {
     readonly definition: WidgetDefinition;
@@ -13,31 +13,45 @@ type WidgetCardProps = {
 
 export default function WidgetCard({definition, children, onRemove, onHandlePointerDown}: WidgetCardProps) {
 
+    // Edit mode = the grid gave us a drag handler
+    const isEditable: boolean = onHandlePointerDown !== undefined;
+
     const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
         // Check if target is button or not left clicked action
         if ((e.target as HTMLElement).closest("button") || e.button !== 0) return;
         onHandlePointerDown?.(e);
     }
 
-
     return (
-        <div className={`widget-card bg-white border border-gray-200 rounded-xl h-full shadow-sm gap-2.5`}>
-            <div onPointerDown={onHandlePointerDown ? handlePointerDown : undefined} className={`flex gap-3 items-center h-8 ${onHandlePointerDown ? "widget-card-handle" : ""}`}>
-                <Icon icon={definition.icon} size="sm" />
-                <h1>{definition.title}</h1>
-                {onRemove && 
+        <article className={`widget-card ${isEditable ? "is-editable" : ""}`}>
+            <div
+                onPointerDown={isEditable ? handlePointerDown : undefined}
+                className={`widget-card-header ${isEditable ? "widget-card-handle" : ""}`}
+            >
+                {isEditable && (
+                    <span className="widget-card-grip" aria-hidden="true">
+                        <Icon icon={GripIcon} size="custom" className="h-4 w-4" />
+                    </span>
+                )}
+                <span className="widget-card-icon" aria-hidden="true">
+                    <Icon icon={definition.icon} size="custom" className="h-4 w-4" iconWeight="regular" />
+                </span>
+                <h2 className="widget-card-title">{definition.title}</h2>
+                {onRemove &&
                     <IconButton
                         icon={PlusIcon}
-                        size="sm"
+                        size="custom"
                         onClick={onRemove}
-                        ariaLabel="Close"
-                        className="rotate-45"
-                        classNameBtn="ml-auto h-8 w-8 shrink-0 rounded-lg text-gray-500 hover:bg-gray-100"
+                        ariaLabel={`Remove ${definition.title}`}
+                        className="h-4 w-4 rotate-45"
+                        iconWeight="bold"
+                        classNameBtn="widget-card-remove"
                     />
-                }   
+                }
             </div>
-            <div className="h-px bg-gray-300 my-1"></div>
-            {children}
-        </div>
+            <div className="widget-card-body">
+                {children}
+            </div>
+        </article>
     );
 }

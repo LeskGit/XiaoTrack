@@ -2,6 +2,7 @@ import { IconButton } from "../icons";
 import { PlusIcon } from "../icons/library";
 import { placementClasses, sizeClasses, type ModalProps } from "./modal.types";
 import { useEffect, useRef, type MouseEvent } from "react";
+import "./modal.css";
 
 
 export default function Modal({isOpen, onClose, title, children, placement = "center", size = "md", classname, closeOnBackdropClick = true, closeModalButton = true}: ModalProps) {
@@ -16,7 +17,8 @@ export default function Modal({isOpen, onClose, title, children, placement = "ce
     }, [isOpen])
 
     const dialogClasses = [
-        "shadow-xl backdrop:bg-black/30",   
+        // modal + modal-{placement}: open / close animations (modal.css)
+        `modal modal-${placement} shadow-xl`,
         placementClasses[placement],           
         sizeClasses[size],                      
         classname,                              

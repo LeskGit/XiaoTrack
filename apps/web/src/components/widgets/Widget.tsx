@@ -2,6 +2,8 @@ import WidgetCard from "./WidgetCard";
 import { widgetCatalog } from "./catalog";
 import { widgetArchetypes } from "./archetypes";
 import { useWidgetData } from "./hooks/useWidgetData";
+import WidgetSkeleton from "./bodies/WidgetSkeleton";
+import WidgetError from "./bodies/WidgetError";
 import type { PointerEvent } from "react";
 import type { ArchetypeData, WidgetArchetype, WidgetInstance } from "./widgets.types";
 
@@ -25,8 +27,8 @@ export default function Widget({ instance, onRemove, onHandlePointerDown }: Widg
     return (
         <WidgetCard definition={definition} onRemove={handleRemoveClick} onHandlePointerDown={onHandlePointerDown}>
             {dataState.status === "success" && renderBody(dataState.data)}
-            {dataState.status === "loading" && <p>Loading…</p>}
-            {dataState.status === "error" && <p>{dataState.message}</p>}
+            {dataState.status === "loading" && <WidgetSkeleton />}
+            {dataState.status === "error" && <WidgetError message={dataState.message} />}
         </WidgetCard>
     );
 }

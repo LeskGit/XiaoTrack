@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { WidgetType } from "@/components/widgets/catalog";
 import { createInstance } from "@/components/widgets/engine/instance";
 import WidgetToolbar from "@/components/widgets/WidgetToolbar";
+import WidgetEditBar from "@/components/widgets/WidgetEditBar";
 import Modal from '@/components/modals/Modal';
 import { ModalPlacement, ModalSize } from "@/components/modals/modal.types";
 import WidgetPalette from "@/components/widgets/palette/WidgetPalette";
@@ -23,9 +24,9 @@ function EmptyDashboard({ onStart }: EmptyDashboardProps) {
     return (
         <section
             aria-labelledby="empty-dashboard-title"
-            className="flex min-h-[440px] flex-col items-center justify-center gap-4 rounded-xl border-[1.5px] border-dashed border-gray-300 bg-gray-50 px-6 py-16 text-center"
+            className="empty-dashboard flex min-h-[440px] flex-col items-center justify-center gap-4 rounded-(--radius-card) border-[1.5px] border-dashed border-line-strong bg-surface px-6 py-16 text-center"
         >
-            <div aria-hidden="true" className="mb-2 grid w-33 grid-cols-3 auto-rows-[28px] gap-1.5">
+            <div aria-hidden="true" className="empty-dashboard-art mb-2 grid w-33 grid-cols-3 auto-rows-[28px] gap-1.5">
                 <div className="col-span-2 rounded-md border border-gray-200 bg-white" />
                 <div className="rounded-md border border-gray-200 bg-white" />
                 <div className="col-span-3 flex items-center justify-center rounded-md border-[1.5px] border-dashed border-sky-300 bg-sky-50 text-sky-700">
@@ -43,7 +44,7 @@ function EmptyDashboard({ onStart }: EmptyDashboardProps) {
             <button
                 type="button"
                 onClick={onStart}
-                className="empty-dashboard-cta mt-2 min-h-11 items-center gap-2 rounded-lg bg-blue-600 px-4.5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                className="empty-dashboard-cta btn btn-primary btn-lg mt-2"
             >
                 <Icon icon={PlusIcon} size="sm" />
                 Add your first widget
@@ -131,18 +132,17 @@ export default function Dashboard() {
 
     return (
 
-        <div className="h-full w-full">
+        <div className="min-h-full w-full">
             <WidgetGrid
                 widgets={isEditing ? draftWidgets : savedWidgets}
                 onRemoveWidget={onRemoveWidget}
                 onDropWidget={onDropWidget}
                 isEditing={isEditing}
                 emptyState={isEmpty ? <EmptyDashboard onStart={onStart} /> : undefined}
-                toolbar={<WidgetToolbar
-                    isEditing={isEditing}
+                toolbar={<WidgetToolbar isEditing={isEditing} onEdit={onEdit} />}
+                footer={isEditing && <WidgetEditBar
                     isDirty={isDirty}
                     onAdd={onAdd}
-                    onEdit={onEdit}
                     onCancel={onCancel}
                     onSave={onSave}
                 />}

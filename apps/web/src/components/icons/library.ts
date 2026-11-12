@@ -9,3 +9,6 @@ export { default as NoteBookPenIcon } from '@/assets/icons/notebook-pen.svg?reac
 export { default as TrendingUpDownIcon } from '@/assets/icons/trending-up-down.svg?react'
 export { default as EditPenIcon } from '@/assets/icons/edit-pen.svg?react'
 export { default as PlusIcon } from '@/assets/icons/plus.svg?react'
+export { default as CheckIcon } from '@/assets/icons/check.svg?react'
+export { default as GripIcon } from '@/assets/icons/grip-vertical.svg?react'
+export { default as AlertIcon } from '@/assets/icons/alert.svg?react'
