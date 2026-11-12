@@ -379,7 +379,7 @@
         z-index: 0;
         border: 2px dashed var(--color-accent-line);
         border-radius: var(--radius-card);
-        background-color: oklch(0.951 0.026 236.824 / 0.5);   /* accent-soft, see-through */
+        background-color: color-mix(in oklch, var(--color-accent-soft) 60%, transparent);
         pointer-events: none;
         animation: placeholder-in var(--motion-fast) var(--ease-out-soft);
     }
@@ -535,7 +535,7 @@
             z-index: 0;
             pointer-events: none;
             opacity: 0;
-            background-image: linear-gradient(to right, oklch(0.95 0.012 240 / 0.55) var(--col-w), transparent var(--col-w));
+            background-image: linear-gradient(to right, oklch(0.95 0.02 280 / 0.55) var(--col-w), transparent var(--col-w));
             background-size: calc(var(--col-w) + var(--gap)) 100%;
             mask-image: linear-gradient(to bottom, #000 var(--col-w), transparent var(--col-w));
             mask-size: 100% calc(var(--col-w) + var(--gap));

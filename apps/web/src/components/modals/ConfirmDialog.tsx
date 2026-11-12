@@ -14,7 +14,7 @@ type ConfirmDialogProps = {
 
 const buttonBase = "min-h-10 rounded-lg px-4 py-2 text-sm font-medium transition-colors";
 const declineButton = `${buttonBase} border border-gray-300 bg-white text-gray-700 hover:bg-gray-50`;
-const confirmButton = `${buttonBase} bg-blue-600 text-white hover:bg-blue-700`;
+const confirmButton = `${buttonBase} bg-brand text-white shadow-(--shadow-brand) hover:brightness-110`;
 const destructiveButton = `${buttonBase} bg-red-600 text-white hover:bg-red-700`;
 
 export default function ConfirmDialog({

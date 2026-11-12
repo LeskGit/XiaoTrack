@@ -8,22 +8,26 @@
 @theme {
     --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 
-    /* Surfaces and lines */
-    --color-canvas: oklch(0.985 0.003 247);          /* page background, a touch cooler than white */
+    /* Surfaces and lines: whites with a faint violet tint, so the whole app shares the logo's hue */
+    --color-canvas: oklch(0.984 0.006 285);           /* page background */
     --color-surface: #ffffff;                         /* cards, bars, drawers */
-    --color-line: oklch(0.928 0.006 264);             /* default borders (≈ gray-200) */
-    --color-line-strong: oklch(0.872 0.01 258);       /* hovered / editable borders (≈ gray-300) */
+    --color-glass: oklch(1 0 0 / 0.72);               /* header and sidebar: see-through white over the canvas */
+    --color-line: oklch(0.93 0.01 280);               /* default borders */
+    --color-line-strong: oklch(0.875 0.018 280);      /* hovered / editable borders */
 
-    /* Accent (≈ sky / blue): handles, guides, landing cell, highlights */
-    --color-accent: oklch(0.588 0.158 241.966);       /* sky-600 */
-    --color-accent-soft: oklch(0.951 0.026 236.824);  /* sky-100 */
-    --color-accent-line: oklch(0.828 0.111 230.318);  /* sky-300 */
+    /* Accent = the logo's middle colour (indigo): handles, guides, landing cell, highlights, active nav */
+    --color-accent: oklch(0.585 0.233 277.117);       /* indigo-500 */
+    --color-accent-strong: oklch(0.457 0.24 277.023); /* indigo-700: accent text on light fills */
+    --color-accent-soft: oklch(0.962 0.018 272.314);  /* indigo-50 */
+    --color-accent-line: oklch(0.785 0.115 274.713);  /* indigo-300 */
 
-    /* Shapes */
+    /* Shapes. Shadows are tinted indigo instead of grey: softer and on-theme */
     --radius-card: 0.875rem;
-    --shadow-card: 0 1px 2px rgb(15 23 42 / 0.05), 0 1px 3px rgb(15 23 42 / 0.04);
-    --shadow-card-hover: 0 4px 12px rgb(15 23 42 / 0.08), 0 2px 4px rgb(15 23 42 / 0.04);
-    --shadow-float: 0 12px 32px rgb(15 23 42 / 0.16), 0 4px 10px rgb(15 23 42 / 0.08);
+    --shadow-card: 0 1px 2px rgb(49 46 129 / 0.05), 0 1px 3px rgb(49 46 129 / 0.04);
+    --shadow-card-hover: 0 6px 16px rgb(49 46 129 / 0.08), 0 2px 4px rgb(49 46 129 / 0.04);
+    --shadow-float: 0 12px 32px rgb(49 46 129 / 0.16), 0 4px 10px rgb(49 46 129 / 0.08);
+    /* Coloured glow under brand-filled elements (logo tile, primary buttons, active nav icon) */
+    --shadow-brand: 0 6px 16px -4px rgb(124 58 237 / 0.55);
 
     /* Motion */
     --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);  /* fast start, long gentle end: most movements */
@@ -31,6 +35,13 @@
     --motion-fast: 150ms;
     --motion-base: 250ms;
     --motion-slow: 400ms;
+}
+
+/* Brand gradient: the logo's diagonal blue → indigo → violet. Plain variables (not @theme):
+   they hold whole gradients, used through the .bg-brand / .text-brand classes below. */
+:root {
+    --brand-gradient: linear-gradient(135deg, var(--color-blue-500), var(--color-indigo-500) 50%, var(--color-purple-600));
+    --brand-gradient-text: linear-gradient(90deg, var(--color-blue-500), var(--color-indigo-500) 50%, var(--color-purple-600));
 }
 
 /* Buttons shared by the whole app */
@@ -69,20 +80,33 @@
         cursor: not-allowed;
     }
 
+    /* Primary: the brand gradient, with the logo's violet glow */
     .btn-primary {
-        background-color: var(--color-blue-600);
+        background-image: var(--brand-gradient);
         color: white;
-        box-shadow: 0 1px 2px rgb(37 99 235 / 0.3);
+        box-shadow: var(--shadow-brand), inset 0 1px 0 rgb(255 255 255 / 0.2);
     }
 
     .btn-primary:hover:not(:disabled) {
-        background-color: var(--color-blue-700);
+        filter: brightness(1.08) saturate(1.05);
     }
 
     .btn-primary:disabled {
+        background-image: none;
         background-color: var(--color-gray-200);
         color: var(--color-gray-400);
         box-shadow: none;
+    }
+
+    /* Brand fill and brand text, reusable anywhere */
+    .bg-brand {
+        background-image: var(--brand-gradient);
+    }
+
+    .text-brand {
+        background-image: var(--brand-gradient-text);
+        background-clip: text;
+        color: transparent;
     }
 
     .btn-secondary {
@@ -112,8 +136,14 @@
 }
 
 @layer base {
+    /* Luminous canvas: two very soft colour washes (blue top-left, violet top-right) over the
+       tinted background. Fixed, so they stay put while the content scrolls. */
     body {
         background-color: var(--color-canvas);
+        background-image:
+            radial-gradient(60rem 36rem at -10% -10%, oklch(0.9 0.07 265 / 0.45), transparent 70%),
+            radial-gradient(50rem 32rem at 110% -5%, oklch(0.9 0.08 305 / 0.35), transparent 70%);
+        background-attachment: fixed;
         color: var(--color-gray-900);
         -webkit-font-smoothing: antialiased;
     }

@@ -66,7 +66,8 @@
         width: 2rem;
         height: 2rem;
         border-radius: 0.5rem;
-        background-color: var(--color-blue-600);
+        background-image: var(--brand-gradient);
+        box-shadow: var(--shadow-brand);
         color: white;
         cursor: pointer;
         transition:
@@ -75,7 +76,7 @@
     }
 
     .palette-item-add:hover {
-        background-color: var(--color-blue-700);
+        filter: brightness(1.08);
     }
 
     .palette-item-add:active {

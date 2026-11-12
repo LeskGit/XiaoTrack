@@ -29,7 +29,7 @@ function EmptyDashboard({ onStart }: EmptyDashboardProps) {
             <div aria-hidden="true" className="empty-dashboard-art mb-2 grid w-33 grid-cols-3 auto-rows-[28px] gap-1.5">
                 <div className="col-span-2 rounded-md border border-gray-200 bg-white" />
                 <div className="rounded-md border border-gray-200 bg-white" />
-                <div className="col-span-3 flex items-center justify-center rounded-md border-[1.5px] border-dashed border-sky-300 bg-sky-50 text-sky-700">
+                <div className="col-span-3 flex items-center justify-center rounded-md border-[1.5px] border-dashed border-accent-line bg-accent-soft text-accent-strong">
                     <Icon icon={PlusIcon} size="sm" />
                 </div>
             </div>
