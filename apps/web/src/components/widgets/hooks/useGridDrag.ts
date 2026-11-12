@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type RefObject } from "react"
 import type { GridPosition, WidgetInstance } from "../widgets.types";
-import { GRID_COLS } from "../widget-grid.constants";
+import { DRAG_DWELL_MS, GRID_COLS } from "../widget-grid.constants";
 import { pointToCell } from "../engine/pointer";
 import { resolveLayout } from "../engine/resolve";
 
@@ -14,6 +14,7 @@ export type UseGridDragResult = {
     readonly draggingId: string | null;
     readonly dragDelta: {x: number, y: number} | null;
     readonly previewLayout: WidgetInstance[] | null;
+    readonly shownLayout: WidgetInstance[] | null;
     readonly startDrag: (id: string, event: React.PointerEvent<HTMLDivElement>) => void;
 }
 
@@ -21,6 +22,7 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
     const [draggingId, setDraggingId] = useState<string|null>(null)
     const [dragDelta, setDragDelta] = useState<{x: number, y: number} | null>(null);
     const [previewLayout, setPreviewLayout] = useState<WidgetInstance[] | null>(null);
+    const [shownLayout, setShownLayout] = useState<WidgetInstance[] | null>(null);
 
     // Ends the gesture in progress without writing anything
     const cleanupRef = useRef<(() => void) | null>(null);
@@ -45,6 +47,7 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
         const grabOffset = {x: event.clientX - cellRect.left, y: event.clientY - cellRect.top};
 
         let targetCell: GridPosition | null = null;
+        let dwellTimer: number | undefined;
 
         const onMove = (e: globalThis.PointerEvent) => {
             // If another pointer on a touch screen : not the same that started the gesture, return
@@ -55,9 +58,9 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
             // Measured at every move: the page may have scrolled or been resized
             const rect = grid.getBoundingClientRect();
             const style = getComputedStyle(grid);
-            const columnGap = parseFloat(style.columnGap);
-            const rowGap = parseFloat(style.rowGap);
-            const rowHeight = parseFloat(style.gridAutoRows);
+            const columnGap = Number.parseFloat(style.columnGap);
+            const rowGap = Number.parseFloat(style.rowGap);
+            const rowHeight = Number.parseFloat(style.gridAutoRows);
 
             // One column + one gap, and one row + one gap, in pixels
             const stepX = (rect.width + columnGap) / GRID_COLS;
@@ -72,9 +75,17 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
                 size: moved.size,
             });
 
-            if (targetCell && nextCell.x === targetCell.x && nextCell.y === targetCell.y) return
+            if (nextCell.x === targetCell?.x && nextCell.y === targetCell?.y) return
             targetCell = nextCell;
-            setPreviewLayout(resolveLayout(snapshot, id, nextCell));
+            const resolvedLayout: WidgetInstance[] = resolveLayout(snapshot, id, nextCell);
+            // The dashed landing cell follows the target right away
+            setPreviewLayout(resolvedLayout);
+            // The neighbours move only once the pointer has stayed DRAG_DWELL_MS on the same cell
+            // (cadrage V2 §3.3). Each new cell restarts the wait.
+            window.clearTimeout(dwellTimer);
+            dwellTimer = window.setTimeout(() => {
+                setShownLayout(resolvedLayout);
+            }, DRAG_DWELL_MS);
         }
 
         // The only way out of a gesture: every exit (drop, Escape, cancel, unmount) goes through here
@@ -87,9 +98,11 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
             if (handle.hasPointerCapture(event.pointerId)) {
                 handle.releasePointerCapture(event.pointerId);
             }
+            window.clearTimeout(dwellTimer);
             setDraggingId(null);
             setDragDelta(null);
             setPreviewLayout(null);
+            setShownLayout(null);
             cleanupRef.current = null;
         };
 
@@ -132,5 +145,5 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
         setDraggingId(id);
     }
 
-    return { draggingId, dragDelta, previewLayout, startDrag };
+    return { draggingId, dragDelta, previewLayout, shownLayout, startDrag };
 }
