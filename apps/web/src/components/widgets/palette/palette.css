@@ -5,7 +5,7 @@
         gap: 0.75rem;
         padding: 0.75rem;
         border: 1px solid var(--color-line);
-        border-radius: 0.75rem;
+        border-radius: var(--radius-md);
         background-color: var(--color-surface);
         transition:
             border-color var(--motion-fast),
@@ -19,7 +19,7 @@
     }
 
     .palette-item.is-placed {
-        background-color: var(--color-gray-50);
+        background-color: var(--color-canvas);
     }
 
     .palette-item-icon {
@@ -29,14 +29,13 @@
         justify-content: center;
         width: 2.5rem;
         height: 2.5rem;
-        border-radius: 0.625rem;
-        background-color: var(--color-accent-soft);
-        color: var(--color-accent);
+        border-radius: var(--radius-md);
+        /* Colours: tone-tile utility (index.css), driven by --tone */
     }
 
     .palette-item.is-placed .palette-item-icon {
-        background-color: var(--color-gray-100);
-        color: var(--color-gray-400);
+        background-color: var(--color-line);
+        color: var(--color-ink-muted);
     }
 
     /* Mini map: a 12-column strip, h rows tall, with the widget's w × h filled in */
@@ -47,7 +46,7 @@
         gap: 1px;
         padding: 2px;
         border-radius: 3px;
-        background-color: var(--color-gray-100);
+        background-color: var(--color-line);
     }
 
     .palette-size-fill {
@@ -58,29 +57,15 @@
     }
 
     .palette-item.is-placed .palette-size-fill {
-        background-color: var(--color-gray-300);
+        background-color: var(--color-line-strong);
     }
 
+    /* The "+" button is a .btn-soft (index.css): repeated action, no gradient (charter §3) */
     .palette-item-add {
         flex-shrink: 0;
         width: 2rem;
         height: 2rem;
-        border-radius: 0.5rem;
-        background-image: var(--brand-gradient);
-        box-shadow: var(--shadow-brand);
-        color: white;
-        cursor: pointer;
-        transition:
-            background-color var(--motion-fast),
-            scale var(--motion-fast);
-    }
-
-    .palette-item-add:hover {
-        filter: brightness(1.08);
-    }
-
-    .palette-item-add:active {
-        scale: 0.92;
+        border-radius: var(--radius-sm);
     }
 
     /* Appears when the widget is added: the badge pops, then the check draws itself */
@@ -91,9 +76,9 @@
         gap: 0.25rem;
         padding: 0.25rem 0.5rem;
         border-radius: 9999px;
-        background-color: var(--color-emerald-50);
-        color: var(--color-emerald-700);
-        font-size: 0.75rem;
+        background-color: var(--color-success-soft);
+        color: var(--color-success-strong);
+        font-size: var(--text-caption);
         font-weight: 500;
         animation: added-pop var(--motion-slow) var(--ease-spring);
     }

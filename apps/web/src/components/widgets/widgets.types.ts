@@ -67,6 +67,9 @@ type WidgetBase = {
     icon: ComponentType<SVGProps<SVGSVGElement>>;
     endpoint: string;
     defaultSize?: GridSize;
+    // Colour of the icon tile, as a CSS value (charter §2.5). Presentation only: the widget system
+    // never interprets it. Left out = the interface accent.
+    tone?: string;
 }
 
 export type StatWidgetDefinition = WidgetBase & ({ archetype: typeof WidgetArchetype.ArchetypeStat; unit: string});

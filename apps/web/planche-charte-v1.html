@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>XiaoTrack - planche de charte v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   Tokens proposés (choix 1C 2B 3B 4A 5B 6B 7B 9A, 8 = reco par défaut).
+   Noms pensés pour être recopiés tels quels dans le @theme de index.css.
+   ============================================================ */
+:root {
+    /* Surfaces et lignes (1C : fond uni, une seule signature) */
+    --color-canvas: oklch(0.982 0.004 285);
+    --color-surface: #ffffff;
+    --color-glass: oklch(1 0 0 / 0.7);
+    --color-line: oklch(0.93 0.008 280);
+    --color-line-strong: oklch(0.87 0.014 280);
+
+    /* Texte */
+    --color-ink: oklch(0.21 0.02 280);
+    --color-ink-soft: oklch(0.45 0.02 280);
+    --color-ink-muted: oklch(0.55 0.015 280);
+
+    /* Accent d'interface : indigo (2B) */
+    --color-accent: oklch(0.585 0.233 277);
+    --color-accent-strong: oklch(0.457 0.24 277);
+    --color-accent-soft: oklch(0.962 0.018 272);
+    --color-accent-line: oklch(0.785 0.115 275);
+
+    /* Couleurs de données : turquoise en tête (2B) */
+    --color-data-1: oklch(0.72 0.13 190);
+    --color-data-2: oklch(0.62 0.19 277);
+    --color-data-3: oklch(0.79 0.15 75);
+    --color-data-4: oklch(0.68 0.19 10);
+    --color-data-5: oklch(0.7 0.03 260);
+
+    /* Sémantiques Tailwind standard, en tokens (4A) */
+    --color-success: oklch(0.596 0.145 163);
+    --color-success-soft: oklch(0.979 0.021 166);
+    --color-success-strong: oklch(0.432 0.095 166);
+    --color-warning: oklch(0.769 0.188 70);
+    --color-warning-soft: oklch(0.987 0.022 95);
+    --color-warning-strong: oklch(0.473 0.137 46);
+    --color-danger: oklch(0.577 0.245 27);
+    --color-danger-soft: oklch(0.971 0.013 17);
+    --color-danger-strong: oklch(0.444 0.177 27);
+    --color-info: oklch(0.623 0.214 259);
+    --color-info-soft: oklch(0.97 0.014 254);
+    --color-info-strong: oklch(0.424 0.199 265);
+
+    /* Domaines, en touche discrète (5B) */
+    --color-domain-nutrition: oklch(0.7 0.17 50);
+    --color-domain-workouts: oklch(0.64 0.21 12);
+    --color-domain-planning: oklch(0.68 0.14 232);
+    --color-domain-habits: oklch(0.62 0.2 300);
+    --color-domain-notes: oklch(0.78 0.15 88);
+
+    /* Dégradé de marque (3B : logo + une action principale par écran) */
+    --brand-gradient: linear-gradient(135deg, oklch(0.623 0.214 259), oklch(0.585 0.233 277) 50%, oklch(0.558 0.288 302));
+    --brand-gradient-text: linear-gradient(90deg, oklch(0.623 0.214 259), oklch(0.585 0.233 277) 50%, oklch(0.558 0.288 302));
+
+    /* Formes (8 : reco par défaut, non tranché) */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --shadow-tint: 49 46 129;
+    --shadow-card: 0 1px 2px rgb(var(--shadow-tint) / 0.05), 0 1px 3px rgb(var(--shadow-tint) / 0.04);
+    --shadow-card-hover: 0 6px 16px rgb(var(--shadow-tint) / 0.08), 0 2px 4px rgb(var(--shadow-tint) / 0.04);
+    --shadow-float: 0 12px 32px rgb(var(--shadow-tint) / 0.16), 0 4px 10px rgb(var(--shadow-tint) / 0.08);
+    --shadow-brand: 0 6px 16px -4px oklch(0.558 0.288 302 / 0.5);
+
+    /* Typo (7B) */
+    --text-caption: 0.75rem;
+    --text-label: 0.8125rem;
+    --text-body: 0.875rem;
+    --text-title: 1rem;
+    --text-heading: 1.25rem;
+    --text-display: 1.75rem;
+
+    /* Mouvement (9A : expressif) */
+    --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --motion-fast: 150ms;
+    --motion-base: 250ms;
+    --motion-slow: 400ms;
+}
+
+* { box-sizing: border-box; margin: 0; }
+body {
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    font-size: var(--text-body);
+    color: var(--color-ink);
+    background: oklch(0.955 0.006 280);
+    -webkit-font-smoothing: antialiased;
+    padding: 32px 16px 80px;
+}
+.page { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+
+/* ---------- En-tête de la planche ---------- */
+.board-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.board-head h1 { font-size: var(--text-display); font-weight: 650; letter-spacing: -0.02em; }
+.board-head p { color: var(--color-ink-soft); margin-top: 4px; }
+.choices { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.choice { font-size: var(--text-caption); font-weight: 500; padding: 3px 9px; border-radius: 999px; background: var(--color-surface); border: 1px solid var(--color-line); color: var(--color-ink-soft); }
+.choice b { color: var(--color-accent-strong); font-weight: 600; }
+.choice.pending { border-style: dashed; color: var(--color-warning-strong); background: var(--color-warning-soft); }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--color-surface); border: 1px solid var(--color-line); }
+.seg button { border: 0; background: transparent; font: inherit; font-size: var(--text-label); font-weight: 500; color: var(--color-ink-soft); padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--color-accent-soft); color: var(--color-accent-strong); }
+
+/* ---------- Sections ---------- */
+section > h2 { font-size: var(--text-heading); font-weight: 600; letter-spacing: -0.01em; }
+section > .lead { color: var(--color-ink-soft); margin: 4px 0 16px; max-width: 72ch; line-height: 1.55; }
+.tag { display: inline-block; font-size: var(--text-caption); font-weight: 600; color: var(--color-accent-strong); background: var(--color-accent-soft); border-radius: var(--radius-sm); padding: 1px 6px; margin-right: 6px; vertical-align: 2px; }
+.tag.pending { color: var(--color-warning-strong); background: var(--color-warning-soft); }
+.panel { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-card); }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; }
+.panel h3 { font-size: var(--text-title); font-weight: 600; margin-bottom: 4px; }
+.panel .sub { font-size: var(--text-label); color: var(--color-ink-muted); margin-bottom: 14px; line-height: 1.5; }
+.note { font-size: var(--text-label); line-height: 1.5; color: var(--color-ink-soft); padding: 10px 12px; border-radius: var(--radius-md); background: var(--color-canvas); border: 1px dashed var(--color-line-strong); margin-top: 14px; }
+.note.warn { background: var(--color-warning-soft); border-color: oklch(0.85 0.1 80); color: var(--color-warning-strong); }
+
+/* ---------- Nuancier ---------- */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+.sw { border-radius: var(--radius-md); border: 1px solid var(--color-line); overflow: hidden; background: var(--color-surface); }
+.sw i { display: block; height: 56px; }
+.sw span { display: block; padding: 7px 9px; font-size: var(--text-caption); line-height: 1.35; }
+.sw span b { display: block; font-weight: 600; color: var(--color-ink); }
+.sw span code { color: var(--color-ink-muted); font-size: 11px; }
+
+/* ======================================================
+   Maquette de l'app
+   ====================================================== */
+.app {
+    position: relative;
+    display: grid;
+    grid-template-columns: 216px 1fr;
+    height: 600px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-line-strong);
+    overflow: hidden;
+    background-color: var(--color-canvas);
+    box-shadow: var(--shadow-float);
+}
+/* Signature A : halos sur le fond, panneaux pleins */
+.sig-halos .app {
+    background-image:
+        radial-gradient(42rem 26rem at -10% -10%, oklch(0.9 0.07 265 / 0.45), transparent 70%),
+        radial-gradient(36rem 24rem at 110% -5%, oklch(0.9 0.08 305 / 0.35), transparent 70%);
+}
+.sig-halos .app-side, .sig-halos .app-top { background: var(--color-surface); }
+/* Signature B : fond uni, panneaux en verre au-dessus du contenu qui défile */
+.sig-glass .app-side, .sig-glass .app-top { background: var(--color-glass); backdrop-filter: blur(16px); }
+
+.app-side { border-right: 1px solid var(--color-line); padding: 0 12px 12px; display: flex; flex-direction: column; z-index: 2; }
+.brand { display: flex; align-items: center; gap: 10px; height: 60px; padding: 0 4px; margin-bottom: 14px; }
+.brand-tile {
+    width: 36px; height: 36px; border-radius: var(--radius-md);
+    background: var(--brand-gradient); box-shadow: var(--shadow-brand);
+    display: grid; place-items: center; color: white; position: relative; overflow: hidden;
+}
+.brand-tile::before { content: ""; position: absolute; inset: 0 0 50% 0; background: linear-gradient(white, transparent); opacity: 0.25; }
+.brand-tile svg { width: 20px; height: 20px; position: relative; }
+.brand-name { font-size: 1.25rem; font-weight: 650; letter-spacing: -0.02em; background: var(--brand-gradient-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.menu-label { font-size: var(--text-caption); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-ink-muted); padding: 0 8px; margin-bottom: 6px; }
+.nav { display: flex; flex-direction: column; gap: 2px; list-style: none; padding: 0; }
+.nav a { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: var(--radius-md); color: var(--color-ink-soft); text-decoration: none; font-weight: 500; font-size: var(--text-body); position: relative; }
+.nav a:hover { background: var(--color-accent-soft); color: var(--color-ink); }
+.nav a.active { background: var(--color-surface); color: var(--color-accent-strong); box-shadow: var(--shadow-card-hover); }
+.nav a.active::before { content: ""; position: absolute; left: -12px; top: 50%; translate: 0 -50%; width: 3px; height: 22px; border-radius: 0 3px 3px 0; background: var(--color-accent); }
+/* 5B : chaque domaine teinte sa propre tuile d'icône */
+.dom { width: 30px; height: 30px; border-radius: var(--radius-md); display: grid; place-items: center; flex-shrink: 0;
+       color: var(--dc); background: color-mix(in oklch, var(--dc) 13%, white); }
+.dom svg { width: 17px; height: 17px; }
+.nav a.active .dom { background: var(--dc); color: white; }
+
+.app-main { position: relative; min-height: 0; overflow: hidden; }
+.app-top {
+    position: absolute; inset: 0 0 auto 0; height: 60px; z-index: 2;
+    display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+    border-bottom: 1px solid var(--color-line);
+}
+.app-top h2 { font-size: var(--text-title); font-weight: 600; }
+.app-top p { font-size: var(--text-caption); color: var(--color-ink-muted); }
+.top-right { display: flex; align-items: center; gap: 10px; }
+.icon-btn { width: 36px; height: 36px; border-radius: 999px; display: grid; place-items: center; color: var(--color-ink-soft); position: relative; }
+.icon-btn svg { width: 19px; height: 19px; }
+.icon-btn .dot { position: absolute; top: 8px; right: 9px; width: 8px; height: 8px; border-radius: 999px; background: var(--color-accent); box-shadow: 0 0 0 2px white; }
+.avatar { width: 32px; height: 32px; border-radius: 999px; background: color-mix(in oklch, var(--color-domain-nutrition) 40%, white); display: grid; place-items: center; font-size: var(--text-caption); font-weight: 600; color: var(--color-warning-strong); }
+.who { line-height: 1.2; }
+.who b { display: block; font-size: var(--text-label); font-weight: 500; }
+.who span { font-size: var(--text-caption); color: var(--color-ink-muted); }
+
+.app-scroll { position: absolute; inset: 0; overflow-y: auto; padding: 76px 20px 20px; }
+.toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.toolbar p { font-size: var(--text-label); color: var(--color-ink-muted); }
+
+/* Boutons */
+.btn { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 6px 14px; border-radius: var(--radius-md); font: inherit; font-size: var(--text-body); font-weight: 500; border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: background-color var(--motion-fast), scale var(--motion-fast), filter var(--motion-fast); }
+.btn:active { scale: 0.97; }
+.btn svg { width: 15px; height: 15px; }
+.btn-primary { background: var(--brand-gradient); color: white; box-shadow: var(--shadow-brand), inset 0 1px 0 rgb(255 255 255 / 0.2); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-accent { background: var(--color-accent); color: white; }
+.btn-soft { background: var(--color-accent-soft); color: var(--color-accent-strong); }
+.btn-secondary { background: var(--color-surface); border-color: var(--color-line-strong); color: var(--color-ink-soft); box-shadow: var(--shadow-card); }
+.btn-ghost { background: transparent; color: var(--color-ink-soft); }
+.btn-ghost:hover { background: var(--color-accent-soft); }
+.btn-danger { background: var(--color-danger); color: white; }
+
+/* Grille de widgets */
+.wgrid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: 64px; gap: 10px; }
+.w {
+    grid-column: span var(--w); grid-row: span var(--h);
+    background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card); padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; min-width: 0;
+    transition: box-shadow var(--motion-base) var(--ease-out-soft), border-color var(--motion-base);
+}
+.w:hover { box-shadow: var(--shadow-card-hover); border-color: var(--color-line-strong); }
+.w-head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.w-head .dom { width: 24px; height: 24px; border-radius: var(--radius-sm); }
+.w-head .dom svg { width: 14px; height: 14px; }
+.w-title { font-size: var(--text-label); font-weight: 500; color: var(--color-ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.w-value { margin-top: auto; display: flex; align-items: baseline; gap: 5px; font-size: 1.625rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+.w-value small { font-size: var(--text-label); font-weight: 500; color: var(--color-ink-muted); letter-spacing: 0; }
+.w-trend { font-size: var(--text-caption); font-weight: 500; }
+.w-trend.up { color: var(--color-success-strong); }
+.w-trend.down { color: var(--color-danger-strong); }
+.legend { display: flex; gap: 12px; font-size: var(--text-caption); color: var(--color-ink-muted); }
+.legend i { display: inline-block; width: 8px; height: 8px; border-radius: 999px; margin-right: 5px; vertical-align: 0; }
+.plot { flex: 1; min-height: 0; position: relative; }
+.plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.ring { display: flex; align-items: center; gap: 14px; flex: 1; }
+.ring svg { width: 74px; height: 74px; rotate: -90deg; }
+.ring b { font-size: 1.375rem; font-weight: 600; }
+.ring span { display: block; font-size: var(--text-caption); color: var(--color-ink-muted); }
+.list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: var(--text-label); }
+.list li { display: flex; align-items: center; gap: 8px; }
+.list .chk { width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid var(--color-line-strong); display: grid; place-items: center; flex-shrink: 0; }
+.list .chk.on { background: var(--color-data-1); border-color: var(--color-data-1); color: white; }
+.list .chk svg { width: 11px; height: 11px; }
+.list .done { color: var(--color-ink-muted); text-decoration: line-through; }
+
+/* Barre d'édition flottante (seule action principale de l'écran = Save) */
+.editbar {
+    position: sticky; bottom: 4px; z-index: 3; width: fit-content; margin: 16px auto 0;
+    display: flex; align-items: center; gap: 4px; padding: 5px 5px 5px 14px;
+    background: rgb(255 255 255 / 0.88); backdrop-filter: blur(12px);
+    border: 1px solid var(--color-line); border-radius: 999px; box-shadow: var(--shadow-float);
+}
+.editbar .btn { border-radius: 999px; }
+.status { display: flex; align-items: center; gap: 8px; font-size: var(--text-label); font-weight: 500; color: var(--color-ink-soft); margin-right: 4px; }
+.status i { width: 8px; height: 8px; border-radius: 999px; background: var(--color-warning); animation: pulse 1.6s ease-out infinite; }
+.sep { width: 1px; height: 20px; background: var(--color-line); margin: 0 4px; }
+@keyframes pulse { from { box-shadow: 0 0 0 0 oklch(0.769 0.188 70 / 0.5); } to { box-shadow: 0 0 0 8px oklch(0.769 0.188 70 / 0); } }
+
+/* ---------- 9A : animations expressives ---------- */
+.play .w { animation: enter var(--motion-slow) var(--ease-out-soft) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes enter { from { opacity: 0; translate: 0 10px; scale: 0.96; } }
+.play .line { stroke-dasharray: 1; animation: draw 1s var(--ease-out-soft) 200ms backwards; }
+@keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.play .area { animation: fade 900ms var(--ease-out-soft) 500ms backwards; }
+@keyframes fade { from { opacity: 0; } }
+.play .ring-arc { animation: arc 1.1s var(--ease-out-soft) 250ms backwards; }
+@keyframes arc { from { stroke-dashoffset: 100; } }
+.play .editbar { animation: bar-in var(--motion-slow) var(--ease-spring) 300ms backwards; }
+@keyframes bar-in { from { opacity: 0; translate: 0 24px; scale: 0.96; } }
+
+/* ---------- Comparaisons ---------- */
+.compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.cmp-col h4 { font-size: var(--text-label); font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.cmp-col h4 .tag { margin: 0; }
+.mini-list { display: flex; flex-direction: column; gap: 8px; }
+.mini-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 1px solid var(--color-line); border-radius: var(--radius-md); background: var(--color-surface); }
+.mini-item b { flex: 1; font-size: var(--text-label); font-weight: 500; }
+.plus { width: 28px; height: 28px; border-radius: var(--radius-sm); display: grid; place-items: center; border: 0; }
+.plus svg { width: 14px; height: 14px; }
+.plus.grad { background: var(--brand-gradient); color: white; box-shadow: var(--shadow-brand); }
+.plus.flat { background: var(--color-accent-soft); color: var(--color-accent-strong); }
+.row-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+/* Sémantiques */
+.alerts { display: grid; gap: 8px; }
+.alert { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--radius-md); font-size: var(--text-label); line-height: 1.45; background: var(--bg); color: var(--fg); border: 1px solid color-mix(in oklch, var(--c) 30%, white); }
+.alert svg { width: 17px; height: 17px; flex-shrink: 0; color: var(--c); margin-top: 1px; }
+.alert b { font-weight: 600; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.badge { font-size: var(--text-caption); font-weight: 500; padding: 2px 8px; border-radius: 999px; background: var(--bg); color: var(--fg); }
+
+/* Domaines */
+.domains { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.domain-card { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--color-line); }
+.domain-card div b { display: block; font-size: var(--text-label); font-weight: 600; }
+.domain-card div code { font-size: 11px; color: var(--color-ink-muted); }
+
+/* Typo */
+.type-row { display: grid; grid-template-columns: 110px 70px 1fr; align-items: baseline; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--color-line); }
+.type-row:last-child { border-bottom: 0; }
+.type-row code { font-size: var(--text-caption); color: var(--color-accent-strong); font-weight: 600; }
+.type-row span { font-size: var(--text-caption); color: var(--color-ink-muted); font-variant-numeric: tabular-nums; }
+
+/* Formes */
+.shapes { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
+.shape { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: var(--text-caption); color: var(--color-ink-muted); text-align: center; }
+.shape i { display: block; background: var(--color-surface); border: 1px solid var(--color-line-strong); }
+.shadows { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 20px; padding: 10px; background: var(--color-canvas); border-radius: var(--radius-md); }
+.shadows div { height: 74px; background: var(--color-surface); border-radius: var(--radius-lg); display: grid; place-items: center; font-size: var(--text-caption); color: var(--color-ink-muted); text-align: center; }
+
+.rule-list { padding-left: 18px; display: grid; gap: 6px; line-height: 1.5; color: var(--color-ink-soft); }
+.rule-list code { font-size: var(--text-caption); background: var(--color-canvas); border: 1px solid var(--color-line); border-radius: 4px; padding: 0 4px; color: var(--color-ink); }
+
+@media (max-width: 760px) {
+    .app { grid-template-columns: 1fr; height: auto; }
+    .app-side { display: none; }
+    .app-main { height: 560px; }
+    .wgrid { grid-template-columns: 1fr; grid-auto-rows: auto; }
+    .w { grid-column: auto; grid-row: auto; min-height: 120px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+
+<body class="sig-halos">
+<!-- Icônes (Heroicons outline, comme dans l'app) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"/></symbol>
+    <symbol id="i-food" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 3-4.5 5.5-4.5 8a4.5 4.5 0 0 0 9 0c0-2.5-1.5-5-4.5-8Z"/><path d="M12 21v-6"/></symbol>
+    <symbol id="i-dumbbell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-check-square" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
+    <symbol id="i-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 4.5 19.5 8.5 10 18H6v-4l9.5-9.5Z"/><path d="M4 21h16"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
+    <symbol id="i-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></symbol>
+    <symbol id="i-err" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4.5M12 16h.01"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+</svg>
+
+<main class="page">
+
+    <!-- ===== En-tête ===== -->
+    <header class="board-head">
+        <div>
+            <h1>Planche de charte v1</h1>
+            <p>XiaoTrack, les choix du 13/11/2026 appliqués. Les valeurs de cette page sont les tokens proposés pour <code>index.css</code>.</p>
+            <div class="choices">
+                <span class="choice"><b>1C</b> hybride, signature halos</span>
+                <span class="choice"><b>2B</b> indigo + turquoise</span>
+                <span class="choice"><b>3B</b> dégradé rare</span>
+                <span class="choice"><b>4A</b> sémantiques standard</span>
+                <span class="choice"><b>5B</b> couleur par domaine</span>
+                <span class="choice"><b>6B</b> sombre préparé</span>
+                <span class="choice"><b>7B</b> échelle maison</span>
+                <span class="choice"><b>8A</b> 3 arrondis, ombres indigo</span>
+                <span class="choice"><b>9A</b> expressif</span>
+            </div>
+        </div>
+        <div class="controls">
+            <button type="button" class="btn btn-secondary" id="replay">Rejouer les animations</button>
+        </div>
+    </header>
+
+    <!-- ===== Aperçu ===== -->
+    <section>
+        <h2>Aperçu : le dashboard en mode édition</h2>
+        <p class="lead">Tout est appliqué ici. Signature retenue pour 1C : les halos (deux lavis bleu et violet en haut du fond), avec un header et une sidebar pleins. Le verre dépoli est abandonné.</p>
+
+        <div class="app">
+            <aside class="app-side">
+                <div class="brand">
+                    <span class="brand-tile"><svg><use href="#i-arrow"/></svg></span>
+                    <span class="brand-name">XiaoTrack</span>
+                </div>
+                <p class="menu-label">Menu</p>
+                <ul class="nav">
+                    <li><a href="#" class="active" style="--dc: var(--color-accent)"><span class="dom"><svg><use href="#i-grid"/></svg></span>Dashboard</a></li>
+                    <li><a href="#" style="--dc: var(--color-domain-nutrition)"><span class="dom"><svg><use href="#i-food"/></svg></span>Nutrition</a></li>
+                    <li><a href="#" style="--dc: var(--color-domain-workouts)"><span class="dom"><svg><use href="#i-dumbbell"/></svg></span>Workouts</a></li>
+                    <li><a href="#" style="--dc: var(--color-domain-planning)"><span class="dom"><svg><use href="#i-calendar"/></svg></span>Planning</a></li>
+                    <li><a href="#" style="--dc: var(--color-domain-habits)"><span class="dom"><svg><use href="#i-check-square"/></svg></span>Habits</a></li>
+                    <li><a href="#" style="--dc: var(--color-domain-notes)"><span class="dom"><svg><use href="#i-note"/></svg></span>Notes</a></li>
+                </ul>
+            </aside>
+
+            <div class="app-main">
+                <div class="app-top">
+                    <div>
+                        <h2>Dashboard</h2>
+                        <p>Friday, November 13</p>
+                    </div>
+                    <div class="top-right">
+                        <span class="icon-btn"><svg><use href="#i-bell"/></svg><span class="dot"></span></span>
+                        <span class="avatar">XP</span>
+                        <span class="who"><b>XiaoPang</b><span>Admin</span></span>
+                    </div>
+                </div>
+
+                <div class="app-scroll">
+                    <div class="toolbar">
+                        <p>Drag a widget by its title bar to move it. The others make room.</p>
+                    </div>
+
+                    <div class="wgrid">
+                        <article class="w" style="--w:3; --h:2; --i:0">
+                            <div class="w-head"><span class="dom" style="--dc: var(--color-domain-nutrition)"><svg><use href="#i-food"/></svg></span><span class="w-title">Daily calories</span></div>
+                            <p class="w-value"><span data-count="1840">1,840</span><small>kcal</small></p>
+                            <p class="w-trend up">+4% vs yesterday</p>
+                        </article>
+                        <article class="w" style="--w:3; --h:2; --i:1">
+                            <div class="w-head"><span class="dom" style="--dc: var(--color-domain-workouts)"><svg><use href="#i-dumbbell"/></svg></span><span class="w-title">Sessions this week</span></div>
+                            <p class="w-value"><span data-count="4">4</span><small>/ 5</small></p>
+                            <p class="w-trend up">1 left to hit the goal</p>
+                        </article>
+                        <article class="w" style="--w:3; --h:2; --i:2">
+                            <div class="w-head"><span class="dom" style="--dc: var(--color-domain-habits)"><svg><use href="#i-check-square"/></svg></span><span class="w-title">Current streak</span></div>
+                            <p class="w-value"><span data-count="12">12</span><small>days</small></p>
+                            <p class="w-trend down">Best: 21 days</p>
+                        </article>
+                        <article class="w" style="--w:3; --h:2; --i:3">
+                            <div class="w-head"><span class="dom" style="--dc: var(--color-domain-planning)"><svg><use href="#i-calendar"/></svg></span><span class="w-title">Next session</span></div>
+                            <p class="w-value">18:30<small>Legs</small></p>
+                            <p class="w-trend" style="color: var(--color-ink-muted)">Today, gym</p>
+                        </article>
+
+                        <article class="w" style="--w:8; --h:4; --i:4">
+                            <div class="w-head">
+                                <span class="dom" style="--dc: var(--color-domain-nutrition)"><svg><use href="#i-food"/></svg></span>
+                                <span class="w-title">Calories in vs out, this week</span>
+                                <span class="legend" style="margin-left:auto"><span><i style="background: var(--color-data-1)"></i>Intake</span><span><i style="background: var(--color-data-2)"></i>Burned</span></span>
+                            </div>
+                            <div class="plot">
+                                <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                                    <defs>
+                                        <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="oklch(0.72 0.13 190)" stop-opacity="0.25"/><stop offset="1" stop-color="oklch(0.72 0.13 190)" stop-opacity="0"/></linearGradient>
+                                    </defs>
+                                    <g stroke="var(--color-line)" stroke-width="1" vector-effect="non-scaling-stroke"><line x1="0" x2="100" y1="25" y2="25" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="50" y2="50" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="75" y2="75" vector-effect="non-scaling-stroke"/></g>
+                                    <path class="area" d="M0 48 L16.6 40 L33.3 52 L50 30 L66.6 36 L83.3 22 L100 28 L100 100 L0 100 Z" fill="url(#g1)"/>
+                                    <path class="line" pathLength="1" d="M0 48 L16.6 40 L33.3 52 L50 30 L66.6 36 L83.3 22 L100 28" fill="none" stroke="var(--color-data-1)" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>
+                                    <path class="line" pathLength="1" d="M0 70 L16.6 62 L33.3 66 L50 55 L66.6 60 L83.3 50 L100 58" fill="none" stroke="var(--color-data-2)" stroke-width="2" stroke-dasharray="1" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                        </article>
+
+                        <article class="w" style="--w:4; --h:4; --i:5">
+                            <div class="w-head"><span class="dom" style="--dc: var(--color-domain-habits)"><svg><use href="#i-check-square"/></svg></span><span class="w-title">Habits today</span></div>
+                            <div class="ring">
+                                <svg viewBox="0 0 36 36" aria-hidden="true">
+                                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--color-line)" stroke-width="3.5"/>
+                                    <circle class="ring-arc" cx="18" cy="18" r="15.9" fill="none" stroke="var(--color-data-1)" stroke-width="3.5" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="40"/>
+                                </svg>
+                                <div><b>3 / 5</b><span>done today</span></div>
+                            </div>
+                            <ul class="list">
+                                <li><span class="chk on"><svg><use href="#i-tick"/></svg></span><span class="done">Drink 2 L of water</span></li>
+                                <li><span class="chk on"><svg><use href="#i-tick"/></svg></span><span class="done">Read 20 pages</span></li>
+                                <li><span class="chk"></span>Stretch 10 min</li>
+                            </ul>
+                        </article>
+
+                        <article class="w" style="--w:6; --h:2; --i:6">
+                            <div class="w-head"><span class="dom" style="--dc: var(--color-domain-notes)"><svg><use href="#i-note"/></svg></span><span class="w-title">Last note</span></div>
+                            <p style="font-size: var(--text-body); line-height: 1.5; color: var(--color-ink-soft)">Knee felt fine on squats. Try 5 kg more on Thursday, keep the tempo slow.</p>
+                        </article>
+                        <article class="w" style="--w:6; --h:2; --i:7">
+                            <div class="w-head"><span class="dom" style="--dc: var(--color-domain-workouts)"><svg><use href="#i-dumbbell"/></svg></span><span class="w-title">Training volume</span></div>
+                            <p class="w-value"><span data-count="12480">12,480</span><small>kg this week</small></p>
+                            <p class="w-trend down">-6% vs last week</p>
+                        </article>
+                    </div>
+
+                    <div class="editbar" role="toolbar" aria-label="Edit mode">
+                        <span class="status"><i></i>Unsaved changes</span>
+                        <span class="sep"></span>
+                        <button type="button" class="btn btn-ghost"><svg><use href="#i-plus"/></svg>Add widget</button>
+                        <button type="button" class="btn btn-ghost">Cancel</button>
+                        <button type="button" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Couleurs ===== -->
+    <section>
+        <h2>Couleurs</h2>
+        <p class="lead">Quatre familles, quatre rôles qui ne se mélangent pas : l'interface (indigo), les données (turquoise en tête), les statuts (vert, ambre, rouge, bleu) et les domaines (une teinte par onglet, uniquement sur les tuiles d'icône).</p>
+
+        <div class="grid-2">
+            <div class="panel">
+                <h3><span class="tag">1C</span>Surfaces et lignes</h3>
+                <p class="sub">Fond uni à peine teinté violet, cartes blanches, deux niveaux de bordure.</p>
+                <div class="swatches">
+                    <div class="sw"><i style="background: var(--color-canvas)"></i><span><b>canvas</b><code>fond de page</code></span></div>
+                    <div class="sw"><i style="background: var(--color-surface)"></i><span><b>surface</b><code>cartes, barres</code></span></div>
+                    <div class="sw"><i style="background: var(--color-line)"></i><span><b>line</b><code>bordures</code></span></div>
+                    <div class="sw"><i style="background: var(--color-line-strong)"></i><span><b>line-strong</b><code>survol, édition</code></span></div>
+                    <div class="sw"><i style="background: var(--color-ink)"></i><span><b>ink</b><code>texte</code></span></div>
+                    <div class="sw"><i style="background: var(--color-ink-muted)"></i><span><b>ink-muted</b><code>texte secondaire</code></span></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3><span class="tag">2B</span>Accent d'interface : indigo</h3>
+                <p class="sub">Tout ce qui se clique ou se sélectionne : boutons, liens, focus, navigation active, pointillés du drag.</p>
+                <div class="swatches">
+                    <div class="sw"><i style="background: var(--color-accent)"></i><span><b>accent</b><code>indigo-500</code></span></div>
+                    <div class="sw"><i style="background: var(--color-accent-strong)"></i><span><b>accent-strong</b><code>texte sur clair</code></span></div>
+                    <div class="sw"><i style="background: var(--color-accent-line)"></i><span><b>accent-line</b><code>bordures, guides</code></span></div>
+                    <div class="sw"><i style="background: var(--color-accent-soft)"></i><span><b>accent-soft</b><code>fonds, survols</code></span></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3><span class="tag">2B</span>Données : turquoise en tête</h3>
+                <p class="sub">Réservé aux graphiques et aux progressions. L'ordre compte : une série seule est toujours turquoise.</p>
+                <div class="swatches">
+                    <div class="sw"><i style="background: var(--color-data-1)"></i><span><b>data-1</b><code>turquoise</code></span></div>
+                    <div class="sw"><i style="background: var(--color-data-2)"></i><span><b>data-2</b><code>indigo</code></span></div>
+                    <div class="sw"><i style="background: var(--color-data-3)"></i><span><b>data-3</b><code>ambre</code></span></div>
+                    <div class="sw"><i style="background: var(--color-data-4)"></i><span><b>data-4</b><code>rose</code></span></div>
+                    <div class="sw"><i style="background: var(--color-data-5)"></i><span><b>data-5</b><code>ardoise</code></span></div>
+                </div>
+                <p class="note">Le turquoise (teinte 190) reste à distance du vert « succès » (teinte 163). La série 2 est indigo, comme l'accent : acceptable, parce qu'une courbe n'est jamais confondue avec un bouton.</p>
+            </div>
+
+            <div class="panel">
+                <h3><span class="tag">4A</span>Sémantiques</h3>
+                <p class="sub">Couleurs Tailwind standard, rangées en tokens : plein, doux, texte.</p>
+                <div class="alerts">
+                    <div class="alert" style="--c: var(--color-success); --bg: var(--color-success-soft); --fg: var(--color-success-strong)"><svg><use href="#i-ok"/></svg><span><b>Layout saved.</b> Your dashboard is up to date.</span></div>
+                    <div class="alert" style="--c: var(--color-warning); --bg: var(--color-warning-soft); --fg: var(--color-warning-strong)"><svg><use href="#i-warn"/></svg><span><b>Unsaved changes.</b> Save before leaving edit mode.</span></div>
+                    <div class="alert" style="--c: var(--color-danger); --bg: var(--color-danger-soft); --fg: var(--color-danger-strong)"><svg><use href="#i-err"/></svg><span><b>Couldn't load this widget.</b> Retry in a moment.</span></div>
+                    <div class="alert" style="--c: var(--color-info); --bg: var(--color-info-soft); --fg: var(--color-info-strong)"><svg><use href="#i-info"/></svg><span><b>New widgets available.</b> Open the palette to see them.</span></div>
+                </div>
+                <div class="badges">
+                    <span class="badge" style="--bg: var(--color-success-soft); --fg: var(--color-success-strong)">Done</span>
+                    <span class="badge" style="--bg: var(--color-warning-soft); --fg: var(--color-warning-strong)">Pending</span>
+                    <span class="badge" style="--bg: var(--color-danger-soft); --fg: var(--color-danger-strong)">Failed</span>
+                    <span class="badge" style="--bg: var(--color-info-soft); --fg: var(--color-info-strong)">New</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel" style="margin-top: 16px">
+            <h3><span class="tag">5B</span>Domaines</h3>
+            <p class="sub">Une teinte par onglet, appliquée uniquement à la tuile d'icône (fond doux, icône teintée ; tuile pleine quand l'onglet est actif). Jamais sur les boutons, les textes ou les graphiques.</p>
+            <div class="domains">
+                <div class="domain-card"><span class="dom" style="--dc: var(--color-domain-nutrition)"><svg><use href="#i-food"/></svg></span><div><b>Nutrition</b><code>orange · 50</code></div></div>
+                <div class="domain-card"><span class="dom" style="--dc: var(--color-domain-workouts)"><svg><use href="#i-dumbbell"/></svg></span><div><b>Workouts</b><code>rose · 12</code></div></div>
+                <div class="domain-card"><span class="dom" style="--dc: var(--color-domain-planning)"><svg><use href="#i-calendar"/></svg></span><div><b>Planning</b><code>ciel · 232</code></div></div>
+                <div class="domain-card"><span class="dom" style="--dc: var(--color-domain-habits)"><svg><use href="#i-check-square"/></svg></span><div><b>Habits</b><code>violet · 300</code></div></div>
+                <div class="domain-card"><span class="dom" style="--dc: var(--color-domain-notes)"><svg><use href="#i-note"/></svg></span><div><b>Notes</b><code>jaune · 88</code></div></div>
+                <div class="domain-card"><span class="dom" style="--dc: var(--color-accent)"><svg><use href="#i-grid"/></svg></span><div><b>Dashboard</b><code>accent indigo</code></div></div>
+            </div>
+            <p class="note warn">Tension assumée : avec cinq domaines, des voisinages sont inévitables. Notes (jaune) frôle l'alerte (ambre), Planning (ciel) frôle l'info (bleu), Workouts (rose) frôle le danger (rouge). La règle qui évite la confusion : une couleur de domaine n'apparaît que sur une tuile d'icône, une couleur de statut n'apparaît jamais sans son icône ni son texte.</p>
+        </div>
+    </section>
+
+    <!-- ===== Dégradé ===== -->
+    <section>
+        <h2><span class="tag">3B</span>Le dégradé de marque</h2>
+        <p class="lead">Réservé au logo et à une seule action principale par écran. Partout ailleurs, l'accent est plat. Ici, la palette de widgets : 14 boutons « + » dégradés hier, plats demain.</p>
+        <div class="panel">
+            <div class="compare">
+                <div class="cmp-col">
+                    <h4><span class="tag pending">Avant</span>Le dégradé partout</h4>
+                    <div class="mini-list">
+                        <div class="mini-item"><span class="dom" style="--dc: var(--color-domain-nutrition)"><svg><use href="#i-food"/></svg></span><b>Daily calories</b><span class="plus grad"><svg><use href="#i-plus"/></svg></span></div>
+                        <div class="mini-item"><span class="dom" style="--dc: var(--color-domain-workouts)"><svg><use href="#i-dumbbell"/></svg></span><b>Sessions this week</b><span class="plus grad"><svg><use href="#i-plus"/></svg></span></div>
+                        <div class="mini-item"><span class="dom" style="--dc: var(--color-domain-habits)"><svg><use href="#i-check-square"/></svg></span><b>Current streak</b><span class="plus grad"><svg><use href="#i-plus"/></svg></span></div>
+                    </div>
+                    <div class="row-actions"><button class="btn btn-primary">Save</button><button class="btn btn-primary">Add widget</button><button class="btn btn-primary">Edit</button></div>
+                </div>
+                <div class="cmp-col">
+                    <h4><span class="tag">Après</span>Le dégradé comme signal</h4>
+                    <div class="mini-list">
+                        <div class="mini-item"><span class="dom" style="--dc: var(--color-domain-nutrition)"><svg><use href="#i-food"/></svg></span><b>Daily calories</b><span class="plus flat"><svg><use href="#i-plus"/></svg></span></div>
+                        <div class="mini-item"><span class="dom" style="--dc: var(--color-domain-workouts)"><svg><use href="#i-dumbbell"/></svg></span><b>Sessions this week</b><span class="plus flat"><svg><use href="#i-plus"/></svg></span></div>
+                        <div class="mini-item"><span class="dom" style="--dc: var(--color-domain-habits)"><svg><use href="#i-check-square"/></svg></span><b>Current streak</b><span class="plus flat"><svg><use href="#i-plus"/></svg></span></div>
+                    </div>
+                    <div class="row-actions"><button class="btn btn-primary">Save</button><button class="btn btn-secondary">Add widget</button><button class="btn btn-ghost">Edit</button></div>
+                </div>
+            </div>
+            <p class="note">La gamme de boutons qui en découle : <b>primary</b> (dégradé, une fois par écran), <b>accent</b> (indigo plat), <b>soft</b> (fond accent doux), <b>secondary</b> (blanc bordé), <b>ghost</b> (transparent), <b>danger</b> (rouge plein, uniquement pour une suppression confirmée).</p>
+            <div class="row-actions">
+                <button class="btn btn-primary">Primary</button>
+                <button class="btn btn-accent">Accent</button>
+                <button class="btn btn-soft">Soft</button>
+                <button class="btn btn-secondary">Secondary</button>
+                <button class="btn btn-ghost">Ghost</button>
+                <button class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Typo ===== -->
+    <section>
+        <h2><span class="tag">7B</span>Échelle typographique</h2>
+        <p class="lead">Six niveaux nommés par rôle, en Inter. Plus aucune taille choisie au feeling : 11 px et 15 px disparaissent.</p>
+        <div class="panel">
+            <div class="type-row"><code>display</code><span>28 / 650</span><span style="font-size: var(--text-display); font-weight: 650; letter-spacing: -0.02em">1,840 kcal</span></div>
+            <div class="type-row"><code>heading</code><span>20 / 600</span><span style="font-size: var(--text-heading); font-weight: 600; letter-spacing: -0.01em; color: var(--color-ink)">Your dashboard is empty</span></div>
+            <div class="type-row"><code>title</code><span>16 / 600</span><span style="font-size: var(--text-title); font-weight: 600; color: var(--color-ink)">Widget palette</span></div>
+            <div class="type-row"><code>body</code><span>14 / 400</span><span style="font-size: var(--text-body); color: var(--color-ink)">Add widgets from the palette to start building your dashboard.</span></div>
+            <div class="type-row"><code>label</code><span>13 / 500</span><span style="font-size: var(--text-label); font-weight: 500; color: var(--color-ink-soft)">Sessions this week</span></div>
+            <div class="type-row"><code>caption</code><span>12 / 500</span><span style="font-size: var(--text-caption); font-weight: 500; color: var(--color-ink-muted)">Friday, November 13 · +4% vs yesterday</span></div>
+        </div>
+    </section>
+
+    <!-- ===== Formes ===== -->
+    <section>
+        <h2><span class="tag">8A</span>Formes : arrondis et ombres</h2>
+        <p class="lead">Trois arrondis, la pilule réservée aux éléments flottants. Toutes les ombres sont teintées indigo, y compris le widget tenu pendant le drag et les modales.</p>
+        <div class="grid-2">
+            <div class="panel">
+                <h3>Arrondis</h3>
+                <p class="sub">Petit pour les badges et cases, moyen pour les contrôles, grand pour les conteneurs.</p>
+                <div class="shapes">
+                    <div class="shape"><i style="width:44px;height:44px;border-radius:var(--radius-sm)"></i>sm · 6 px<br>badges, cases</div>
+                    <div class="shape"><i style="width:64px;height:44px;border-radius:var(--radius-md)"></i>md · 10 px<br>boutons, champs</div>
+                    <div class="shape"><i style="width:90px;height:64px;border-radius:var(--radius-lg)"></i>lg · 14 px<br>cartes, modales</div>
+                    <div class="shape"><i style="width:90px;height:34px;border-radius:999px"></i>pilule<br>flottants seulement</div>
+                </div>
+            </div>
+            <div class="panel">
+                <h3>Ombres</h3>
+                <p class="sub">Une seule teinte (indigo-900) pour toutes les élévations.</p>
+                <div class="shadows">
+                    <div style="box-shadow: var(--shadow-card)">card<br>au repos</div>
+                    <div style="box-shadow: var(--shadow-card-hover)">card-hover<br>survol, nav active</div>
+                    <div style="box-shadow: var(--shadow-float)">float<br>barre, widget tenu</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Mouvement ===== -->
+    <section>
+        <h2><span class="tag">9A</span>Mouvement : expressif</h2>
+        <p class="lead">On garde tout : cascade d'entrée des widgets, chiffres qui comptent, courbes qui se dessinent, anneau qui se remplit, barre d'édition qui rebondit, pastille qui pulse. Le bouton « Rejouer les animations » relance l'aperçu. Les courbes et les durées restent celles de l'app.</p>
+        <div class="panel">
+            <div class="swatches" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))">
+                <div class="sw"><span><b>ease-out-soft</b><code>cubic-bezier(0.22, 1, 0.36, 1)</code><br>la plupart des mouvements</span></div>
+                <div class="sw"><span><b>ease-spring</b><code>cubic-bezier(0.34, 1.56, 0.64, 1)</code><br>ce qui « atterrit »</span></div>
+                <div class="sw"><span><b>fast / base / slow</b><code>150 / 250 / 400 ms</code><br>survol / état / entrée</span></div>
+            </div>
+            <p class="note">Garde-fou qui reste non négociable avec 9A : <code>prefers-reduced-motion</code> coupe tout, en CSS comme en JS.</p>
+        </div>
+    </section>
+
+    <!-- ===== Règles ===== -->
+    <section>
+        <h2><span class="tag">6B</span>Règles qui rendent le mode sombre possible plus tard</h2>
+        <div class="panel">
+            <ul class="rule-list">
+                <li>Aucune couleur en dur dans un composant : ni <code>rgb()</code>, ni <code>oklch()</code>, ni <code>bg-sky-50</code>. Uniquement des tokens (<code>bg-surface</code>, <code>text-ink-muted</code>, <code>var(--color-data-1)</code>).</li>
+                <li>Les ombres passent par <code>--shadow-tint</code> : le jour du mode sombre, une seule variable change.</li>
+                <li>Le texte a ses propres tokens (<code>ink</code>, <code>ink-soft</code>, <code>ink-muted</code>) au lieu de <code>gray-900</code>, <code>gray-600</code>, <code>gray-400</code>.</li>
+                <li>Chaque nouvelle couleur entre d'abord dans <code>@theme</code>, avec un nom de rôle, jamais de teinte.</li>
+            </ul>
+        </div>
+    </section>
+</main>
+
+<script>
+(() => {
+    const body = document.body;
+    const app = document.querySelector(".app");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const fmt = new Intl.NumberFormat("en");
+
+    // Bascule de signature (1C)
+    document.querySelectorAll("[data-sig]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            body.classList.toggle("sig-halos", btn.dataset.sig === "halos");
+            body.classList.toggle("sig-glass", btn.dataset.sig === "glass");
+            document.querySelectorAll("[data-sig]").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+        });
+    });
+
+    // Compteurs (9A)
+    const countUp = () => {
+        document.querySelectorAll("[data-count]").forEach((el) => {
+            const target = Number(el.dataset.count);
+            if (reduce) { el.textContent = fmt.format(target); return; }
+            const start = performance.now();
+            const tick = (now) => {
+                const p = Math.min((now - start) / 700, 1);
+                el.textContent = fmt.format(Math.round(target * (1 - (1 - p) ** 3)));
+                if (p < 1) requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+        });
+    };
+
+    // Rejouer : retirer la classe, forcer un reflow, la remettre
+    const play = () => {
+        app.classList.remove("play");
+        void app.offsetWidth;
+        app.classList.add("play");
+        countUp();
+    };
+    document.getElementById("replay").addEventListener("click", play);
+    play();
+})();
+</script>
+</body>
+</html>

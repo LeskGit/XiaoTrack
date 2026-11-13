@@ -1,11 +1,13 @@
 import { BookCheckIcon, CalendarCheckIcon, DumbellIcon, HamIcon, NoteBookPenIcon, TrendingUpDownIcon } from "../icons/library";
 import { type WidgetDefinition } from "./widgets.types";
+import { domainToneMap } from "@/shared/styles";
 import { WidgetArchetype } from "./widgets.types"
 
 export const widgetCatalog = {
     "nutrition.dailyKcal":  { 
         title: "Daily calories", 
         icon: HamIcon, 
+        tone: domainToneMap.nutrition,
         endpoint: "/", 
         archetype: WidgetArchetype.ArchetypeStat, 
         unit: "kcal", 
@@ -25,6 +27,7 @@ export const widgetCatalog = {
     "nutrition.protein": {
         title: "Daily protein",
         icon: HamIcon,
+        tone: domainToneMap.nutrition,
         endpoint: "/",
         archetype: WidgetArchetype.ArchetypeStat,
         unit: "g",
@@ -32,6 +35,7 @@ export const widgetCatalog = {
     "nutrition.water": {
         title: "Water intake",
         icon: HamIcon,
+        tone: domainToneMap.nutrition,
         endpoint: "/",
         archetype: WidgetArchetype.ArchetypeStat,
         unit: "L",
@@ -40,6 +44,7 @@ export const widgetCatalog = {
     "nutrition.weeklyKcal": {
         title: "Calories this week",
         icon: HamIcon,
+        tone: domainToneMap.nutrition,
         endpoint: "/",
         archetype: WidgetArchetype.ArchetypeChart,
         defaultSize: {width: 6, height: 2},
@@ -49,6 +54,7 @@ export const widgetCatalog = {
     "workout.sessionsThisWeek": {
         title: "Sessions this week",
         icon: DumbellIcon,
+        tone: domainToneMap.workouts,
         endpoint: "/",
         archetype: WidgetArchetype.ArchetypeStat,
         unit: "sessions",
@@ -56,6 +62,7 @@ export const widgetCatalog = {
     "workout.personalRecords": {
         title: "Personal records",
         icon: DumbellIcon,
+        tone: domainToneMap.workouts,
         endpoint: "/",
         archetype: WidgetArchetype.ArchetypeStat,
         unit: "PR",
@@ -64,6 +71,7 @@ export const widgetCatalog = {
     "workout.volume": {
         title: "Training volume",
         icon: DumbellIcon,
+        tone: domainToneMap.workouts,
         endpoint: "/",
         archetype: WidgetArchetype.ArchetypeChart,
     },
@@ -88,6 +96,7 @@ export const widgetCatalog = {
     "habits.streak": {
         title: "Current streak",
         icon: CalendarCheckIcon,
+        tone: domainToneMap.habits,
         endpoint: "/",
         archetype: WidgetArchetype.ArchetypeStat,
         unit: "days",
@@ -95,6 +104,7 @@ export const widgetCatalog = {
     "habits.weeklyOverview": {
         title: "Habits this week",
         icon: CalendarCheckIcon,
+        tone: domainToneMap.habits,
         endpoint: "/",
         archetype: WidgetArchetype.ArchetypeChart,
         defaultSize: {width: 12, height: 2},
@@ -104,6 +114,7 @@ export const widgetCatalog = {
     "journal.entries": {
         title: "Journal entries",
         icon: NoteBookPenIcon,
+        tone: domainToneMap.notes,
         endpoint: "/",
         archetype: WidgetArchetype.ArchetypeStat,
         unit: "entries",

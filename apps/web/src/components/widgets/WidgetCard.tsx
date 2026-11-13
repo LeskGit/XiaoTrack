@@ -1,7 +1,7 @@
 import "./widget-grid.css";
 import type { WidgetDefinition } from "./widgets.types";
 import { Icon, IconButton } from "../icons";
-import type { ReactNode, PointerEvent } from "react";
+import type { CSSProperties, ReactNode, PointerEvent } from "react";
 import { GripIcon, PlusIcon } from "../icons/library";
 
 type WidgetCardProps = {
@@ -33,7 +33,12 @@ export default function WidgetCard({definition, children, onRemove, onHandlePoin
                         <Icon icon={GripIcon} size="custom" className="h-4 w-4" />
                     </span>
                 )}
-                <span className="widget-card-icon" aria-hidden="true">
+                {/* Tinted by the catalog entry's tone (tone-tile utility), the accent by default */}
+                <span
+                    className="widget-card-icon tone-tile"
+                    style={definition.tone ? { "--tone": definition.tone } as CSSProperties : undefined}
+                    aria-hidden="true"
+                >
                     <Icon icon={definition.icon} size="custom" className="h-4 w-4" iconWeight="regular" />
                 </span>
                 <h2 className="widget-card-title">{definition.title}</h2>

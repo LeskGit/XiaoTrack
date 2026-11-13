@@ -18,7 +18,7 @@ export default function Modal({isOpen, onClose, title, children, placement = "ce
 
     const dialogClasses = [
         // modal + modal-{placement}: open / close animations (modal.css)
-        `modal modal-${placement} shadow-xl`,
+        `modal modal-${placement} shadow-float`,
         placementClasses[placement],           
         sizeClasses[size],                      
         classname,                              
@@ -43,7 +43,7 @@ export default function Modal({isOpen, onClose, title, children, placement = "ce
         >
         <div className="flex h-full flex-col p-6">
             <header className="mb-4 flex items-center justify-between gap-4">
-                <h2 className="text-lg font-semibold">{title}</h2>
+                <h2 className="text-title font-semibold text-ink">{title}</h2>
                 {closeModalButton &&
                 <IconButton
                     icon={PlusIcon}
@@ -51,7 +51,7 @@ export default function Modal({isOpen, onClose, title, children, placement = "ce
                     onClick={onClose}
                     ariaLabel="Close"
                     className="rotate-45"
-                    classNameBtn="h-8 w-8 shrink-0 rounded-lg text-gray-500 hover:bg-gray-100"
+                    classNameBtn="btn btn-ghost btn-icon shrink-0"
                 />}
             </header>
             {children}

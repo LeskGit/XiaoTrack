@@ -9,21 +9,28 @@ type WidgetPaletteItemProps = {
     readonly title: string;
     readonly size: GridSize;
     readonly icon: React.ComponentType;
+    // CSS colour of the icon tile (catalog entry's tone); undefined = the accent
+    readonly tone?: string;
     readonly isPlaced: boolean;
     readonly onAdd: () => void;
 }
 
-export default function WidgetPaletteItem({title, size, icon, isPlaced, onAdd}: WidgetPaletteItemProps) {
+export default function WidgetPaletteItem({title, size, icon, tone, isPlaced, onAdd}: WidgetPaletteItemProps) {
 
     return (
         <li className={`palette-item ${isPlaced ? "is-placed" : ""}`}>
-            <span className="palette-item-icon">
+            {/* Placed: no tone-tile, the grey "already added" look of palette.css applies
+                (a utility would win over it, whatever the selector) */}
+            <span
+                className={`palette-item-icon ${isPlaced ? "" : "tone-tile"}`}
+                style={tone ? { "--tone": tone } as CSSProperties : undefined}
+            >
                 <Icon icon={icon} size="custom" className="h-5 w-5" />
             </span>
 
             <div className="min-w-0 flex-1">
-                <h4 className="truncate text-sm font-medium text-gray-900">{title}</h4>
-                <p className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+                <h4 className="truncate text-label font-medium text-ink">{title}</h4>
+                <p className="mt-1 flex items-center gap-2 text-caption text-ink-muted">
                     {/* Mini map of the default size: w × h cells of a 12-column row */}
                     <span
                         className="palette-size"
@@ -49,7 +56,7 @@ export default function WidgetPaletteItem({title, size, icon, isPlaced, onAdd}: 
                     iconWeight="bold"
                     onClick={onAdd}
                     ariaLabel={`Add ${title}`}
-                    classNameBtn="palette-item-add" />
+                    classNameBtn="btn btn-soft btn-icon palette-item-add" />
             )}
         </li>
     )

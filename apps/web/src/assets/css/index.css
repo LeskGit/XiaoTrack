@@ -1,51 +1,132 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Each --color-* / --font-* / --ease-* / --animate-* variable also creates
- * the matching Tailwind utilities (bg-surface, ease-out-soft...). The other variables are plain
- * CSS variables, read by the component stylesheets (widget-grid.css, modal.css).
+ * Design tokens: the charter is docs/design/charte-graphique.md (visual board: apps/web/planche-charte-v1.html).
+ * Each variable of a Tailwind namespace (--color-*, --text-*, --radius-*, --shadow-*, --ease-*, --font-*)
+ * also creates the matching utilities: bg-surface, text-ink-muted, text-label, rounded-lg, shadow-card...
+ * Rule: components use these tokens, never a raw colour (no rgb(), no oklch(), no bg-sky-50, no text-gray-500).
  */
 @theme {
-    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
 
-    /* Surfaces and lines: whites with a faint violet tint, so the whole app shares the logo's hue */
-    --color-canvas: oklch(0.984 0.006 285);           /* page background */
-    --color-surface: #ffffff;                         /* cards, bars, drawers */
-    --color-glass: oklch(1 0 0 / 0.72);               /* header and sidebar: see-through white over the canvas */
-    --color-line: oklch(0.93 0.01 280);               /* default borders */
-    --color-line-strong: oklch(0.875 0.018 280);      /* hovered / editable borders */
+    /* ── Surfaces and lines ── */
+    --color-canvas: oklch(0.982 0.004 285);           /* page background, under the halos */
+    --color-surface: #ffffff;                         /* cards, header, sidebar, bars */
+    --color-line: oklch(0.93 0.008 280);              /* default borders */
+    --color-line-strong: oklch(0.87 0.014 280);       /* hovered / editable borders */
 
-    /* Accent = the logo's middle colour (indigo): handles, guides, landing cell, highlights, active nav */
-    --color-accent: oklch(0.585 0.233 277.117);       /* indigo-500 */
-    --color-accent-strong: oklch(0.457 0.24 277.023); /* indigo-700: accent text on light fills */
-    --color-accent-soft: oklch(0.962 0.018 272.314);  /* indigo-50 */
-    --color-accent-line: oklch(0.785 0.115 274.713);  /* indigo-300 */
+    /* ── Text ── (replaces gray-900 / gray-600 / gray-400) */
+    --color-ink: oklch(0.21 0.02 280);
+    --color-ink-soft: oklch(0.45 0.02 280);
+    --color-ink-muted: oklch(0.55 0.015 280);
 
-    /* Shapes. Shadows are tinted indigo instead of grey: softer and on-theme */
-    --radius-card: 0.875rem;
-    --shadow-card: 0 1px 2px rgb(49 46 129 / 0.05), 0 1px 3px rgb(49 46 129 / 0.04);
-    --shadow-card-hover: 0 6px 16px rgb(49 46 129 / 0.08), 0 2px 4px rgb(49 46 129 / 0.04);
-    --shadow-float: 0 12px 32px rgb(49 46 129 / 0.16), 0 4px 10px rgb(49 46 129 / 0.08);
-    /* Coloured glow under brand-filled elements (logo tile, primary buttons, active nav icon) */
-    --shadow-brand: 0 6px 16px -4px rgb(124 58 237 / 0.55);
+    /* ── Interface accent: indigo. Everything clickable or selected ── */
+    --color-accent: oklch(0.585 0.233 277);           /* indigo-500 */
+    --color-accent-strong: oklch(0.457 0.24 277);     /* indigo-700: accent text on light fills */
+    --color-accent-soft: oklch(0.962 0.018 272);      /* indigo-50: fills, hovers */
+    --color-accent-line: oklch(0.785 0.115 275);      /* indigo-300: borders, guides */
 
-    /* Motion */
+    /* ── Data: charts and progress only. A single series is always data-1 ── */
+    --color-data-1: oklch(0.72 0.13 190);             /* turquoise */
+    --color-data-2: oklch(0.62 0.19 277);             /* indigo */
+    --color-data-3: oklch(0.79 0.15 75);              /* amber */
+    --color-data-4: oklch(0.68 0.19 10);              /* rose */
+    --color-data-5: oklch(0.7 0.03 260);              /* slate */
+
+    /* ── Status: plain / soft (background) / strong (text). Never without an icon or a text ── */
+    --color-success: oklch(0.596 0.145 163);          /* emerald-500 */
+    --color-success-soft: oklch(0.979 0.021 166);
+    --color-success-strong: oklch(0.432 0.095 166);
+    --color-warning: oklch(0.769 0.188 70);           /* amber-500 */
+    --color-warning-soft: oklch(0.987 0.022 95);
+    --color-warning-strong: oklch(0.473 0.137 46);
+    --color-danger: oklch(0.577 0.245 27);            /* red-600 */
+    --color-danger-soft: oklch(0.971 0.013 17);
+    --color-danger-strong: oklch(0.444 0.177 27);
+    --color-info: oklch(0.623 0.214 259);             /* blue-500 */
+    --color-info-soft: oklch(0.97 0.014 254);
+    --color-info-strong: oklch(0.424 0.199 265);
+
+    /* ── Domains: on icon tiles only (see .tone-tile below) ── */
+    --color-domain-nutrition: oklch(0.7 0.17 50);     /* orange */
+    --color-domain-workouts: oklch(0.64 0.21 12);     /* rose */
+    --color-domain-planning: oklch(0.68 0.14 232);    /* sky */
+    --color-domain-habits: oklch(0.62 0.2 300);       /* violet */
+    --color-domain-notes: oklch(0.78 0.15 88);        /* yellow */
+
+    /* ── Type scale: six levels, no other size. --text-x--line-height sets the line height of text-x ── */
+    --text-caption: 0.75rem;                          /* 12px: captions, dates, trends */
+    --text-caption--line-height: 1.35;
+    --text-label: 0.8125rem;                          /* 13px: widget titles, labels */
+    --text-label--line-height: 1.4;
+    --text-body: 0.875rem;                            /* 14px: running text */
+    --text-body--line-height: 1.55;
+    --text-title: 1rem;                               /* 16px: panel and modal titles */
+    --text-title--line-height: 1.35;
+    --text-heading: 1.25rem;                          /* 20px: page and empty-state titles */
+    --text-heading--line-height: 1.3;
+    --text-heading--letter-spacing: -0.01em;
+    --text-display: 1.75rem;                          /* 28px: main values */
+    --text-display--line-height: 1.1;
+    --text-display--letter-spacing: -0.02em;
+
+    /* ── Shapes. These override Tailwind's rounded-sm / -md / -lg on purpose ── */
+    --radius-sm: 6px;                                 /* badges, checkboxes, small tiles */
+    --radius-md: 10px;                                /* buttons, fields, icon tiles */
+    --radius-lg: 14px;                                /* cards, modals, panels */
+
+    /* ── Shadows: one tint (indigo-900) for every elevation, through --shadow-tint below ── */
+    --shadow-card: 0 1px 2px rgb(var(--shadow-tint) / 0.05), 0 1px 3px rgb(var(--shadow-tint) / 0.04);
+    --shadow-card-hover: 0 6px 16px rgb(var(--shadow-tint) / 0.08), 0 2px 4px rgb(var(--shadow-tint) / 0.04);
+    --shadow-float: 0 12px 32px rgb(var(--shadow-tint) / 0.16), 0 4px 10px rgb(var(--shadow-tint) / 0.08);
+    /* Coloured glow, only under the brand gradient */
+    --shadow-brand: 0 6px 16px -4px oklch(0.558 0.288 302 / 0.5);
+
+    /* ── Motion ── */
     --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);  /* fast start, long gentle end: most movements */
     --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* small overshoot: things that "land" */
-    --motion-fast: 150ms;
-    --motion-base: 250ms;
-    --motion-slow: 400ms;
 }
 
-/* Brand gradient: the logo's diagonal blue → indigo → violet. Plain variables (not @theme):
-   they hold whole gradients, used through the .bg-brand / .text-brand classes below. */
+/* Plain variables (not in a Tailwind namespace): read by the component stylesheets */
 :root {
+    /* The shadow tint, as "r g b": the day dark mode comes, only this line changes */
+    --shadow-tint: 49 46 129;
+
+    /* Brand gradient: blue-500 → indigo-500 → purple-600. Logo + ONE primary action per screen, nothing else */
     --brand-gradient: linear-gradient(135deg, var(--color-blue-500), var(--color-indigo-500) 50%, var(--color-purple-600));
     --brand-gradient-text: linear-gradient(90deg, var(--color-blue-500), var(--color-indigo-500) 50%, var(--color-purple-600));
+
+    /* Overlay behind modals: the ink colour, see-through */
+    --color-scrim: color-mix(in oklch, var(--color-ink) 30%, transparent);
+
+    --motion-fast: 150ms;   /* hovers, presses */
+    --motion-base: 250ms;   /* state changes */
+    --motion-slow: 400ms;   /* entrances, exits */
 }
 
-/* Buttons shared by the whole app */
+/*
+ * Custom utilities. @utility (not a class in @layer components) makes them real Tailwind utilities:
+ * variants work (hover:bg-brand, md:text-brand) and they sort with the other utilities.
+ */
+@utility bg-brand {
+    background-image: var(--brand-gradient);
+}
+
+@utility text-brand {
+    background-image: var(--brand-gradient-text);
+    background-clip: text;
+    color: transparent;
+}
+
+/* Icon tile tinted by a domain: set --tone on it (or on a parent), e.g. style={{"--tone": "var(--color-domain-habits)"}}.
+   Soft at rest, filled when its parent carries .is-active. */
+@utility tone-tile {
+    background-color: color-mix(in oklch, var(--tone, var(--color-accent)) 13%, white);
+    color: var(--tone, var(--color-accent));
+}
+
 @layer components {
+    /* ── Buttons shared by the whole app (charter §4) ── */
     .btn {
         display: inline-flex;
         align-items: center;
@@ -54,8 +135,8 @@
         min-height: 2.25rem;
         padding: 0.375rem 0.875rem;
         border: 1px solid transparent;
-        border-radius: 0.625rem;
-        font-size: 0.875rem;
+        border-radius: var(--radius-md);
+        font-size: var(--text-body);
         font-weight: 500;
         white-space: nowrap;
         cursor: pointer;
@@ -64,6 +145,7 @@
             border-color var(--motion-fast),
             color var(--motion-fast),
             box-shadow var(--motion-fast),
+            filter var(--motion-fast),
             scale var(--motion-fast);
     }
 
@@ -78,9 +160,14 @@
 
     .btn:disabled {
         cursor: not-allowed;
+        background-image: none;
+        background-color: var(--color-line);
+        border-color: transparent;
+        color: var(--color-ink-muted);
+        box-shadow: none;
     }
 
-    /* Primary: the brand gradient, with the logo's violet glow */
+    /* The main action of the screen, once: brand gradient + its glow */
     .btn-primary {
         background-image: var(--brand-gradient);
         color: white;
@@ -91,65 +178,88 @@
         filter: brightness(1.08) saturate(1.05);
     }
 
-    .btn-primary:disabled {
-        background-image: none;
-        background-color: var(--color-gray-200);
-        color: var(--color-gray-400);
-        box-shadow: none;
+    /* Important secondary action: flat indigo */
+    .btn-accent {
+        background-color: var(--color-accent);
+        color: white;
     }
 
-    /* Brand fill and brand text, reusable anywhere */
-    .bg-brand {
-        background-image: var(--brand-gradient);
+    .btn-accent:hover:not(:disabled) {
+        background-color: var(--color-accent-strong);
     }
 
-    .text-brand {
-        background-image: var(--brand-gradient-text);
-        background-clip: text;
-        color: transparent;
+    /* Repeated actions (adding from a list) */
+    .btn-soft {
+        background-color: var(--color-accent-soft);
+        color: var(--color-accent-strong);
+    }
+
+    .btn-soft:hover:not(:disabled) {
+        background-color: color-mix(in oklch, var(--color-accent-soft), var(--color-accent-line) 35%);
     }
 
     .btn-secondary {
         background-color: var(--color-surface);
         border-color: var(--color-line-strong);
-        color: var(--color-gray-700);
+        color: var(--color-ink-soft);
         box-shadow: var(--shadow-card);
     }
 
     .btn-secondary:hover:not(:disabled) {
-        background-color: var(--color-gray-50);
+        background-color: var(--color-canvas);
+        color: var(--color-ink);
     }
 
     .btn-ghost {
         background-color: transparent;
-        color: var(--color-gray-700);
+        color: var(--color-ink-soft);
     }
 
     .btn-ghost:hover:not(:disabled) {
-        background-color: var(--color-gray-100);
+        background-color: var(--color-accent-soft);
+        color: var(--color-ink);
+    }
+
+    /* Only for a confirmed deletion */
+    .btn-danger {
+        background-color: var(--color-danger);
+        color: white;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+        background-color: var(--color-danger-strong);
     }
 
     .btn-lg {
         min-height: 2.75rem;
         padding: 0.625rem 1.125rem;
     }
+
+    /* Square icon-only button (header menu, close ✕...) */
+    .btn-icon {
+        min-height: 0;
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+    }
 }
 
 @layer base {
-    /* Luminous canvas: two very soft colour washes (blue top-left, violet top-right) over the
-       tinted background. Fixed, so they stay put while the content scrolls. */
+    /* The one signature (charter 1C): two very soft colour washes (blue top-left, violet top-right)
+       over the plain canvas. Fixed, so they stay put while the content scrolls. */
     body {
         background-color: var(--color-canvas);
         background-image:
             radial-gradient(60rem 36rem at -10% -10%, oklch(0.9 0.07 265 / 0.45), transparent 70%),
             radial-gradient(50rem 32rem at 110% -5%, oklch(0.9 0.08 305 / 0.35), transparent 70%);
         background-attachment: fixed;
-        color: var(--color-gray-900);
+        color: var(--color-ink);
+        font-size: var(--text-body);
         -webkit-font-smoothing: antialiased;
     }
 
     /* One switch for the whole app: when the system asks for less motion, CSS animations and
-       transitions end at once. JS animations (FLIP, count-up) check the same media query. */
+       transitions end at once. JS animations (FLIP, count-up) check prefersReducedMotion(). */
     @media (prefers-reduced-motion: reduce) {
         *,
         *::before,

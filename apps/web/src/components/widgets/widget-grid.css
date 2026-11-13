@@ -61,7 +61,7 @@
         content: "";
         position: absolute;
         inset: -4px;
-        border-radius: calc(var(--radius-card) + 4px);
+        border-radius: calc(var(--radius-lg) + 4px);
         pointer-events: none;
         animation: widget-ring 1.4s var(--ease-out-soft) 200ms backwards;
         opacity: 0;
@@ -88,7 +88,7 @@
         padding: clamp(10px, 4cqi, 16px);
         background-color: var(--color-surface);
         border: 1px solid var(--color-line);
-        border-radius: var(--radius-card);
+        border-radius: var(--radius-lg);
         box-shadow: var(--shadow-card);
         transition:
             box-shadow var(--motion-base) var(--ease-out-soft),
@@ -123,9 +123,8 @@
         flex-shrink: 0;
         width: 1.75rem;
         height: 1.75rem;
-        border-radius: 0.5rem;
-        background-color: var(--color-accent-soft);
-        color: var(--color-accent);
+        border-radius: var(--radius-sm);
+        /* Colours: tone-tile utility (index.css), driven by --tone */
     }
 
     .widget-card-title {
@@ -134,9 +133,9 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        font-size: 0.8125rem;
+        font-size: var(--text-label);
         font-weight: 500;
-        color: var(--color-gray-600);
+        color: var(--color-ink-soft);
     }
 
     .widget-card-body {
@@ -151,7 +150,7 @@
         display: inline-flex;
         flex-shrink: 0;
         margin-left: -0.25rem;
-        color: var(--color-gray-400);
+        color: var(--color-ink-muted);
         animation: widget-control-in var(--motion-base) var(--ease-spring) backwards;
         transition: color var(--motion-fast);
     }
@@ -164,8 +163,8 @@
         flex-shrink: 0;
         width: 1.75rem;
         height: 1.75rem;
-        border-radius: 0.5rem;
-        color: var(--color-gray-400);
+        border-radius: var(--radius-sm);
+        color: var(--color-ink-muted);
         cursor: pointer;
         animation: widget-control-in var(--motion-base) var(--ease-spring) backwards;
         transition:
@@ -174,8 +173,8 @@
     }
 
     .widget-card-remove:hover {
-        color: var(--color-red-600);
-        background-color: var(--color-red-50);
+        color: var(--color-danger);
+        background-color: var(--color-danger-soft);
     }
 
     @keyframes widget-control-in {
@@ -211,26 +210,26 @@
         display: flex;
         align-items: baseline;
         gap: 0.3em;
-        font-size: clamp(1.25rem, min(12cqi, 26cqh), 3rem);
+        font-size: clamp(var(--text-heading), min(12cqi, 26cqh), 3rem);
         font-weight: 600;
         line-height: 1;
         letter-spacing: -0.02em;
         font-variant-numeric: tabular-nums;   /* the digits keep the same width while counting up */
-        color: var(--color-gray-900);
+        color: var(--color-ink);
         white-space: nowrap;
     }
 
     .stat-body-unit {
-        font-size: 0.4em;
+        font-size: max(var(--text-caption), 0.4em);   /* never below the caption size */
         font-weight: 500;
         letter-spacing: 0;
-        color: var(--color-gray-500);
+        color: var(--color-ink-muted);
     }
 
     .stat-body-caption {
         margin-top: 0.35rem;
-        font-size: 0.75rem;
-        color: var(--color-gray-500);
+        font-size: var(--text-caption);
+        color: var(--color-ink-muted);
     }
 
     /* Chart: latest value on top, the line fills the rest */
@@ -246,23 +245,23 @@
         display: flex;
         align-items: baseline;
         gap: 0.4rem;
-        font-size: clamp(1rem, 6cqh, 1.5rem);
+        font-size: clamp(var(--text-title), 6cqh, 1.5rem);
         font-weight: 600;
         line-height: 1;
         font-variant-numeric: tabular-nums;
     }
 
     .chart-body-latest-label {
-        font-size: 0.75rem;
+        font-size: var(--text-caption);
         font-weight: 500;
-        color: var(--color-gray-500);
+        color: var(--color-ink-muted);
     }
 
     .chart-body-plot {
         position: relative;
         flex: 1;
         min-height: 0;
-        color: var(--color-accent);
+        color: var(--color-data-1);   /* data colour, not the interface accent (charter §2.3) */
         /* Drawn from left to right on first display */
         animation: chart-reveal 900ms var(--ease-out-soft) 150ms backwards;
     }
@@ -298,8 +297,8 @@
 
     .chart-body-empty {
         margin: auto;
-        font-size: 0.8125rem;
-        color: var(--color-gray-400);
+        font-size: var(--text-label);
+        color: var(--color-ink-muted);
     }
 
     /* Loading: grey bars with a moving shine */
@@ -315,7 +314,7 @@
         display: block;
         height: 0.75rem;
         border-radius: 9999px;
-        background: linear-gradient(90deg, var(--color-gray-100) 25%, var(--color-gray-200) 50%, var(--color-gray-100) 75%);
+        background: linear-gradient(90deg, var(--color-canvas) 25%, var(--color-line) 50%, var(--color-canvas) 75%);
         background-size: 200% 100%;
         animation: skeleton-shine 1.4s linear infinite;
     }
@@ -334,12 +333,12 @@
         flex: 1;
         align-items: center;
         gap: 0.5rem;
-        color: var(--color-red-600);
+        color: var(--color-danger);
     }
 
     .widget-error-message {
-        font-size: 0.8125rem;
-        color: var(--color-gray-600);
+        font-size: var(--text-label);
+        color: var(--color-ink-soft);
     }
 
     /* ───────────────────────── Drag ───────────────────────── */
@@ -361,7 +360,7 @@
         z-index: 10;
         opacity: 0.94;
         /* filter, not box-shadow: it applies to the whole cell, whatever the card's own shadow */
-        filter: drop-shadow(0 16px 28px rgb(15 23 42 / 0.18)) drop-shadow(0 4px 8px rgb(15 23 42 / 0.1));
+        filter: drop-shadow(0 16px 28px rgb(var(--shadow-tint) / 0.2)) drop-shadow(0 4px 8px rgb(var(--shadow-tint) / 0.1));
         transition:
             scale var(--motion-fast) var(--ease-out-soft),
             filter var(--motion-fast) var(--ease-out-soft),
@@ -378,7 +377,7 @@
     .widget-placeholder {
         z-index: 0;
         border: 2px dashed var(--color-accent-line);
-        border-radius: var(--radius-card);
+        border-radius: var(--radius-lg);
         background-color: color-mix(in oklch, var(--color-accent-soft) 60%, transparent);
         pointer-events: none;
         animation: placeholder-in var(--motion-fast) var(--ease-out-soft);
@@ -408,8 +407,8 @@
 
     .widget-toolbar-hint {
         margin-right: auto;
-        font-size: 0.8125rem;
-        color: var(--color-gray-500);
+        font-size: var(--text-label);
+        color: var(--color-ink-muted);
     }
 
     @keyframes fade-in {
@@ -432,7 +431,7 @@
         padding: 0.375rem 0.375rem 0.375rem 1rem;
         border: 1px solid var(--color-line);
         border-radius: 9999px;
-        background-color: rgb(255 255 255 / 0.85);
+        background-color: color-mix(in oklch, var(--color-surface) 88%, transparent);
         backdrop-filter: blur(12px);
         box-shadow: var(--shadow-float);
         animation: edit-bar-in var(--motion-slow) var(--ease-spring);
@@ -451,9 +450,9 @@
         align-items: center;
         gap: 0.5rem;
         margin-right: 0.25rem;
-        font-size: 0.8125rem;
+        font-size: var(--text-label);
         font-weight: 500;
-        color: var(--color-gray-700);
+        color: var(--color-ink-soft);
         white-space: nowrap;
     }
 
@@ -467,13 +466,13 @@
 
     /* Unsaved changes: amber, with a slow pulse */
     .widget-edit-bar-dot.is-dirty {
-        background-color: var(--color-amber-500);
+        background-color: var(--color-warning);
         animation: dot-pulse 1.6s ease-out infinite;
     }
 
     @keyframes dot-pulse {
-        from { box-shadow: 0 0 0 0 oklch(0.769 0.188 70.08 / 0.5); }
-        to { box-shadow: 0 0 0 8px oklch(0.769 0.188 70.08 / 0); }
+        from { box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-warning) 50%, transparent); }
+        to { box-shadow: 0 0 0 8px transparent; }
     }
 
     .widget-edit-bar-separator {
@@ -535,7 +534,7 @@
             z-index: 0;
             pointer-events: none;
             opacity: 0;
-            background-image: linear-gradient(to right, oklch(0.95 0.02 280 / 0.55) var(--col-w), transparent var(--col-w));
+            background-image: linear-gradient(to right, color-mix(in oklch, var(--color-accent-soft) 70%, transparent) var(--col-w), transparent var(--col-w));
             background-size: calc(var(--col-w) + var(--gap)) 100%;
             mask-image: linear-gradient(to bottom, #000 var(--col-w), transparent var(--col-w));
             mask-size: 100% calc(var(--col-w) + var(--gap));

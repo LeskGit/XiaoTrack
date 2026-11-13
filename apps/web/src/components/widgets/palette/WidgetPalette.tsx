@@ -1,6 +1,6 @@
 import { widgetCatalog, type WidgetType } from "../catalog";
 import { resolveWidgetDefaultSize } from "../engine/instance";
-import { WidgetArchetype } from "../widgets.types";
+import { WidgetArchetype, type WidgetDefinition } from "../widgets.types";
 import WidgetPaletteItem from "./WidgetPaletteItem";
 import "./palette.css";
 
@@ -10,11 +10,13 @@ type WidgetPaletteProps = {
 }
 
 const paletteEntries = (Object.keys(widgetCatalog) as WidgetType[]).map((type) => {
-    const definition = widgetCatalog[type];
+    // Widened to WidgetDefinition: "tone" is optional, so not every literal entry has it
+    const definition: WidgetDefinition = widgetCatalog[type];
     return {
         type,
         title: definition.title,
         icon: definition.icon,
+        tone: definition.tone,
         archetype: definition.archetype,
         size: resolveWidgetDefaultSize(type),
     };
@@ -37,10 +39,10 @@ export default function WidgetPalette({placedTypes, onAdd}: WidgetPaletteProps) 
                 <section key={group.archetype} aria-labelledby={`palette-${group.archetype}`}>
                     <h3
                         id={`palette-${group.archetype}`}
-                        className="mb-2 flex items-center gap-2 text-xs font-semibold tracking-wide text-gray-500 uppercase"
+                        className="mb-2 flex items-center gap-2 text-caption font-semibold tracking-wide text-ink-muted uppercase"
                     >
                         {group.label}
-                        <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[0.6875rem] font-medium text-gray-500">
+                        <span className="rounded-full bg-line px-1.5 text-caption font-medium text-ink-soft">
                             {group.entries.length}
                         </span>
                     </h3>
@@ -51,6 +53,7 @@ export default function WidgetPalette({placedTypes, onAdd}: WidgetPaletteProps) 
                                 title={entry.title}
                                 size={entry.size}
                                 icon={entry.icon}
+                                tone={entry.tone}
                                 isPlaced={placedTypes.includes(entry.type)}
                                 onAdd={() => onAdd(entry.type)}
                             />

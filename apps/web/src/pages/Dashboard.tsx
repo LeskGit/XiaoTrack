@@ -24,20 +24,20 @@ function EmptyDashboard({ onStart }: EmptyDashboardProps) {
     return (
         <section
             aria-labelledby="empty-dashboard-title"
-            className="empty-dashboard flex min-h-[440px] flex-col items-center justify-center gap-4 rounded-(--radius-card) border-[1.5px] border-dashed border-line-strong bg-surface px-6 py-16 text-center"
+            className="empty-dashboard flex min-h-[440px] flex-col items-center justify-center gap-4 rounded-lg border-[1.5px] border-dashed border-line-strong bg-surface px-6 py-16 text-center"
         >
             <div aria-hidden="true" className="empty-dashboard-art mb-2 grid w-33 grid-cols-3 auto-rows-[28px] gap-1.5">
-                <div className="col-span-2 rounded-md border border-gray-200 bg-white" />
-                <div className="rounded-md border border-gray-200 bg-white" />
-                <div className="col-span-3 flex items-center justify-center rounded-md border-[1.5px] border-dashed border-accent-line bg-accent-soft text-accent-strong">
+                <div className="col-span-2 rounded-sm border border-line bg-surface" />
+                <div className="rounded-sm border border-line bg-surface" />
+                <div className="col-span-3 flex items-center justify-center rounded-sm border-[1.5px] border-dashed border-accent-line bg-accent-soft text-accent-strong">
                     <Icon icon={PlusIcon} size="sm" />
                 </div>
             </div>
 
-            <h2 id="empty-dashboard-title" className="text-xl font-semibold text-gray-900">
+            <h2 id="empty-dashboard-title" className="text-heading font-semibold text-ink">
                 Your dashboard is empty
             </h2>
-            <p className="max-w-sm text-sm leading-relaxed text-gray-600">
+            <p className="max-w-sm text-body text-ink-soft">
                 Add widgets from the palette to start building your dashboard. You can remove them at any time.
             </p>
 

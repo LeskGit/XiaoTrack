@@ -27,7 +27,7 @@ export const ModalSize = {
 export type ModalSize = typeof ModalSize[keyof typeof ModalSize];
 
 export const placementClasses = {
-    center: "m-auto rounded-xl",
+    center: "m-auto rounded-lg",
     right: "ml-auto mr-0 my-0 h-full max-h-none rounded-none",
 } as const satisfies Record<ModalPlacement, string>;
 

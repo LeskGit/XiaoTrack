@@ -12,10 +12,11 @@ type ConfirmDialogProps = {
     readonly onDecline: () => void;
 };
 
-const buttonBase = "min-h-10 rounded-lg px-4 py-2 text-sm font-medium transition-colors";
-const declineButton = `${buttonBase} border border-gray-300 bg-white text-gray-700 hover:bg-gray-50`;
-const confirmButton = `${buttonBase} bg-brand text-white shadow-(--shadow-brand) hover:brightness-110`;
-const destructiveButton = `${buttonBase} bg-red-600 text-white hover:bg-red-700`;
+// Shared buttons (index.css, charter §4). A dialog sits over a screen that already has its primary
+// action, so the confirm button is the flat accent, not the gradient.
+const declineButton = "btn btn-secondary";
+const confirmButton = "btn btn-accent";
+const destructiveButton = "btn btn-danger";
 
 export default function ConfirmDialog({
     isOpen,
@@ -37,7 +38,7 @@ export default function ConfirmDialog({
             closeModalButton={false}
             closeOnBackdropClick={false}
         >
-            <p className="text-sm leading-relaxed text-gray-600">{message}</p>
+            <p className="text-body text-ink-soft">{message}</p>
 
             <div className="mt-6 flex justify-end gap-2">
                 <button type="button" className={declineButton} onClick={onDecline}>
