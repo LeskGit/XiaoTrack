@@ -20,7 +20,7 @@ const SETTLE_MS = 420;
 const SETTLE_EASING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
 
 /**
- * FLIP animation of the grid cells (cadrage V2 §7).
+ * FLIP animation of the grid cells
  * CSS cannot animate a change of grid-column / grid-row: the cell jumps. So after each render:
  *   First  — the position the cell had at the previous render (stored below);
  *   Last   — its new position, read now, before the browser paints;

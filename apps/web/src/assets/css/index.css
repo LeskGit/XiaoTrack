@@ -119,7 +119,7 @@
 }
 
 /* Icon tile tinted by a domain: set --tone on it (or on a parent), e.g. style={{"--tone": "var(--color-domain-habits)"}}.
-   Soft at rest, filled when its parent carries .is-active. */
+   Soft by default. To fill it (active sidebar entry), add bg-(--tone) text-white next to it. */
 @utility tone-tile {
     background-color: color-mix(in oklch, var(--tone, var(--color-accent)) 13%, white);
     color: var(--tone, var(--color-accent));

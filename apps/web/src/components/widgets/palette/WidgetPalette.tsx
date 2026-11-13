@@ -22,7 +22,7 @@ const paletteEntries = (Object.keys(widgetCatalog) as WidgetType[]).map((type) =
     };
 });
 
-// One section per archetype (cadrage V1: palette grouped by archetype, no search)
+// One section per archetype
 const paletteGroups = [
     { archetype: WidgetArchetype.ArchetypeStat, label: "Stats" },
     { archetype: WidgetArchetype.ArchetypeChart, label: "Charts" },

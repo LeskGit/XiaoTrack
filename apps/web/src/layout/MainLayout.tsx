@@ -6,7 +6,7 @@ import AppHeader from './Header/AppHeader';
 /**
  * App shell: brand + header on top, sidebar + content below.
  * The shell is exactly the screen height and never scrolls: only MainContent does (and the sidebar,
- * if its menu gets too long). The header and the sidebar stay in place, as glass panels over the canvas.
+ * if its menu gets too long). The header and the sidebar stay in place, as plain panels over the canvas.
  * minmax(0, 1fr): the content row may shrink below its content's height, so it scrolls instead of growing.
  * Below md the four blocks stack (brand, header, sidebar, content).
  */

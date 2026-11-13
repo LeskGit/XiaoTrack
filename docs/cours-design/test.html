@@ -1,0 +1,8 @@
+<style>
+  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .cell { grid-column: var(--col) / span var(--w); background: var(--tone, gray); height: 40px; }
+</style>
+<div class="grid" style="--tone: orange">
+  <div class="cell" style="--col: 1; --w: 2; --tone: grey"></div>
+  <div class="cell" style="--col: 4; --w: 3"></div>
+</div>
