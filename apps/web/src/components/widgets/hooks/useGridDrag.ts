@@ -3,6 +3,7 @@ import type { GridPosition, WidgetInstance } from "../widgets.types";
 import { DRAG_DWELL_MS, GRID_COLS } from "../widget-grid.constants";
 import { pointToCell } from "../engine/pointer";
 import { resolveLayout } from "../engine/resolve";
+import { findScrollParent, startAutoScroll } from "@/shared/utils";
 
 export type  UseGridDragOptions = {
     readonly gridRef: RefObject<HTMLDivElement | null>;
@@ -39,22 +40,26 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
         const moved = widgets.find((w) => w.id === id);
         const handle = event.currentTarget;
         const cell = handle.closest(".widget-cell");
-        if (!moved || !cell) return;
+        const grid = gridRef.current;
+        if (!moved || !cell || !grid) return;
 
         const snapshot = widgets;
 
         const cellRect = cell.getBoundingClientRect();
         const grabOffset = {x: event.clientX - cellRect.left, y: event.clientY - cellRect.top};
+        // first state of grid before scrolling
+        const gridStart = grid.getBoundingClientRect();
+
+        // What scrolls around the grid, None: no auto-scroll.
+        const scroller = findScrollParent(grid);
+        const autoScroll = scroller ? startAutoScroll(scroller) : null;
 
         let targetCell: GridPosition | null = null;
         let dwellTimer: number | undefined;
+        // Last knwon pointer position
+        let lastPointer = {x: event.clientX, y: event.clientY};
 
-        const onMove = (e: globalThis.PointerEvent) => {
-            // If another pointer on a touch screen : not the same that started the gesture, return
-            const grid = gridRef.current;
-            if (e.pointerId !== event.pointerId || !grid) return;
-            setDragDelta({x: e.clientX - event.clientX, y: e.clientY - event.clientY});
-
+        const updateTarget= () => {
             // Measured at every move: the page may have scrolled or been resized
             const rect = grid.getBoundingClientRect();
             const style = getComputedStyle(grid);
@@ -62,12 +67,16 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
             const rowGap = Number.parseFloat(style.rowGap);
             const rowHeight = Number.parseFloat(style.gridAutoRows);
 
+            setDragDelta({
+                x: lastPointer.x - event.clientX - (rect.left - gridStart.left), 
+                y: lastPointer.y - event.clientY  - (rect.top - gridStart.top)});
+
             // One column + one gap, and one row + one gap, in pixels
             const stepX = (rect.width + columnGap) / GRID_COLS;
             const stepY = rowHeight + rowGap;
 
             const nextCell = pointToCell({
-                pointer: { x: e.clientX, y: e.clientY },
+                pointer: lastPointer,
                 grabOffset,
                 gridRect: rect,
                 stepX,
@@ -81,12 +90,22 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
             // The dashed landing cell follows the target right away
             setPreviewLayout(resolvedLayout);
             // The neighbours move only once the pointer has stayed DRAG_DWELL_MS on the same cell
-            // (cadrage V2 §3.3). Each new cell restarts the wait.
             window.clearTimeout(dwellTimer);
             dwellTimer = window.setTimeout(() => {
                 setShownLayout(resolvedLayout);
             }, DRAG_DWELL_MS);
         }
+
+        const onMove = (e: globalThis.PointerEvent) => {
+            // If another pointer on a touch screen : not the same that started the gesture, return
+            if (e.pointerId !== event.pointerId) return;
+            lastPointer = {x: e.clientX, y: e.clientY};
+            autoScroll?.update(e.clientY);
+            updateTarget();
+        }
+
+        // The page scrolled (wheel, auto-scroll): the pointer did not move, but it is over another cell now
+        const onScroll = () => updateTarget();
 
         // The only way out of a gesture: every exit (drop, Escape, cancel, unmount) goes through here
         const cleanup = () => {
@@ -94,11 +113,13 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
             handle.removeEventListener("pointerup", onUp);
             handle.removeEventListener("pointercancel", onCancel);
             window.removeEventListener("keydown", onKeyDown);
+            window.removeEventListener("scroll", onScroll, {capture: true});
             // After Escape the button is still pressed: give the pointer back to the page
             if (handle.hasPointerCapture(event.pointerId)) {
                 handle.releasePointerCapture(event.pointerId);
             }
             window.clearTimeout(dwellTimer);
+            autoScroll?.stop();
             setDraggingId(null);
             setDragDelta(null);
             setPreviewLayout(null);
@@ -141,6 +162,7 @@ export const useGridDrag = ({gridRef, widgets, onDrop}: UseGridDragOptions): Use
         handle.addEventListener("pointercancel", onCancel);
         // On window: the keyboard is not tied to the handle, nor to the pointer capture
         window.addEventListener("keydown", onKeyDown);
+        window.addEventListener("scroll", onScroll, {capture: true});
         cleanupRef.current = cleanup;
         setDraggingId(id);
     }
