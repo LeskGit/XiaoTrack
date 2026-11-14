@@ -13,7 +13,10 @@
     "start": "npm run start -ws",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:api": "npm run dev -w apps/api",
-    "dev:web": "npm run dev -w apps/web"
+    "dev:web": "npm run dev -w apps/web",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f db"
   },
   "author": "XiaoPang",
   "license": "ISC",

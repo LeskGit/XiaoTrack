@@ -1,1 +1,29 @@
-# TODO
+# Local development services.
+# Only the database runs in Docker for now: the API (NestJS) and the front (Vite) run on the host,
+# to keep hot reload. Values come from the .env file next to this one (see .env.example).
+name: xiaotrack
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: xiaotrack-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      # 127.0.0.1: reachable from this machine only, never from the network
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # Named volume: the data survives container restarts and re-creations
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      # "healthy" once Postgres accepts connections ($$ = a literal $ for the shell inside the container)
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  db-data:

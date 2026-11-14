@@ -1,0 +1,666 @@
+<title>MCD Workouts</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: a header, then the diagram as a pannable "blueprint" sheet, then the rules and open points as two reading columns.
+   Palette and type follow XiaoTrack's design charter (Inter, indigo accent, cool neutrals). Each zone takes one data colour. */
+:root {
+    --canvas: oklch(0.982 0.004 285);
+    --surface: #ffffff;
+    --sheet: oklch(0.975 0.006 280);
+    --grid: oklch(0.93 0.008 280);
+    --line: oklch(0.91 0.01 280);
+    --line-strong: oklch(0.84 0.016 280);
+    --ink: oklch(0.21 0.02 280);
+    --ink-soft: oklch(0.45 0.02 280);
+    --ink-muted: oklch(0.58 0.015 280);
+    --accent: oklch(0.56 0.22 277);
+    --accent-soft: oklch(0.955 0.025 272);
+    --pk: oklch(0.6 0.14 70);
+    --pk-soft: oklch(0.95 0.05 80);
+
+    --zone-account: oklch(0.55 0.04 260);
+    --zone-catalog: oklch(0.6 0.12 190);
+    --zone-tags: oklch(0.66 0.15 70);
+    --zone-plan: oklch(0.56 0.2 277);
+    --zone-done: oklch(0.6 0.2 12);
+
+    --font-ui: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-code: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --canvas: oklch(0.17 0.012 280);
+        --surface: oklch(0.225 0.016 280);
+        --sheet: oklch(0.195 0.014 280);
+        --grid: oklch(0.25 0.016 280);
+        --line: oklch(0.3 0.02 280);
+        --line-strong: oklch(0.4 0.024 280);
+        --ink: oklch(0.95 0.008 280);
+        --ink-soft: oklch(0.8 0.015 280);
+        --ink-muted: oklch(0.66 0.015 280);
+        --accent: oklch(0.72 0.16 277);
+        --accent-soft: oklch(0.3 0.06 277);
+        --pk: oklch(0.8 0.13 80);
+        --pk-soft: oklch(0.33 0.06 75);
+        --zone-account: oklch(0.72 0.04 260);
+        --zone-catalog: oklch(0.76 0.11 190);
+        --zone-tags: oklch(0.8 0.13 75);
+        --zone-plan: oklch(0.72 0.16 277);
+        --zone-done: oklch(0.74 0.16 12);
+        color-scheme: dark;
+    }
+}
+:root[data-theme="dark"] {
+    --canvas: oklch(0.17 0.012 280);
+    --surface: oklch(0.225 0.016 280);
+    --sheet: oklch(0.195 0.014 280);
+    --grid: oklch(0.25 0.016 280);
+    --line: oklch(0.3 0.02 280);
+    --line-strong: oklch(0.4 0.024 280);
+    --ink: oklch(0.95 0.008 280);
+    --ink-soft: oklch(0.8 0.015 280);
+    --ink-muted: oklch(0.66 0.015 280);
+    --accent: oklch(0.72 0.16 277);
+    --accent-soft: oklch(0.3 0.06 277);
+    --pk: oklch(0.8 0.13 80);
+    --pk-soft: oklch(0.33 0.06 75);
+    --zone-account: oklch(0.72 0.04 260);
+    --zone-catalog: oklch(0.76 0.11 190);
+    --zone-tags: oklch(0.8 0.13 75);
+    --zone-plan: oklch(0.72 0.16 277);
+    --zone-done: oklch(0.74 0.16 12);
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 15px;
+    line-height: 1.55;
+}
+.page {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 40px 64px;
+    display: grid;
+    gap: 40px;
+}
+
+/* ── Header ── */
+.masthead { display: grid; gap: 12px; }
+.eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+h1 {
+    margin: 0;
+    font-size: clamp(30px, 5vw, 44px);
+    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+}
+.lede { margin: 0; max-width: 62ch; color: var(--ink-soft); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+}
+.pill strong { color: var(--ink); font-weight: 600; }
+.pill.draft { border-color: var(--pk); color: var(--pk); background: var(--pk-soft); }
+
+/* ── Diagram ── */
+.diagram { margin: 0; display: grid; gap: 12px; min-width: 0; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.zones { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--ink-soft); }
+.zones span { display: inline-flex; align-items: center; gap: 6px; }
+.zones i { width: 10px; height: 10px; border-radius: 3px; background: var(--z); display: inline-block; }
+.zoom { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.zoom button {
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font: 500 13px var(--font-ui);
+    padding: 7px 12px;
+    cursor: pointer;
+    font-variant-numeric: tabular-nums;
+}
+.zoom button + button { border-left: 1px solid var(--line); }
+.zoom button:hover { background: var(--accent-soft); }
+.zoom button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.zoom output { padding: 7px 10px; font-size: 13px; color: var(--ink-muted); border-left: 1px solid var(--line); min-width: 54px; text-align: center; }
+
+.sheet {
+    position: relative;
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background-color: var(--sheet);
+    background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+    max-height: 82vh;
+    cursor: grab;
+    overscroll-behavior: contain;
+}
+.sheet.panning { cursor: grabbing; }
+.sheet svg { display: block; }
+.hint { margin: 0; font-size: 13px; color: var(--ink-muted); }
+
+/* SVG parts (styled from the page, coloured through the tokens) */
+.zone-box { fill: color-mix(in oklch, var(--z) 6%, transparent); stroke: color-mix(in oklch, var(--z) 40%, transparent); stroke-width: 1; stroke-dasharray: 5 4; }
+.zone-label { fill: var(--z); font: 700 12px var(--font-ui); letter-spacing: 0.1em; text-transform: uppercase; }
+.zone-sub { fill: var(--ink-muted); font: 400 12px var(--font-ui); }
+
+.entity { cursor: pointer; transition: opacity var(--t, 160ms) ease; }
+.entity:focus { outline: none; }
+.card { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1; }
+.entity:hover .card, .entity:focus-visible .card, .entity.on .card { stroke: var(--z); stroke-width: 2; }
+.card-head { fill: color-mix(in oklch, var(--z) 14%, var(--surface)); }
+.card-rule { stroke: color-mix(in oklch, var(--z) 35%, var(--line)); }
+.card-title { fill: var(--ink); font: 600 14px var(--font-ui); }
+.card-dot { fill: var(--z); }
+.attr-name { fill: var(--ink); font: 400 11.5px var(--font-code); }
+.attr-null { fill: var(--ink-muted); }
+.attr-type { fill: var(--ink-muted); font: 400 10.5px var(--font-code); }
+.attr-type.enum { fill: var(--accent); text-decoration: underline dotted; }
+.attr-type.ref { fill: var(--zone-account); font-weight: 600; }
+.badge-pk rect { fill: var(--pk-soft); stroke: var(--pk); stroke-width: 0.8; }
+.badge-pk text { fill: var(--pk); font: 700 8.5px var(--font-code); }
+.badge-fk rect { fill: transparent; stroke: var(--ink-muted); stroke-width: 0.8; }
+.badge-fk text { fill: var(--ink-soft); font: 600 8.5px var(--font-code); }
+.row-hit { fill: transparent; }
+.row-hit:hover { fill: var(--accent-soft); }
+
+.rel { transition: opacity var(--t, 160ms) ease; }
+.rel .halo { fill: none; stroke: var(--sheet); stroke-width: 7; stroke-linejoin: round; }
+.rel .wire { fill: none; stroke: var(--ink-muted); stroke-width: 1.4; stroke-linejoin: round; }
+.rel .glyph { fill: none; stroke: var(--ink-muted); stroke-width: 1.4; }
+.rel .glyph circle { fill: var(--sheet); }
+.rel .label { fill: var(--ink-soft); font: 500 10.5px var(--font-ui); paint-order: stroke; stroke: var(--sheet); stroke-width: 4px; stroke-linejoin: round; }
+.rel.hero .wire, .rel.hero .glyph { stroke: var(--accent); stroke-width: 2; }
+.rel.hero .wire { stroke-dasharray: 7 5; }
+.rel.hero .label { fill: var(--accent); font-weight: 600; font-size: 12px; }
+.rel.on .wire, .rel.on .glyph { stroke: var(--z, var(--accent)); stroke-width: 2.2; }
+.rel.on .label { fill: var(--ink); font-weight: 600; }
+
+svg.focusing .entity.dim, svg.focusing .rel.dim { opacity: 0.18; }
+
+/* ── Reading sections ── */
+.columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 24px; align-items: start; }
+.panel { min-width: 0; display: grid; gap: 14px; }
+h2 { margin: 0; font-size: 20px; font-weight: 650; letter-spacing: -0.01em; }
+h2 small { display: block; font-size: 13px; font-weight: 400; color: var(--ink-muted); letter-spacing: 0; margin-top: 2px; }
+.rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.rules li {
+    display: grid;
+    gap: 2px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+}
+.rules b { font-weight: 600; font-size: 14px; }
+.rules span { color: var(--ink-soft); font-size: 14px; }
+code { font-family: var(--font-code); font-size: 0.88em; padding: 1px 5px; border-radius: 5px; background: var(--accent-soft); color: var(--ink); overflow-wrap: anywhere; }
+
+.todo { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.todo li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 9px 4px; border-bottom: 1px dashed var(--line); font-size: 14px; color: var(--ink-soft); }
+.todo li::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    margin-top: 3px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 5px;
+    background: var(--surface);
+}
+.todo b { color: var(--ink); font-weight: 600; }
+.todo .group { grid-column: 1 / -1; padding-top: 14px; border-bottom: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); }
+.todo .group::before { display: none; }
+
+.legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 10px 24px; }
+.legend div { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-soft); min-width: 0; }
+.legend svg { flex: none; overflow: visible; }
+.enums { display: grid; gap: 10px; }
+.enums div { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.enums dt { font-family: var(--font-code); font-size: 13px; color: var(--accent); min-width: 150px; }
+.enums dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-family: var(--font-code); font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft); }
+
+footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--line); padding-top: 16px; }
+
+@media (prefers-reduced-motion: reduce) { :root { --t: 0ms; } }
+</style>
+
+<div class="page">
+    <header class="masthead">
+        <span class="eyebrow">XiaoTrack · domaine Workouts</span>
+        <h1>MCD Workouts</h1>
+        <p class="lede">Le modèle de données des séances de sport : un catalogue d'exercices, des séances types et des programmes (le prévu), puis les séances réellement faites, série par série (le réalisé).</p>
+        <div class="meta">
+            <span class="pill draft">Brouillon v1</span>
+            <span class="pill">14 novembre 2026</span>
+            <span class="pill"><strong>15</strong> entités</span>
+            <span class="pill"><strong>24</strong> relations</span>
+            <span class="pill">Source : <code>docs/workouts/mcd-v1.md</code></span>
+        </div>
+    </header>
+
+    <figure class="diagram">
+        <div class="toolbar">
+            <div class="zones" aria-label="Zones du modèle">
+                <span style="--z: var(--zone-account)"><i></i>Compte</span>
+                <span style="--z: var(--zone-catalog)"><i></i>Catalogue</span>
+                <span style="--z: var(--zone-plan)"><i></i>Prévu</span>
+                <span style="--z: var(--zone-done)"><i></i>Réalisé</span>
+                <span style="--z: var(--zone-tags)"><i></i>Étiquettes</span>
+            </div>
+            <div class="zoom" role="group" aria-label="Zoom du diagramme">
+                <button type="button" id="zoom-out" aria-label="Dézoomer">−</button>
+                <button type="button" id="zoom-fit">Ajuster</button>
+                <button type="button" id="zoom-in" aria-label="Zoomer">+</button>
+                <output id="zoom-value">100 %</output>
+            </div>
+        </div>
+        <div class="sheet" id="sheet">
+            <svg id="mcd" role="img" aria-label="Diagramme entité-association du domaine Workouts : le catalogue d'exercices alimente les séances types et les programmes, et une séance type est copiée dans une séance réalisée au démarrage."></svg>
+        </div>
+        <figcaption class="hint">Clique (ou survole) une entité pour isoler ses relations ; clique dans le vide pour tout réafficher. Le trait pointillé indigo est le cœur du modèle : la séance type copiée dans une séance réelle. Les liens <code>ownerId → User</code> sont indiqués dans les cartes plutôt que tracés, pour garder le schéma lisible.</figcaption>
+    </figure>
+
+    <section class="panel" aria-labelledby="legend-title">
+        <h2 id="legend-title">Légende</h2>
+        <div class="legend" id="legend"></div>
+    </section>
+
+    <div class="columns">
+        <section class="panel" aria-labelledby="rules-title">
+            <h2 id="rules-title">Règles clés<small>Ce que le modèle garantit</small></h2>
+            <ul class="rules">
+                <li><b>Prévu et réalisé sur la même ligne</b><span>Une <code>WorkoutSession</code> change de <code>status</code> : <code>planned</code> → <code>in_progress</code> → <code>done</code>, ou <code>skipped</code>. Chaque <code>SessionSet</code> porte l'objectif (<code>target*</code>) et le réel (<code>actual*</code>) côte à côte.</span></li>
+                <li><b>Copie template → séance</b><span>Au démarrage, le template est copié : <code>targetSets = 4</code> donne 4 lignes <code>SessionSet</code> avec les valeurs cibles. Un exercice ajouté en cours de séance n'a pas de cible, un exercice retiré est marqué <code>skipped</code>.</span></li>
+                <li><b>Historique figé</b><span>Modifier un template ou un programme ne réécrit jamais les séances passées. Templates et exercices s'archivent, ils ne se suppriment pas.</span></li>
+                <li><b>Catalogue partagé</b><span>Un exercice avec <code>ownerId</code> à <code>null</code> est fourni par l'app. Pour le modifier, l'utilisateur en crée une copie à lui (<code>variantOfId</code> pointe vers l'original).</span></li>
+                <li><b>Archivage par utilisateur</b><span><code>UserExercise.archivedAt</code> masque un exercice pour un seul utilisateur, qu'il soit fourni ou personnel. <code>Exercise</code> n'a pas d'<code>archivedAt</code>.</span></li>
+                <li><b>Occurrences de programme calculées</b><span>On stocke la règle (<code>ProgramSlot</code>), pas les occurrences. Une occurrence ne devient une <code>WorkoutSession</code> que lorsqu'on y touche : démarrage, modification ou séance manquée marquée.</span></li>
+                <li><b>Unités stockées</b><span>Kilogrammes pour la charge, secondes pour la durée, mètres pour la distance. L'affichage convertit.</span></li>
+                <li><b>Objectif = étiquette <code>goal</code> sur la séance</b><span>Sur le template ou la <code>WorkoutSession</code>, jamais sur l'exercice. L'exercice ne porte que sa nature (<code>category</code>).</span></li>
+            </ul>
+        </section>
+
+        <section class="panel" aria-labelledby="open-title">
+            <h2 id="open-title">Points ouverts<small>À trancher avant ou pendant le développement</small></h2>
+            <ul class="todo">
+                <li class="group">Modèle</li>
+                <li><span><b>Stockage des métriques</b> : tableau PostgreSQL (<code>metric_list</code>) ou table de liaison <code>ExerciseMetric</code>, à décider avec la stack.</span></li>
+                <li><span><b>Nom dans l'historique</b> : le nom actuel de l'exercice est retenu, à confirmer.</span></li>
+                <li><span><b>Repos réel</b> : <code>startedAt</code> par série (précis) ou approximation entre deux validations.</span></li>
+                <li class="group">Cycle de vie</li>
+                <li><span><b>Séance en cours</b> : une seule <code>in_progress</code> à la fois ? Clôture automatique d'une séance oubliée ?</span></li>
+                <li><span><b>Démarrage</b> : depuis la séance prévue, un template ou en séance libre, les trois en V1 ? Une séance faite à la place d'une autre la remplace-t-elle ?</span></li>
+                <li><span><b>Programme modifié en cours</b> : seules les occurrences futures changent ? Arrêter = <code>endDate</code> à aujourd'hui ?</span></li>
+                <li><span><b>Plusieurs programmes actifs</b> en même temps ?</span></li>
+                <li><span><b>Séance manquée</b> : calculée seulement, ou aussi marquable (<code>skipped</code> avec une note) ?</span></li>
+                <li><span><b>Séance terminée</b> : modification libre, ou limitée dans le temps ?</span></li>
+                <li><span><b>Template après une séance</b> : mise à jour proposée par l'app, ou action manuelle ?</span></li>
+            </ul>
+        </section>
+    </div>
+
+    <section class="panel" aria-labelledby="enum-title">
+        <h2 id="enum-title">Énumérations<small>Les valeurs autorisées des types en indigo dans le schéma</small></h2>
+        <dl class="enums" id="enums"></dl>
+    </section>
+
+    <footer>Brouillon généré depuis <code>docs/workouts/mcd-v1.md</code>. Le fichier Markdown reste la référence : en cas d'écart, c'est lui qui fait foi.</footer>
+</div>
+
+<script>
+(() => {
+    const NS = "http://www.w3.org/2000/svg";
+    const CW = 240, PITCH = 290, X0 = 40, Y0 = 124, GAP = 50, HEAD = 40, ROW = 20;
+    const W = X0 * 2 + PITCH * 5 + CW;
+    const colX = (i) => X0 + i * PITCH;
+
+    const ZONES = {
+        account: { label: "Compte", color: "var(--zone-account)" },
+        catalog: { label: "Catalogue", color: "var(--zone-catalog)", sub: "ce qui existe" },
+        plan: { label: "Prévu", color: "var(--zone-plan)", sub: "les recettes et le calendrier" },
+        done: { label: "Réalisé", color: "var(--zone-done)", sub: "ce qui s'est vraiment passé" },
+        tags: { label: "Étiquettes", color: "var(--zone-tags)", sub: "focus et objectif" },
+    };
+
+    const ENUMS = {
+        body_part_kind: ["muscle", "tendon", "joint", "…"],
+        exercise_category: ["resistance", "cardio", "mobility", "sport", "skill"],
+        metric_list: ["reps", "weight", "duration", "distance"],
+        body_part_role: ["primary", "secondary"],
+        tag_kind: ["focus", "goal"],
+        session_status: ["planned", "in_progress", "done", "skipped"],
+        weekday_list: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+    };
+
+    // a(name, type, key, nullable, unit, ref)
+    const a = (n, t, k = "", nul = false, unit = "", ref = "") => ({ n, t, k, nul, unit, ref });
+    const ENT = {
+        User: { zone: "account", attrs: [a("id", "uuid", "PK"), a("email", "string"), a("passwordHash", "string"), a("createdAt", "timestamp")] },
+        BodyPart: { zone: "catalog", attrs: [a("id", "uuid", "PK"), a("name", "string"), a("kind", "body_part_kind"), a("parentId", "uuid", "FK", true)] },
+        Exercise: { zone: "catalog", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", true, "", "User"), a("variantOfId", "uuid", "FK", true), a("name", "string"), a("description", "text"), a("imageUrl", "string", "", true), a("category", "exercise_category"), a("metrics", "metric_list")] },
+        ExerciseBodyPart: { zone: "catalog", attrs: [a("exerciseId", "uuid", "PK FK"), a("bodyPartId", "uuid", "PK FK"), a("role", "body_part_role")] },
+        UserExercise: { zone: "catalog", attrs: [a("userId", "uuid", "PK FK"), a("exerciseId", "uuid", "PK FK"), a("archivedAt", "timestamp", "", true), a("favorite", "bool"), a("defaultRestSeconds", "int", "", true, "s"), a("notes", "text", "", true)] },
+        Tag: { zone: "tags", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("name", "string"), a("color", "string"), a("kind", "tag_kind")] },
+        Template: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("name", "string"), a("notes", "text"), a("archivedAt", "timestamp", "", true)] },
+        TemplateTag: { zone: "tags", attrs: [a("templateId", "uuid", "PK FK"), a("tagId", "uuid", "PK FK")] },
+        TemplateExercise: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("templateId", "uuid", "FK"), a("exerciseId", "uuid", "FK"), a("position", "int"), a("targetSets", "int"), a("targetRepsMin", "int", "", true), a("targetRepsMax", "int", "", true), a("targetWeight", "decimal", "", true, "kg"), a("targetDuration", "int", "", true, "s"), a("targetDistance", "int", "", true, "m"), a("restSeconds", "int", "", true, "s"), a("notes", "text", "", true)] },
+        Program: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("name", "string"), a("goal", "text"), a("startDate", "date"), a("endDate", "date", "", true)] },
+        ProgramSlot: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("programId", "uuid", "FK"), a("templateId", "uuid", "FK"), a("weekdays", "weekday_list"), a("everyNWeeks", "int")] },
+        WorkoutSession: { zone: "done", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("status", "session_status"), a("templateId", "uuid", "FK", true), a("programSlotId", "uuid", "FK", true), a("scheduledDate", "date", "", true), a("startedAt", "timestamp", "", true), a("endedAt", "timestamp", "", true), a("feeling", "int", "", true), a("notes", "text", "", true)] },
+        WorkoutSessionTag: { zone: "tags", attrs: [a("workoutSessionId", "uuid", "PK FK"), a("tagId", "uuid", "PK FK")] },
+        SessionExercise: { zone: "done", attrs: [a("id", "uuid", "PK"), a("workoutSessionId", "uuid", "FK"), a("exerciseId", "uuid", "FK"), a("position", "int"), a("skipped", "bool"), a("targetRestSeconds", "int", "", true, "s"), a("notes", "text", "", true)] },
+        SessionSet: { zone: "done", attrs: [a("id", "uuid", "PK"), a("sessionExerciseId", "uuid", "FK"), a("position", "int"), a("targetReps", "int", "", true), a("targetWeight", "decimal", "", true, "kg"), a("targetDuration", "int", "", true, "s"), a("targetDistance", "int", "", true, "m"), a("actualReps", "int", "", true), a("actualWeight", "decimal", "", true, "kg"), a("actualDuration", "int", "", true, "s"), a("actualDistance", "int", "", true, "m"), a("rpe", "int", "", true), a("notes", "text", "", true), a("startedAt", "timestamp", "", true), a("completedAt", "timestamp", "", true)] },
+    };
+
+    // ── Placement (grid of 6 columns) ──
+    for (const e of Object.values(ENT)) e.h = HEAD + e.attrs.length * ROW + 8;
+    const place = (name, col, y) => { ENT[name].x = colX(col); ENT[name].y = y; };
+    const B = (n) => ENT[n].y + ENT[n].h;
+    place("BodyPart", 0, Y0);
+    place("ExerciseBodyPart", 0, B("BodyPart") + GAP);
+    place("Exercise", 1, Y0);
+    place("UserExercise", 1, B("Exercise") + GAP);
+    place("Template", 2, Y0);
+    place("TemplateExercise", 2, B("Template") + GAP);
+    place("Program", 3, Y0);
+    place("ProgramSlot", 3, B("Program") + GAP);
+    place("WorkoutSession", 4, Y0);
+    place("SessionExercise", 4, B("WorkoutSession") + GAP);
+    place("SessionSet", 5, Y0);
+    const mainBottom = Math.max(...["ExerciseBodyPart", "UserExercise", "TemplateExercise", "ProgramSlot", "SessionExercise", "SessionSet"].map(B)) + 34;
+    const bandY = mainBottom + 82;
+    place("User", 0, bandY);
+    place("TemplateTag", 2, bandY);
+    place("Tag", 3, bandY);
+    place("WorkoutSessionTag", 4, bandY);
+    const H = Math.max(B("Tag"), B("User")) + 44;
+
+    // ── Geometry helpers ──
+    const L = (n) => ENT[n].x, R = (n) => ENT[n].x + CW, T = (n) => ENT[n].y, CX = (n) => ENT[n].x + CW / 2;
+    const row = (n, attr) => ENT[n].y + HEAD + ENT[n].attrs.findIndex((x) => x.n === attr) * ROW + ROW / 2;
+    const gut = (col) => colX(col) + CW; // right edge of a column = start of the gutter after it
+
+    // ── Relationships: parent end (a, am) → child end (b, bm). Points run from a to b. ──
+    const REL = [
+        { a: "BodyPart", b: "BodyPart", am: "zeroOne", bm: "zeroMany", label: "parent",
+          pts: () => [[L("BodyPart"), row("BodyPart", "id")], [L("BodyPart") - 16, row("BodyPart", "id")], [L("BodyPart") - 16, row("BodyPart", "parentId")], [L("BodyPart"), row("BodyPart", "parentId")]] },
+        { a: "Exercise", b: "Exercise", am: "zeroOne", bm: "zeroMany", label: "variante",
+          pts: () => [[L("Exercise"), row("Exercise", "id")], [L("Exercise") - 16, row("Exercise", "id")], [L("Exercise") - 16, row("Exercise", "variantOfId")], [L("Exercise"), row("Exercise", "variantOfId")]] },
+        { a: "Exercise", b: "ExerciseBodyPart", am: "one", bm: "zeroMany", label: "travaille",
+          pts: () => { const y = B("Exercise") - 30, x = gut(0) + 16, y2 = row("ExerciseBodyPart", "exerciseId"); return [[L("Exercise"), y], [x, y], [x, y2], [R("ExerciseBodyPart"), y2]]; } },
+        { a: "BodyPart", b: "ExerciseBodyPart", am: "one", bm: "zeroMany", label: "sollicitée par",
+          pts: () => [[CX("BodyPart"), B("BodyPart")], [CX("BodyPart"), T("ExerciseBodyPart")]] },
+        { a: "Exercise", b: "UserExercise", am: "one", bm: "zeroMany", label: "préférences",
+          pts: () => [[CX("Exercise"), B("Exercise")], [CX("Exercise"), T("UserExercise")]] },
+        { a: "User", b: "UserExercise", am: "one", bm: "zeroMany", label: "a des préférences",
+          pts: () => { const y = T("User") + 52, x = gut(0) + 32, y2 = row("UserExercise", "userId"); return [[R("User"), y], [x, y], [x, y2], [L("UserExercise"), y2]]; } },
+        { a: "Template", b: "TemplateExercise", am: "one", bm: "zeroMany", label: "contient",
+          pts: () => [[CX("Template"), B("Template")], [CX("Template"), T("TemplateExercise")]] },
+        { a: "Exercise", b: "TemplateExercise", am: "one", bm: "zeroMany", label: "utilisé dans",
+          pts: () => { const y = T("Exercise") + 104, x = gut(1) + 34, y2 = row("TemplateExercise", "exerciseId"); return [[R("Exercise"), y], [x, y], [x, y2], [L("TemplateExercise"), y2]]; } },
+        { a: "Exercise", b: "SessionExercise", am: "one", bm: "zeroMany", label: "réalisé dans",
+          pts: () => { const y = T("Exercise") + 150, x = gut(1) + 16, yb = mainBottom - 16; return [[R("Exercise"), y], [x, y], [x, yb], [CX("SessionExercise"), yb], [CX("SessionExercise"), B("SessionExercise")]]; } },
+        { a: "Template", b: "TemplateTag", am: "one", bm: "zeroMany", label: "étiqueté",
+          pts: () => { const y = T("Template") + 96, x = gut(2) + 16, y2 = row("TemplateTag", "templateId"); return [[R("Template"), y], [x, y], [x, y2], [R("TemplateTag"), y2]]; } },
+        { a: "Tag", b: "TemplateTag", am: "one", bm: "zeroMany", label: "",
+          pts: () => [[L("Tag"), row("TemplateTag", "tagId")], [R("TemplateTag"), row("TemplateTag", "tagId")]] },
+        { a: "Program", b: "ProgramSlot", am: "one", bm: "oneMany", label: "planifie",
+          pts: () => [[CX("Program"), B("Program")], [CX("Program"), T("ProgramSlot")]] },
+        { a: "Template", b: "ProgramSlot", am: "one", bm: "zeroMany", label: "planifié par",
+          pts: () => { const y = T("Template") + 56, x = gut(2) + 34, y2 = row("ProgramSlot", "templateId"); return [[R("Template"), y], [x, y], [x, y2], [L("ProgramSlot"), y2]]; } },
+        { a: "Template", b: "WorkoutSession", am: "zeroOne", bm: "zeroMany", label: "copié au démarrage", hero: true,
+          pts: () => { const y = 44; return [[CX("Template"), T("Template")], [CX("Template"), y], [CX("WorkoutSession"), y], [CX("WorkoutSession"), T("WorkoutSession")]]; } },
+        { a: "ProgramSlot", b: "WorkoutSession", am: "zeroOne", bm: "zeroMany", label: "occurrence de",
+          pts: () => { const y = T("ProgramSlot") + 56, x = gut(3) + 16, y2 = row("WorkoutSession", "programSlotId"); return [[R("ProgramSlot"), y], [x, y], [x, y2], [L("WorkoutSession"), y2]]; } },
+        { a: "WorkoutSession", b: "WorkoutSessionTag", am: "one", bm: "zeroMany", label: "étiquetée",
+          pts: () => { const y = B("WorkoutSession") - 26, x = gut(3) + 34, y2 = row("WorkoutSessionTag", "workoutSessionId"); return [[L("WorkoutSession"), y], [x, y], [x, y2], [L("WorkoutSessionTag"), y2]]; } },
+        { a: "Tag", b: "WorkoutSessionTag", am: "one", bm: "zeroMany", label: "",
+          pts: () => [[R("Tag"), row("WorkoutSessionTag", "tagId")], [L("WorkoutSessionTag"), row("WorkoutSessionTag", "tagId")]] },
+        { a: "WorkoutSession", b: "SessionExercise", am: "one", bm: "zeroMany", label: "contient",
+          pts: () => [[CX("WorkoutSession"), B("WorkoutSession")], [CX("WorkoutSession"), T("SessionExercise")]] },
+        { a: "SessionExercise", b: "SessionSet", am: "one", bm: "zeroMany", label: "séries",
+          pts: () => { const y = T("SessionExercise") + 28; return [[R("SessionExercise"), y], [L("SessionSet"), y]]; } },
+    ];
+    // Owner links drawn as "→ User" chips in the cards (5 of them) + UserExercise → User drawn above: 24 relationships in total.
+    const OWNED = Object.entries(ENT).filter(([, e]) => e.attrs.some((x) => x.ref === "User")).map(([n]) => n);
+
+    // ── SVG builders ──
+    const svg = document.getElementById("mcd");
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const el = (tag, attrs = {}, parent = svg, text) => {
+        const node = document.createElementNS(NS, tag);
+        for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+        if (text != null) node.textContent = text;
+        parent.appendChild(node);
+        return node;
+    };
+
+    // Crow's-foot glyph at an end. (x, y) = point on the card edge, (ux, uy) = unit direction pointing into the card.
+    const glyph = (parent, x, y, ux, uy, mode) => {
+        const g = el("g", { class: "glyph" }, parent);
+        const px = -uy, py = ux;
+        const back = (d) => [x - ux * d, y - uy * d];
+        const bar = (d) => { const [bx, by] = back(d); el("line", { x1: bx + px * 6, y1: by + py * 6, x2: bx - px * 6, y2: by - py * 6 }, g); };
+        const ring = (d) => { const [cx, cy] = back(d); el("circle", { cx, cy, r: 4 }, g); };
+        const crow = () => { const [fx, fy] = back(13); for (const s of [-1, 0, 1]) el("line", { x1: fx, y1: fy, x2: x + px * 6.5 * s, y2: y + py * 6.5 * s }, g); };
+        if (mode === "one") { bar(6); bar(11); }
+        if (mode === "zeroOne") { bar(7); ring(17); }
+        if (mode === "zeroMany") { crow(); ring(18); }
+        if (mode === "oneMany") { crow(); bar(17); }
+        return g;
+    };
+
+    // ── Zones ──
+    const zoneLayer = el("g");
+    const zoneBox = (key, x1, y1, x2, y2) => {
+        const z = ZONES[key];
+        const g = el("g", { style: `--z: ${z.color}` }, zoneLayer);
+        el("rect", { class: "zone-box", x: x1, y: y1, width: x2 - x1, height: y2 - y1, rx: 18 }, g);
+        const t = el("text", { class: "zone-label", x: x1 + 18, y: y1 + 27 }, g, z.label);
+        if (z.sub) el("tspan", { class: "zone-sub", dx: 10 }, t, z.sub);
+    };
+    const zTop = Y0 - 46, pad = 20;
+    zoneBox("catalog", colX(0) - pad, zTop, colX(1) + CW + pad, mainBottom);
+    zoneBox("plan", colX(2) - pad, zTop, colX(3) + CW + pad, mainBottom);
+    zoneBox("done", colX(4) - pad, zTop, colX(5) + CW + pad, mainBottom);
+    zoneBox("account", colX(0) - pad, bandY - 46, colX(0) + CW + pad, B("User") + pad);
+    zoneBox("tags", colX(2) - pad, bandY - 46, colX(4) + CW + pad, B("Tag") + pad);
+
+    // ── Relationships (drawn under the cards) ──
+    const relLayer = el("g");
+    const relNodes = [];
+    for (const r of REL) {
+        const p = r.pts();
+        const g = el("g", { class: "rel" + (r.hero ? " hero" : ""), style: `--z: ${ZONES[ENT[r.b].zone].color}` }, relLayer);
+        const d = p.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join(" ");
+        el("path", { class: "halo", d }, g);
+        el("path", { class: "wire", d }, g);
+        const dir = (i, j) => { const dx = p[j][0] - p[i][0], dy = p[j][1] - p[i][1], len = Math.hypot(dx, dy) || 1; return [dx / len, dy / len]; };
+        const [sx, sy] = dir(1, 0); // into card a
+        glyph(g, p[0][0], p[0][1], sx, sy, r.am);
+        const n = p.length - 1;
+        const [ex, ey] = dir(n - 1, n); // into card b
+        glyph(g, p[n][0], p[n][1], ex, ey, r.bm);
+        if (r.label) {
+            let best = 0, bestLen = -1;
+            for (let i = 0; i < n; i++) { const len = Math.hypot(p[i + 1][0] - p[i][0], p[i + 1][1] - p[i][1]); if (len > bestLen) { bestLen = len; best = i; } }
+            const [x1, y1] = p[best], [x2, y2] = p[best + 1];
+            const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+            // Horizontal: above the line. Vertical lane in a gutter: written along the line, so it never runs under a card.
+            // Short vertical link between two stacked cards: beside the line, in the free space of the gap.
+            if (y1 === y2) el("text", { class: "label", x: mx, y: my - 7, "text-anchor": "middle" }, g, r.label);
+            else if (p.length > 2) el("text", { class: "label", x: mx - 5, y: my, "text-anchor": "middle", transform: `rotate(-90 ${mx - 5} ${my})` }, g, r.label);
+            else el("text", { class: "label", x: mx + 7, y: my + 4 }, g, r.label);
+        }
+        r.node = g;
+        relNodes.push(r);
+    }
+
+    // ── Entity cards ──
+    const entLayer = el("g");
+    for (const [name, e] of Object.entries(ENT)) {
+        const z = ZONES[e.zone];
+        const g = el("g", { class: "entity", tabindex: "0", "data-name": name, style: `--z: ${z.color}`, role: "button", "aria-label": `${name}, ${e.attrs.length} attributs` }, entLayer);
+        e.node = g;
+        el("rect", { class: "card", x: e.x, y: e.y, width: CW, height: e.h, rx: 12 }, g);
+        el("path", { class: "card-head", d: `M${e.x + 1} ${e.y + 34} V${e.y + 12} a11 11 0 0 1 11 -11 H${e.x + CW - 12} a11 11 0 0 1 11 11 V${e.y + 34} Z` }, g);
+        el("line", { class: "card-rule", x1: e.x + 1, y1: e.y + 34, x2: e.x + CW - 1, y2: e.y + 34 }, g);
+        el("circle", { class: "card-dot", cx: e.x + 16, cy: e.y + 18, r: 4 }, g);
+        el("text", { class: "card-title", x: e.x + 28, y: e.y + 23 }, g, name);
+        e.attrs.forEach((at, i) => {
+            const ry = e.y + HEAD + i * ROW;
+            const hit = el("rect", { class: "row-hit", x: e.x + 4, y: ry, width: CW - 8, height: ROW, rx: 4 }, g);
+            const tip = [`${name}.${at.n}`, at.t + (at.unit ? ` (${at.unit})` : ""), at.nul ? "nullable" : "obligatoire"];
+            if (ENUMS[at.t]) tip.push("valeurs : " + ENUMS[at.t].join(", "));
+            if (at.ref) tip.push("référence vers User");
+            el("title", {}, hit, tip.join(" · "));
+            const keys = at.k ? at.k.split(" ") : [];
+            keys.forEach((k, ki) => {
+                const bx = e.x + 10 + ki * 21;
+                const b = el("g", { class: k === "PK" ? "badge-pk" : "badge-fk" }, g);
+                el("rect", { x: bx, y: ry + 4, width: 19, height: 12, rx: 3 }, b);
+                el("text", { x: bx + 9.5, y: ry + 13, "text-anchor": "middle" }, b, k);
+            });
+            const t = el("text", { class: "attr-name", x: e.x + 58, y: ry + 14 }, g, at.n);
+            if (at.nul) el("tspan", { class: "attr-null" }, t, "?");
+            const typeText = at.ref ? "→ User" : at.t + (at.unit ? ` · ${at.unit}` : "");
+            const cls = "attr-type" + (ENUMS[at.t] ? " enum" : "") + (at.ref ? " ref" : "");
+            el("text", { class: cls, x: e.x + CW - 12, y: ry + 14, "text-anchor": "end" }, g, typeText);
+        });
+    }
+
+    // ── Focus: isolate an entity and its relationships ──
+    let pinned = null;
+    const neighbours = (name) => {
+        const rels = relNodes.filter((r) => r.a === name || r.b === name);
+        const ents = new Set([name, ...rels.flatMap((r) => [r.a, r.b])]);
+        if (name === "User") OWNED.forEach((n) => ents.add(n));
+        if (OWNED.includes(name)) ents.add("User");
+        return { rels, ents };
+    };
+    const show = (name) => {
+        if (!name) {
+            svg.classList.remove("focusing");
+            for (const e of Object.values(ENT)) e.node.classList.remove("on", "dim");
+            relNodes.forEach((r) => r.node.classList.remove("on", "dim"));
+            return;
+        }
+        const { rels, ents } = neighbours(name);
+        svg.classList.add("focusing");
+        for (const [n, e] of Object.entries(ENT)) { e.node.classList.toggle("on", n === name); e.node.classList.toggle("dim", !ents.has(n)); }
+        relNodes.forEach((r) => { const on = rels.includes(r); r.node.classList.toggle("on", on); r.node.classList.toggle("dim", !on); });
+    };
+    for (const [name, e] of Object.entries(ENT)) {
+        e.node.addEventListener("mouseenter", () => { if (!pinned) show(name); });
+        e.node.addEventListener("mouseleave", () => { if (!pinned) show(null); });
+        e.node.addEventListener("click", (ev) => { ev.stopPropagation(); if (moved) return; pinned = pinned === name ? null : name; show(pinned); });
+        e.node.addEventListener("keydown", (ev) => {
+            if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pinned = pinned === name ? null : name; show(pinned); }
+            if (ev.key === "Escape") { pinned = null; show(null); }
+        });
+    }
+    svg.addEventListener("click", () => { if (moved) return; pinned = null; show(null); });
+
+    // ── Zoom and drag-to-pan ──
+    const sheet = document.getElementById("sheet");
+    const out = document.getElementById("zoom-value");
+    let scale = 1;
+    const setScale = (s) => {
+        scale = Math.min(1.6, Math.max(0.4, s));
+        svg.setAttribute("width", Math.round(W * scale));
+        svg.setAttribute("height", Math.round(H * scale));
+        out.textContent = Math.round(scale * 100) + " %";
+    };
+    const fit = () => setScale(Math.max(0.4, Math.min(1, (sheet.clientWidth - 2) / W)));
+    document.getElementById("zoom-in").addEventListener("click", () => setScale(scale + 0.1));
+    document.getElementById("zoom-out").addEventListener("click", () => setScale(scale - 0.1));
+    document.getElementById("zoom-fit").addEventListener("click", fit);
+    fit();
+    // A phone shows the sheet at a readable size instead of a tiny overview: it scrolls inside its own frame
+    if (sheet.clientWidth < 700) setScale(0.62);
+
+    let drag = null, moved = false;
+    sheet.addEventListener("pointerdown", (ev) => {
+        if (ev.pointerType !== "mouse" || ev.button !== 0) return;
+        drag = { x: ev.clientX, y: ev.clientY, l: sheet.scrollLeft, t: sheet.scrollTop };
+        moved = false;
+    });
+    window.addEventListener("pointermove", (ev) => {
+        if (!drag) return;
+        const dx = ev.clientX - drag.x, dy = ev.clientY - drag.y;
+        if (!moved && Math.hypot(dx, dy) < 4) return;
+        moved = true;
+        sheet.classList.add("panning");
+        sheet.scrollLeft = drag.l - dx;
+        sheet.scrollTop = drag.t - dy;
+    });
+    window.addEventListener("pointerup", () => {
+        drag = null;
+        sheet.classList.remove("panning");
+        setTimeout(() => { moved = false; }, 0);
+    });
+
+    // ── Legend ──
+    const legend = document.getElementById("legend");
+    const mini = (draw, w = 64, h = 22) => {
+        const s = document.createElementNS(NS, "svg");
+        s.setAttribute("width", w); s.setAttribute("height", h); s.setAttribute("viewBox", `0 0 ${w} ${h}`);
+        s.setAttribute("aria-hidden", "true");
+        draw(s);
+        return s;
+    };
+    const legendItem = (svgNode, html) => { const d = document.createElement("div"); d.append(svgNode); const s = document.createElement("span"); s.innerHTML = html; d.append(s); legend.append(d); };
+    const crowMini = (mode) => mini((s) => {
+        const g = el("g", { class: "rel" }, s);
+        el("path", { class: "wire", d: "M4 11 H52" }, g);
+        el("rect", { x: 52, y: 1, width: 10, height: 20, rx: 2, fill: "var(--surface)", stroke: "var(--line-strong)" }, s);
+        glyph(g, 52, 11, 1, 0, mode);
+    });
+    const badgeMini = (k) => mini((s) => { const b = el("g", { class: k === "PK" ? "badge-pk" : "badge-fk" }, s); el("rect", { x: 2, y: 4, width: 26, height: 15, rx: 3 }, b); el("text", { x: 15, y: 15, "text-anchor": "middle", style: "font-size:10px" }, b, k); }, 30);
+    legendItem(badgeMini("PK"), "<b>Clé primaire</b> : identifie la ligne");
+    legendItem(badgeMini("FK"), "<b>Clé étrangère</b> : pointe vers une autre table");
+    legendItem(mini((s) => { const t = el("text", { class: "attr-name", x: 2, y: 15 }, s, "endDate"); el("tspan", { class: "attr-null" }, t, "?"); }, 70), "<b>Facultatif</b> (nullable)");
+    legendItem(mini((s) => { el("text", { class: "attr-type ref", x: 2, y: 15 }, s, "→ User"); }, 52), "<code>ownerId</code> : appartient à un utilisateur (lien non tracé)");
+    legendItem(crowMini("one"), "Exactement <b>un</b>");
+    legendItem(crowMini("zeroOne"), "<b>Zéro ou un</b>");
+    legendItem(crowMini("zeroMany"), "<b>Zéro ou plusieurs</b>");
+    legendItem(crowMini("oneMany"), "<b>Un ou plusieurs</b>");
+
+    // ── Enums ──
+    const dl = document.getElementById("enums");
+    for (const [k, vals] of Object.entries(ENUMS)) {
+        const div = document.createElement("div");
+        const dt = document.createElement("dt"); dt.textContent = k;
+        const dd = document.createElement("dd");
+        vals.forEach((v) => { const c = document.createElement("span"); c.className = "chip"; c.textContent = v; dd.append(c); });
+        div.append(dt, dd); dl.append(div);
+    }
+})();
+</script>

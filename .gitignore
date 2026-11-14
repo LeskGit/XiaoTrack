@@ -1,2 +1,7 @@
 node_modules
 package-lock.json
+
+# Local secrets (the template .env.example stays versioned)
+.env
+.env.*
+!.env.example
