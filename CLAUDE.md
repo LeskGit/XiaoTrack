@@ -41,6 +41,7 @@ Root `docker-compose.yml` and `apps/api/Dockerfile` are `# TODO` placeholders.
 From the repo root:
 
 ```bash
+npm run setup         # new machine: checks, .env, deps, Postgres (Docker), migrations, generate, seed
 npm run install:all   # npm install --workspaces
 npm run dev           # api + web in parallel
 npm run dev:web       # Vite only
