@@ -4,10 +4,15 @@ import { RegisterDto } from './dto/register.dto';
 import { hash, verify } from 'argon2';
 import { Prisma } from '../generated/prisma/client';
 import { LoginDto } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './jwt-payload.type';
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly users: UsersService) {}
+    constructor(
+        private readonly users: UsersService,
+        private readonly jwt: JwtService,
+    ) {}
 
     async register({ email, password }: RegisterDto): Promise<PublicUser | null> {
         const passwordhash = await hash(password);
@@ -32,6 +37,20 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        return { id: user.id, email: user.email, role: user.role };
+        const payload: JwtPayload = { sub: user.id, role: user.role };
+        const accessToken = await this.jwt.signAsync(payload);
+
+        return {
+            user: { id: user.id, email: user.email, role: user.role },
+            accessToken,
+        };
+    }
+
+    async me(userId: string): Promise<PublicUser> {
+        const user = await this.users.findById(userId);
+        if (!user) {
+            throw new UnauthorizedException();
+        }
+        return user;
     }
 }
