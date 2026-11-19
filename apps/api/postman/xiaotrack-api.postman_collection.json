@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "XiaoTrack API",
-    "description": "Manual tests for the XiaoTrack NestJS API (apps/api).\n\nImport this collection AND `xiaotrack-local.postman_environment.json`, then select the `XiaoTrack - local` environment (top right).\n\nRun order for the Auth folder: run it as a whole with the Collection Runner, or run `Register - new user` first: it creates a fresh user (random email) that the following requests reuse.\n\nPostman keeps the `access_token` cookie set by a login (Cookies link under the Send button) and sends it back on the next requests, like a browser: `Me - logged in` works only after a login.\n\nEvery request has tests (Tests / Scripts tab) that check the status code and the response shape.",
+    "description": "Manual tests for the XiaoTrack NestJS API (apps/api).\n\nImport this collection AND `xiaotrack-local.postman_environment.json`, then select the `XiaoTrack - local` environment (top right).\n\nRun order for the Auth folder: run it as a whole with the Collection Runner, or run `Register - new user` first: it creates a fresh user (random email) that the following requests reuse.\n\nPostman keeps the `access_token` cookie set by a login (Cookies link under the Send button) and sends it back on the next requests, like a browser: `Me - logged in` works only after a login.\n\nEvery request has tests (Tests / Scripts tab) that check the status code and the response shape.\n\nToken tests: the `Me - ...` requests after `Me - after logout (401)` send a hand-made `Cookie` header (copied or forged from the token of `Login - registered user`). They must run AFTER the logout, so that Postman's own cookie jar does not send a valid access_token alongside.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -14,6 +14,16 @@
       "key": "registeredEmail",
       "value": "",
       "description": "Set automatically by `Register - new user`."
+    },
+    {
+      "key": "capturedToken",
+      "value": "",
+      "description": "Set automatically by `Login - registered user`: a copy of the access_token cookie."
+    },
+    {
+      "key": "forgedToken",
+      "value": "",
+      "description": "Set automatically by the forged-token requests."
     }
   ],
   "item": [
@@ -370,7 +380,9 @@
                   "});",
                   "pm.test('The token is NOT in the body (it lives in the httpOnly cookie)', () => {",
                   "  pm.expect(pm.response.text()).to.not.include(pm.cookies.get('access_token'));",
-                  "});"
+                  "});",
+                  "// Kept for the token tests that run after the logout",
+                  "pm.collectionVariables.set('capturedToken', pm.cookies.get('access_token'));"
                 ]
               }
             }
@@ -432,6 +444,192 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('401 Unauthorized', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me - token kept from before logout (200, known V1 limit)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{capturedToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/me"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Logout only asks the browser to drop its cookie: the token itself stays valid until exp.",
+                  "// No revocation in V1 (docs/auth/00-cadrage-v1.md). This test documents the limit.",
+                  "pm.test('200 OK: a copied token still works after logout', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me - tampered signature (401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{forgedToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/me"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Same header and payload, last character of the signature changed",
+                  "const token = pm.collectionVariables.get('capturedToken');",
+                  "const last = token.slice(-1) === 'A' ? 'B' : 'A';",
+                  "pm.collectionVariables.set('forgedToken', token.slice(0, -1) + last);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Rejected cleanly, not a server crash (no 500)', () => {",
+                  "  pm.expect(pm.response.json().statusCode).to.eql(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me - role changed to ADMIN (401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{forgedToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/me"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// What an attacker does on jwt.io: edit the readable payload, keep the old signature",
+                  "const fromB64Url = (s) => atob(s.replace(/-/g, '+').replace(/_/g, '/'));",
+                  "const toB64Url = (s) => btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');",
+                  "const [header, payload, signature] = pm.collectionVariables.get('capturedToken').split('.');",
+                  "const claims = JSON.parse(fromB64Url(payload));",
+                  "claims.role = 'ADMIN';",
+                  "pm.collectionVariables.set('forgedToken', [header, toB64Url(JSON.stringify(claims)), signature].join('.'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Rejected cleanly, not a server crash (no 500)', () => {",
+                  "  pm.expect(pm.response.json().statusCode).to.eql(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me - alg none, no signature (401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{forgedToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/me"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Historic attack: the token declares itself unsigned. A configured secret must refuse it.",
+                  "const fromB64Url = (s) => atob(s.replace(/-/g, '+').replace(/_/g, '/'));",
+                  "const toB64Url = (s) => btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');",
+                  "const payload = pm.collectionVariables.get('capturedToken').split('.')[1];",
+                  "const claims = JSON.parse(fromB64Url(payload));",
+                  "claims.role = 'ADMIN';",
+                  "const header = toB64Url(JSON.stringify({ alg: 'none', typ: 'JWT' }));",
+                  "pm.collectionVariables.set('forgedToken', `${header}.${toB64Url(JSON.stringify(claims))}.`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Rejected cleanly, not a server crash (no 500)', () => {",
+                  "  pm.expect(pm.response.json().statusCode).to.eql(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me - not a JWT (401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{notAJwt}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/me"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('notAJwt', 'not-a-jwt');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401 Unauthorized', () => pm.response.to.have.status(401));",
+                  "pm.test('Rejected cleanly, not a server crash (no 500)', () => {",
+                  "  pm.expect(pm.response.json().statusCode).to.eql(401);",
+                  "});"
                 ]
               }
             }

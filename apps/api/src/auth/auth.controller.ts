@@ -1,9 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import type { Response } from 'express';
 import { ACCESS_TOKEN_COOKIE, ACCESS_TOKEN_COOKIE_OPTIONS, SESSION_DURATION_SECONDS } from './auth.constants';
+import { AuthGuard } from './auth.guard';
+import type { AuthenticatedRequest } from './jwt-payload.type';
 
 @Controller('auth')
 export class AuthController {
@@ -33,5 +35,11 @@ export class AuthController {
     @HttpCode(HttpStatus.NO_CONTENT)
     logout(@Res({ passthrough: true }) res: Response) {
         res.clearCookie(ACCESS_TOKEN_COOKIE, ACCESS_TOKEN_COOKIE_OPTIONS);
+    }
+
+    @Get('me')
+    @UseGuards(AuthGuard)
+    me(@Req() req: AuthenticatedRequest) {
+        return this.auth.me(req.user.sub);
     }
 }
