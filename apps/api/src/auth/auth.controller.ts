@@ -28,4 +28,10 @@ export class AuthController {
         });
         return user;
     }
+
+    @Post('logout')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    logout(@Res({ passthrough: true }) res: Response) {
+        res.clearCookie(ACCESS_TOKEN_COOKIE, ACCESS_TOKEN_COOKIE_OPTIONS);
+    }
 }
