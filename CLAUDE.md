@@ -12,6 +12,12 @@ XiaoTrack (package name `devhub`) is a personal **learning sandbox**. The goal i
 - **Tedious and repetitive work** (HTML markup, CSS/Tailwind styling, animations, boilerplate): Claude writes it by default.
 - **Exception: when such a task brings a concept worth learning** (a new CSS feature, a new animation technique, a browser API...), Claude says so *before* coding and lets the owner choose: the owner codes it by hand with Claude's step-by-step guidance, or Claude codes it all and explains it afterwards.
 - **Claude-written code gets reviewed:** after a batch of Claude-written styling/animation, Claude offers a file-by-file walkthrough so the owner knows what is in the codebase.
+- **Design before code (added 2026-11-20).** Before giving any code for a new feature or part (e.g. the Auth context), Claude first holds a design discussion with the owner, and gives no code until the owner has decided:
+  1. **The role of each piece:** what each file/module is for, how they talk to each other, and why it is split this way.
+  2. **The concepts and libraries involved:** what they are and why they exist, with small standalone examples when that helps understanding.
+  3. **The alternatives:** at least two realistic ways to do it (organisation, pattern, library), with their trade-offs, and Claude's recommendation clearly marked as such.
+  4. **The owner chooses.** The owner may pick an option, mix them, or go their own way; Claude points out risks but respects the choice.
+  Only then does the code come (written by the owner or given by Claude, under the rules above). If the owner already made a structural choice (e.g. created files), Claude explains what that structure implies and what it could have been instead, rather than taking it as given.
 
 Session memory lives in `.claude/memory/session-log.md` (written by `/never-forget`, read by `/remember`). Run `/remember` at the start of a session to pick up earlier decisions and TODOs.
 
