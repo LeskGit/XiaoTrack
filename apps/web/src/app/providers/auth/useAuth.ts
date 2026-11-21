@@ -6,7 +6,7 @@ import { AuthContext } from "./authContext";
 export const useAuth = (): AuthContextValue => {
     const context = useContext(AuthContext);
     if (context === null) {
-        throw new Error('useAuth muse be used in AuthProvider');
+        throw new Error('useAuth must be used in AuthProvider');
     }
     return context;
 }

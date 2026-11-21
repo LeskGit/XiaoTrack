@@ -316,11 +316,15 @@ export type { IconProps, IconButtonProps } from "./icons.types";
 
 Pas de logique dans `index.ts`. Que des ré-exports.
 
-### 7.4 Frontière `components/` vs `layout/` vs `pages/`
+### 7.4 Frontière `app/` vs `components/` vs `layout/` vs `pages/`
 
+- `app/` : l'**assemblage** de l'application, ce qui relie les pièces entre elles sans rien afficher de métier (ajouté le 2026-11-21).
+  - `app/providers/` : les Providers de contexte globaux, un dossier par contexte (`auth/` : types, contexte privé, Provider, hooks `useAuth` / `useCurrentUser`, barrel). Le contexte lui-même n'est pas exporté par le barrel : on y accède par les hooks.
+  - `app/routing/` : les gardes de route (`RequireAuth`, route sans `path` qui enveloppe les routes privées).
+  - Le routeur (`shared/config/router.tsx`) relève aussi de l'assemblage et pourra y migrer.
 - `components/` : briques UI réutilisables, sans connaissance du contexte applicatif (`Icon`, `Avatar`, plus tard `Button`, `Input`, etc.).
 - `layout/` : structure de page persistante (header, sidebar, content frame). Connaissent l'app mais pas le métier.
-- `pages/` : écrans complets. Composent du `components/` et du `layout/`.
+- `pages/` : écrans complets. Composent du `components/` et du `layout/`. Les pages publiques (`Login`, `Register`) sont déclarées dans `authRoutes` (`shared/config/routes.ts`), hors de `MainLayout` et hors de la garde.
 
 Si un composant est utilisé par plusieurs pages → il monte dans `components/`. Si un composant n'est jamais utilisé qu'une fois → il reste dans le dossier de la page qui l'utilise.
 

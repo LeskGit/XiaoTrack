@@ -5,9 +5,12 @@ import '@fontsource-variable/inter'
 import './assets/css/index.css'
 import { RouterProvider } from 'react-router-dom'
 import { router } from './shared/config/router'
+import { AuthProvider } from '@/app/providers/auth'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
   </StrictMode>
 )
