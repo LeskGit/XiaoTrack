@@ -11,6 +11,7 @@ export default function Register() {
     const { status, register } = useAuth();
     const location = useLocation();
 
+    const [displayName, setDisplayName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,7 +34,7 @@ export default function Register() {
         setIsSubmitting(true);
 
         try {
-            await register({ email, password });
+            await register({ displayName, email, password });
         } catch (error) {
             setErrorMessage(
                 error instanceof ApiError && error.status === 409
@@ -60,6 +61,27 @@ export default function Register() {
                         {errorMessage}
                     </p>
                 )}
+
+                <label className="flex flex-col gap-1.5">
+                    <span className="text-label font-medium text-ink-soft">Display name</span>
+                    {/* Same rule as RegisterDto. `pattern` is compiled with the `v` flag: the "-" must be escaped */}
+                    <input
+                        type="text"
+                        name="displayName"
+                        autoComplete="nickname"
+                        required
+                        maxLength={20}
+                        pattern="[\p{L}\p{N}_\-]+"
+                        title="Letters, digits, - or _ only"
+                        aria-describedby="display-name-hint"
+                        value={displayName}
+                        onChange={(event) => setDisplayName(event.target.value)}
+                        className="field"
+                    />
+                    <span id="display-name-hint" className="text-caption text-ink-muted">
+                        Up to 20 characters: letters, digits, - or _
+                    </span>
+                </label>
 
                 <label className="flex flex-col gap-1.5">
                     <span className="text-label font-medium text-ink-soft">Email</span>

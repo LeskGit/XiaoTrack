@@ -14,10 +14,10 @@ export class AuthService {
         private readonly jwt: JwtService,
     ) {}
 
-    async register({ email, password }: RegisterDto): Promise<PublicUser | null> {
+    async register({ email, displayName, password }: RegisterDto): Promise<PublicUser | null> {
         const passwordhash = await hash(password);
         try {
-            return await this.users.create(email, passwordhash);
+            return await this.users.create(email, displayName, passwordhash);
         } catch (error) {
             if (
                 error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -41,7 +41,7 @@ export class AuthService {
         const accessToken = await this.jwt.signAsync(payload);
 
         return {
-            user: { id: user.id, email: user.email, role: user.role },
+            user: { id: user.id, email: user.email, displayName: user.displayName, role: user.role },
             accessToken,
         };
     }

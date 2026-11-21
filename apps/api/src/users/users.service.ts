@@ -20,9 +20,9 @@ export class UsersService {
         return this.prisma.user.findUnique({ where: { email }});
     }
 
-    create(email: string, passwordHash: string): Promise<PublicUser | null> {
+    create(email: string, displayName: string, passwordHash: string): Promise<PublicUser | null> {
         return this.prisma.user.create({
-            data: { email, passwordHash },
+            data: { email, displayName, passwordHash },
             omit: { passwordHash: true },
         })
     }

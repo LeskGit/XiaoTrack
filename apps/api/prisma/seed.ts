@@ -14,21 +14,21 @@ const required = (name: string): string => {
     return value;
 }
 
-const upsertUser = async (email: string, password: string, role: Role) => {
+const upsertUser = async (email: string, displayName: string, password: string, role: Role) => {
     const normalizedEmail = email.trim().toLowerCase();
     await prisma.user.upsert({
         where: { email: normalizedEmail },
-        update: { role },
-        create: { email: normalizedEmail, passwordHash: await hash(password), role },
+        update: { role, displayName },
+        create: { email: normalizedEmail, displayName, passwordHash: await hash(password), role },
     });
     console.log(`✔ ${role.padEnd(5)} ${normalizedEmail}`);
 };
 
 const main = async () => {
-    await upsertUser(required("SEED_ADMIN_EMAIL"), required("SEED_ADMIN_PASSWORD"), "ADMIN");
+    await upsertUser(required("SEED_ADMIN_EMAIL"), "Admin", required("SEED_ADMIN_PASSWORD"), "ADMIN");
 
     if (process.env.NODE_ENV !== "production") {
-        await upsertUser(required("SEED_TEST_EMAIL"), required("SEED_TEST_PASSWORD"), "USER");
+        await upsertUser(required("SEED_TEST_EMAIL"), "Test", required("SEED_TEST_PASSWORD"), "USER");
     }
 };
 
