@@ -10,13 +10,17 @@ export type Role = (typeof Role)[keyof typeof Role];
 export type CurrentUser = {
     id: string;
     email: string;
-    displayName:  string;
+    displayName: string;
     role: Role;
 };
 
-/** Body of `POST /auth/login` and `POST /auth/register`. */
+/** Body of `POST /auth/login`. */
 export type Credentials = {
     email: string;
-    displayName: string;
     password: string;
+};
+
+/** Body of `POST /auth/register`: the credentials plus the name shown in the UI. */
+export type RegisterPayload = Credentials & {
+    displayName: string;
 };

@@ -1,4 +1,4 @@
-import type { Credentials, CurrentUser } from "@/shared/api";
+import type { Credentials, CurrentUser, RegisterPayload } from "@/shared/api";
 
 /** All possible status of authentication */
 export const AuthStatus = {
@@ -18,7 +18,7 @@ export type AuthState =
 /** Actions exposed by the context. They throw the `ApiError` so the calling form can display it. */
 export type AuthActions = {
     login: (credentials: Credentials) => Promise<void>;
-    register: (credentials: Credentials) => Promise<void>;
+    register: (payload: RegisterPayload) => Promise<void>;
     logout: () => Promise<void>;
 };
 

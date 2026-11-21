@@ -78,9 +78,6 @@ export default function Register() {
                         onChange={(event) => setDisplayName(event.target.value)}
                         className="field"
                     />
-                    <span id="display-name-hint" className="text-caption text-ink-muted">
-                        Up to 20 characters: letters, digits, - or _
-                    </span>
                 </label>
 
                 <label className="flex flex-col gap-1.5">

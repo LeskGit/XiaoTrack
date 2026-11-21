@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { ApiError, authApi, type Credentials } from '@/shared/api';
+import { ApiError, authApi, type Credentials, type RegisterPayload } from '@/shared/api';
 import { AuthContext } from './authContext';
 import { AuthStatus, type AuthContextValue, type AuthState } from './authContext.types';
 
@@ -39,9 +39,10 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
     // The API does not set the cookie on register: log in right after (decision D)
     const register = useCallback(
-        async (credentials: Credentials) => {
-            await authApi.register(credentials);
-            await login(credentials);
+        async ({ displayName, email, password }: RegisterPayload) => {
+            await authApi.register({ displayName, email, password });
+            // Only the credentials: LoginDto rejects unknown fields (forbidNonWhitelisted → 400)
+            await login({ email, password });
         },
         [login],
     );
