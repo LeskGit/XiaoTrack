@@ -1,0 +1,16 @@
+<!-- @dsCard group="Layout" height=150 subtitle="at rest, hoverable, with icon tile" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Card — preview</title>
+<style>body{margin:0;padding:16px;font-family:var(--font-sans);background:var(--canvas)} .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px} .card{padding:16px;display:flex;gap:12px;align-items:center} h3{margin:0;font-size:16px;font-weight:600;color:var(--ink)} p{margin:2px 0 0;font-size:12px;font-weight:500;color:var(--ink-muted)}</style>
+</head>
+<body>
+<div class="grid">
+  <div class="card"><div><h3>Push day</h3><p>Sat 22 Nov · 5 exercises</p></div></div>
+  <div class="card card-hover" style="--tone:var(--domain-workouts)">
+    <span class="tone-tile"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg></span>
+    <div><h3>Leg day</h3><p>Tomorrow · 4 exercises</p></div>
+  </div>
+</div>
+</body>
+</html>

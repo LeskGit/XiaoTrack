@@ -1,0 +1,42 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-11-23T00:10:00Z" },
+  "title": "XiaoTrack Mockups",
+  "launch": { "view": "canvas", "page": "workouts" },
+  "pages": [{ "id": "workouts", "name": "Workouts" }],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 390, "h": 844, "title": "Sessions · list (phone)", "page": "workouts", "is_interactive": true },
+    "workouts-session-new.dc.html": { "x": 470, "y": 0, "w": 390, "h": 844, "title": "New session (phone)", "page": "workouts", "is_interactive": true },
+    "workouts-session-planned.dc.html": { "x": 940, "y": 0, "w": 390, "h": 844, "title": "Session · planned (phone)", "page": "workouts", "is_interactive": true },
+    "workouts-session-live.dc.html": { "x": 1410, "y": 0, "w": 390, "h": 844, "title": "Session · in progress (phone)", "page": "workouts", "is_interactive": true },
+    "workouts-session-done.dc.html": { "x": 1880, "y": 0, "w": 390, "h": 844, "title": "Session · done (phone)", "page": "workouts", "is_interactive": true },
+    "workouts-exercises.dc.html": { "x": 0, "y": 1264, "w": 390, "h": 844, "title": "Exercises · catalog (phone)", "page": "workouts", "is_interactive": true },
+    "workouts-exercise-new.dc.html": { "x": 470, "y": 1264, "w": 390, "h": 844, "title": "New personal exercise (phone)", "page": "workouts", "is_interactive": true },
+    "workouts-exercise-detail.dc.html": { "x": 940, "y": 1264, "w": 390, "h": 844, "title": "Exercise · detail and note (phone)", "page": "workouts", "is_interactive": true },
+    "workouts-sessions-desktop.dc.html": { "x": 0, "y": 2528, "w": 1280, "h": 900, "title": "Sessions · list (desktop)", "page": "workouts", "expand": "fill" },
+    "workouts-session-live-desktop.dc.html": { "x": 1360, "y": 2528, "w": 1280, "h": 900, "title": "Session · in progress (desktop)", "page": "workouts", "expand": "fill" },
+    "workouts-exercises-desktop.dc.html": { "x": 2720, "y": 2528, "w": 1280, "h": 900, "title": "Exercises · catalog (desktop)", "page": "workouts", "expand": "fill" }
+  },
+  "order": [
+    "Main.dc.html",
+    "workouts-session-new.dc.html",
+    "workouts-session-planned.dc.html",
+    "workouts-session-live.dc.html",
+    "workouts-session-done.dc.html",
+    "workouts-exercises.dc.html",
+    "workouts-exercise-new.dc.html",
+    "workouts-exercise-detail.dc.html",
+    "workouts-sessions-desktop.dc.html",
+    "workouts-session-live-desktop.dc.html",
+    "workouts-exercises-desktop.dc.html"
+  ],
+  "notes": {
+    "t-sessions": { "x": 0, "y": -300, "text": "Workouts · free sessions (phone)", "kind": "title1", "maxW": 2270, "page": "workouts" },
+    "t-exercises": { "x": 0, "y": 964, "text": "Workouts · exercises (phone)", "kind": "title1", "maxW": 1330, "page": "workouts" },
+    "t-desktop": { "x": 0, "y": 2228, "text": "Workouts · desktop variants", "kind": "title1", "maxW": 4000, "page": "workouts" },
+    "n-rules": { "x": -520, "y": 0, "w": 400, "size": "s", "fill": "yellow", "page": "workouts", "text": "Workouts V1 (docs/workouts/00-cadrage-v1.md).\n\nMobile first: the athlete logs sets at the gym, on a phone. Desktop variants follow the app shell (header + sidebar).\n\nData follows the model: a session has NO name column, so it is shown by its date and its exercises. Everything is typed by hand, no calculation.\n\nStatus: Planned (neutral), In progress (warning, pulsing), Done (success).\n\nOne primary (gradient) button per screen." }
+  },
+  "designSystems": [
+    { "title": "XiaoTrack", "namespace": "xiaotrack", "artifact": "https://claude.ai/artifact/8eEDLkekqUK9GJgvHxFhRi", "version": "1795388402-8f0b", "copiedAt": "2026-11-23T00:10:00Z" }
+  ]
+}

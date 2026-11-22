@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Exercise catalog, desktop</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="shared/xt-tokens.css">
+<link rel="stylesheet" href="ds/xiaotrack/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p{margin:0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:var(--radius-md);font-size:14px;font-weight:500;color:var(--ink-soft)}
+.nav-item:hover{background:var(--accent-soft);color:var(--ink)}
+.nav-item.is-active{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-card-hover)}
+.nav-item .tone-tile{width:32px;height:32px}
+.chip{height:32px;padding:0 12px;border-radius:9999px;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);font:inherit;font-size:13px;font-weight:500;cursor:pointer}
+.chip.is-on{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent-strong)}
+.ex{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border:0;border-bottom:1px solid var(--line);background:none;font:inherit;text-align:left;cursor:pointer}
+.ex:hover{background:var(--canvas)}
+.ex.is-on{background:var(--accent-soft)}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 16px}
+dt{font-size:12px;font-weight:500;color:var(--ink-muted)}
+dd{margin:0;font-size:14px;color:var(--ink)}
+</style>
+</helmet>
+<div class="xt-canvas" style="min-height: 900px; display: flex; flex-direction: column; font-family: var(--font-sans);">
+
+  <div style="display: flex; flex-wrap: wrap; background: var(--surface); border-bottom: 1px solid var(--line);">
+    <div style="flex: 1 1 256px; max-width: 256px; height: 64px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 0 20px; border-right: 1px solid var(--line);">
+      <span class="bg-brand" style="width: 32px; height: 32px; border-radius: var(--radius-md); display: grid; place-items: center; color: white; font-weight: 700; box-shadow: var(--shadow-brand);">X</span>
+      <span class="text-brand" style="font-size: 16px; font-weight: 700;">XiaoTrack</span>
+    </div>
+    <header style="flex: 999 1 480px; min-width: 0; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
+      <div>
+        <h1 style="font-size: 16px; font-weight: 600; color: var(--ink);">Workouts</h1>
+        <p style="font-size: 12px; color: var(--ink-muted);">Sunday 23 November</p>
+      </div>
+      <span style="width: 32px; height: 32px; border-radius: 9999px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-strong); font-size: 13px; font-weight: 600;">T</span>
+    </header>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-wrap: wrap; align-items: stretch;">
+    <aside style="flex: 1 1 256px; max-width: 100%; box-sizing: border-box; padding: 20px 12px 12px; background: var(--surface); border-right: 1px solid var(--line);">
+      <p class="section-label" style="padding: 0 8px 8px;">Menu</p>
+      <nav aria-label="Main" style="display: flex; flex-direction: column; gap: 4px;">
+        <a href="#" class="nav-item"><span class="tone-tile">D</span>Dashboard</a>
+        <a href="workouts-sessions-desktop.dc.html" class="nav-item is-active" style="--tone: var(--domain-workouts);"><span class="tone-tile is-active">W</span>Workouts</a>
+        <a href="#" class="nav-item" style="--tone: var(--domain-nutrition);"><span class="tone-tile">N</span>Nutrition</a>
+        <a href="#" class="nav-item" style="--tone: var(--domain-planning);"><span class="tone-tile">P</span>Planning</a>
+        <a href="#" class="nav-item" style="--tone: var(--domain-habits);"><span class="tone-tile">H</span>Habits</a>
+      </nav>
+    </aside>
+
+    <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 32px max(16px, 3vw);">
+      <div style="max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink);">Exercises</h2>
+            <p style="font-size: 14px; color: var(--ink-soft);">33 provided, 1 of your own.</p>
+          </div>
+          <a href="workouts-exercise-new.dc.html" class="btn btn-primary">+ New exercise</a>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+          <section class="card" style="flex: 1 1 320px; min-width: 0; overflow: hidden;">
+            <div style="padding: 14px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--line);">
+              <input class="field" style="width: 100%; box-sizing: border-box;" placeholder="Search exercises" aria-label="Search exercises">
+              <div style="display: flex; flex-wrap: wrap; gap: 6px;" role="group" aria-label="Filter">
+                <button class="chip is-on" aria-pressed="true">All</button>
+                <button class="chip" aria-pressed="false">Resistance</button>
+                <button class="chip" aria-pressed="false">Cardio</button>
+                <button class="chip" aria-pressed="false">Personal</button>
+              </div>
+            </div>
+            <sc-for list="{{items}}" as="ex" hint-placeholder-count="9">
+              <button class="{{ex.cls}}" onClick="{{ex.pick}}">
+                <span style="flex: 1; min-width: 0;">
+                  <span style="display: block; font-size: 14px; font-weight: 600; color: var(--ink);">{{ex.name}}</span>
+                  <span style="display: block; font-size: 12px; font-weight: 500; color: var(--ink-muted);">{{ex.meta}}</span>
+                </span>
+                <sc-if value="{{ex.personal}}" hint-placeholder-val="{{false}}"><span class="badge badge-info">Personal</span></sc-if>
+              </button>
+            </sc-for>
+          </section>
+
+          <section class="card" style="flex: 999 1 380px; min-width: 0; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px;">
+              <h3 style="font-size: 20px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink);">{{sel.name}}</h3>
+              <sc-if value="{{sel.personal}}" hint-placeholder-val="{{false}}"><button class="btn btn-secondary">Edit</button></sc-if>
+            </div>
+            <dl>
+              <dt>Category</dt><dd>{{sel.cat}}</dd>
+              <dt>Records</dt><dd>{{sel.records}}</dd>
+              <dt>Source</dt><dd>{{sel.source}}</dd>
+            </dl>
+            <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 16px; border-top: 1px solid var(--line);">
+              <h4 style="margin: 0; font-size: 16px; font-weight: 600; color: var(--ink);">My note</h4>
+              <p style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">Shown every time this exercise is in a session.</p>
+              <textarea class="field" aria-label="My note" style="min-height: 110px;" placeholder="Cue, machine setting, seat height…">{{sel.note}}</textarea>
+              <button class="btn btn-accent" style="align-self: flex-end;">Save note</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { picked: 'Bench press' };
+}
+renderVals() {
+const RW = 'Reps and weight';
+const DD = 'Time and distance';
+const all = [
+{ name: 'Incline hammer row', cat: 'Resistance', records: RW, personal: true, note: 'Bench at 30°, chest stays on the pad.' },
+{ name: 'Back squat', cat: 'Resistance', records: RW, personal: false, note: 'Knees out, brace before every descent.' },
+{ name: 'Barbell row', cat: 'Resistance', records: RW, personal: false, note: '' },
+{ name: 'Bench press', cat: 'Resistance', records: RW, personal: false, note: 'Focus on the descent, two seconds down.' },
+{ name: 'Biceps curl', cat: 'Resistance', records: RW, personal: false, note: '' },
+{ name: 'Calf raise', cat: 'Resistance', records: RW, personal: false, note: '' },
+{ name: 'Cycling', cat: 'Cardio', records: DD, personal: false, note: '' },
+{ name: 'Deadlift', cat: 'Resistance', records: RW, personal: false, note: '' },
+{ name: 'Running', cat: 'Cardio', records: DD, personal: false, note: 'Easy pace, nose breathing.' }
+];
+const p = this.state.picked;
+const items = all.map((e) => ({
+name: e.name,
+personal: e.personal,
+meta: e.cat + ' · ' + e.records,
+cls: e.name === p ? 'ex is-on' : 'ex',
+pick: () => this.setState({ picked: e.name })
+}));
+const s = all.find((e) => e.name === p) || all[0];
+const sel = { name: s.name, cat: s.cat, records: s.records, personal: s.personal, note: s.note, source: s.personal ? 'Your exercise' : 'Provided by XiaoTrack' };
+return { items, sel };
+}
+}
+</script>
+</body>
+</html>

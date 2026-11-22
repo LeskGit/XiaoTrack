@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Exercise catalog</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="shared/xt-tokens.css">
+<link rel="stylesheet" href="ds/xiaotrack/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p{margin:0}
+.chip{height:32px;padding:0 12px;border-radius:9999px;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);font:inherit;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap}
+.chip.is-on{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent-strong)}
+.ex-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.ex-row:hover{background:var(--canvas)}
+</style>
+</helmet>
+<div class="xt-canvas" style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden; font-family: var(--font-sans);">
+
+  <header style="height: 64px; flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 0 12px; background: var(--surface); border-bottom: 1px solid var(--line);">
+    <a href="Main.dc.html" class="btn btn-ghost btn-icon" style="border-radius: 9999px;" aria-label="Back to sessions">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
+    </a>
+    <h1 style="flex: 1; font-size: 16px; font-weight: 600; line-height: 1.35; color: var(--ink);">Exercises</h1>
+    <a href="workouts-exercise-new.dc.html" class="btn btn-primary">+ New exercise</a>
+  </header>
+
+  <div style="flex-shrink: 0; padding: 14px 16px 10px; display: flex; flex-direction: column; gap: 10px;">
+    <label style="position: relative; display: block;">
+      <span style="position: absolute; left: 12px; top: 11px; color: var(--ink-muted);" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M20 20l-4-4"></path></svg></span>
+      <input class="field" style="width: 100%; box-sizing: border-box; padding-left: 38px;" placeholder="Search exercises" aria-label="Search exercises">
+    </label>
+    <div style="display: flex; gap: 6px; overflow: hidden;" role="group" aria-label="Filter">
+      <sc-for list="{{filters}}" as="f" hint-placeholder-count="4">
+        <button class="{{f.cls}}" onClick="{{f.pick}}" aria-pressed="{{f.on}}">{{f.label}}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <main style="flex: 1; min-height: 0; overflow: hidden; padding: 0 16px 16px;">
+    <div class="card" style="overflow: hidden;">
+      <sc-for list="{{items}}" as="ex" hint-placeholder-count="8">
+        <a href="workouts-exercise-detail.dc.html" class="ex-row">
+          <div style="flex: 1; min-width: 0;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <h3 style="font-size: 14px; font-weight: 600; color: var(--ink);">{{ex.name}}</h3>
+              <sc-if value="{{ex.personal}}" hint-placeholder-val="{{false}}"><span class="badge badge-info">Personal</span></sc-if>
+            </div>
+            <p style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">{{ex.meta}}</p>
+          </div>
+          <sc-if value="{{ex.hasNote}}" hint-placeholder-val="{{false}}">
+            <span style="color: var(--accent);" title="Has a note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" role="img" aria-label="Has a note"><path d="M5 4h11l3 3v13H5z"></path><path d="M8 10h8M8 14h5"></path></svg></span>
+          </sc-if>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+        </a>
+      </sc-for>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { filter: 'all' };
+}
+renderVals() {
+const RW = 'Reps · weight';
+const DD = 'Time · distance';
+const all = [
+{ name: 'Incline hammer row', cat: 'RESISTANCE', meta: 'Resistance · ' + RW, personal: true, hasNote: true },
+{ name: 'Back squat', cat: 'RESISTANCE', meta: 'Resistance · ' + RW, personal: false, hasNote: true },
+{ name: 'Barbell row', cat: 'RESISTANCE', meta: 'Resistance · ' + RW, personal: false, hasNote: false },
+{ name: 'Bench press', cat: 'RESISTANCE', meta: 'Resistance · ' + RW, personal: false, hasNote: true },
+{ name: 'Biceps curl', cat: 'RESISTANCE', meta: 'Resistance · ' + RW, personal: false, hasNote: false },
+{ name: 'Calf raise', cat: 'RESISTANCE', meta: 'Resistance · ' + RW, personal: false, hasNote: false },
+{ name: 'Cycling', cat: 'CARDIO', meta: 'Cardio · ' + DD, personal: false, hasNote: false },
+{ name: 'Deadlift', cat: 'RESISTANCE', meta: 'Resistance · ' + RW, personal: false, hasNote: false },
+{ name: 'Dips', cat: 'RESISTANCE', meta: 'Resistance · ' + RW, personal: false, hasNote: false },
+{ name: 'Elliptical', cat: 'CARDIO', meta: 'Cardio · ' + DD, personal: false, hasNote: false },
+{ name: "Farmer's walk", cat: 'RESISTANCE', meta: 'Resistance · ' + DD, personal: false, hasNote: false },
+{ name: 'Jump rope', cat: 'CARDIO', meta: 'Cardio · ' + DD, personal: false, hasNote: false },
+{ name: 'Plank', cat: 'RESISTANCE', meta: 'Resistance · ' + DD, personal: false, hasNote: false },
+{ name: 'Rowing machine', cat: 'CARDIO', meta: 'Cardio · ' + DD, personal: false, hasNote: false },
+{ name: 'Running', cat: 'CARDIO', meta: 'Cardio · ' + DD, personal: false, hasNote: true }
+];
+const f = this.state.filter;
+const keep = (e) => f === 'all' || (f === 'personal' ? e.personal : e.cat === f);
+const defs = [['all', 'All · 34'], ['RESISTANCE', 'Resistance'], ['CARDIO', 'Cardio'], ['personal', 'Personal']];
+const filters = defs.map(([id, label]) => ({
+label,
+on: id === f ? 'true' : 'false',
+cls: id === f ? 'chip is-on' : 'chip',
+pick: () => this.setState({ filter: id })
+}));
+return { filters, items: all.filter(keep).slice(0, 10) };
+}
+}
+</script>
+</body>
+</html>

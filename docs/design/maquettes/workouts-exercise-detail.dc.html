@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Exercise detail</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="shared/xt-tokens.css">
+<link rel="stylesheet" href="ds/xiaotrack/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p{margin:0}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 16px}
+dt{font-size:12px;font-weight:500;color:var(--ink-muted)}
+dd{margin:0;font-size:14px;color:var(--ink)}
+</style>
+</helmet>
+<div class="xt-canvas" style="position: relative; width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden; font-family: var(--font-sans);">
+
+  <header style="height: 64px; flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 0 12px; background: var(--surface); border-bottom: 1px solid var(--line);">
+    <a href="workouts-exercises.dc.html" class="btn btn-ghost btn-icon" style="border-radius: 9999px;" aria-label="Back to exercises">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
+    </a>
+    <h1 style="flex: 1; font-size: 16px; font-weight: 600; line-height: 1.35; color: var(--ink);">Incline hammer row</h1>
+    <span class="badge badge-info">Personal</span>
+  </header>
+
+  <main style="flex: 1; min-height: 0; overflow: hidden; padding: 20px 16px 96px; display: flex; flex-direction: column; gap: 16px;">
+
+    <section class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <h2 class="section-label">Exercise</h2>
+        <button class="btn btn-ghost" style="min-height: 32px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg>
+          Edit
+        </button>
+      </div>
+      <p style="font-size: 14px; line-height: 1.55; color: var(--ink-soft);">Chest-supported row on the incline bench, neutral grip.</p>
+      <dl>
+        <dt>Category</dt><dd>Resistance</dd>
+        <dt>Records</dt><dd>Reps and weight</dd>
+        <dt>Used in</dt><dd class="tabular">3 sessions</dd>
+      </dl>
+      <p style="display: flex; gap: 6px; font-size: 12px; font-weight: 500; color: var(--ink-muted);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink: 0; margin-top: 1px;" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+        Category and records are locked: this exercise is already in a session.
+      </p>
+    </section>
+
+    <section class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+      <div>
+        <h2 style="font-size: 16px; font-weight: 600; color: var(--ink);">My note</h2>
+        <p style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">Shown every time this exercise is in a session.</p>
+      </div>
+      <textarea class="field" aria-label="My note" style="min-height: 96px;">Bench at 30°, chest stays on the pad. Squeeze two seconds at the top.</textarea>
+    </section>
+
+    <p style="font-size: 12px; font-weight: 500; color: var(--ink-muted); text-align: center;">A provided exercise has no Edit button: only your note changes.</p>
+  </main>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px 20px; background: var(--surface); border-top: 1px solid var(--line);">
+    <a href="workouts-exercises.dc.html" class="btn btn-primary btn-lg" style="width: 100%; box-sizing: border-box;">Save note</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

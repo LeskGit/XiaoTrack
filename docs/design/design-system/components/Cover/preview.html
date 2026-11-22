@@ -1,0 +1,42 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>XiaoTrack — cover</title>
+<style>
+  html,body{margin:0}
+  .cover{position:relative;width:960px;height:288px;background:var(--surface);overflow:hidden;font-family:var(--font-sans)}
+  svg{position:absolute;inset:0}
+  .tile{rx:var(--radius-lg);ry:var(--radius-lg)}
+  .accent{fill:var(--accent)} .soft{fill:var(--accent-soft)} .data{fill:var(--data-1)} .purple{fill:var(--brand-purple)} .ink{fill:var(--ink)}
+  .name{position:absolute;left:40px;bottom:64px;max-width:440px;margin:0;font-size:80px;line-height:.92;font-weight:650;letter-spacing:-0.02em;color:var(--ink)}
+  .tag{position:absolute;left:40px;bottom:32px;max-width:440px;margin:0;font-size:14px;color:var(--ink-muted)}
+</style></head>
+<body>
+<div class="cover">
+  <svg width="960" height="288" viewBox="0 0 960 288" aria-hidden="true">
+    <!-- blocks: accent 2x2 and 2x2, data-1 2x1 and 2x2, brand-purple 1x2 and 1x1, ink 1x1 x2, accent-soft as relief
+         arrangement: a 7x4 widget grid right of x=480, some cells merged like resized widgets, holes kept
+         pattern: "geometric, modular, dense UI" -> tiles, because the dashboard IS a 12-column grid of widgets
+         scales: cell 56 + gap 8 (space-2), pitch 64, corners radius-lg (14) -->
+    <rect class="tile accent" x="496" y="24" width="120" height="120"/>
+    <rect class="tile soft" x="624" y="24" width="56" height="56"/>
+    <rect class="tile data" x="688" y="24" width="120" height="56"/>
+    <rect class="tile purple" x="816" y="24" width="56" height="120"/>
+    <rect class="tile soft" x="880" y="24" width="56" height="56"/>
+    <rect class="tile ink" x="624" y="88" width="56" height="56"/>
+    <rect class="tile soft" x="688" y="88" width="56" height="56"/>
+    <rect class="tile soft" x="752" y="88" width="56" height="56"/>
+    <rect class="tile soft" x="880" y="88" width="56" height="56"/>
+    <rect class="tile soft" x="496" y="152" width="56" height="56"/>
+    <rect class="tile data" x="560" y="152" width="120" height="120"/>
+    <rect class="tile soft" x="688" y="152" width="120" height="56"/>
+    <rect class="tile accent" x="816" y="152" width="120" height="120"/>
+    <rect class="tile purple" x="496" y="216" width="56" height="56"/>
+    <rect class="tile ink" x="688" y="216" width="56" height="56"/>
+    <rect class="tile soft" x="752" y="216" width="56" height="56"/>
+  </svg>
+  <p class="name">XiaoTrack</p>
+  <p class="tag">Track the day, one widget at a time.</p>
+</div>
+</body>
+</html>

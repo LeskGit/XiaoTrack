@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Session in progress</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="shared/xt-tokens.css">
+<link rel="stylesheet" href="ds/xiaotrack/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p{margin:0}
+.set-check{width:44px;height:44px;border-radius:var(--radius-md);display:grid;place-items:center;border:1.5px solid var(--line-strong);background:var(--surface);color:var(--ink-muted);cursor:pointer;transition:background-color 150ms,border-color 150ms,color 150ms}
+.set-check.is-done{background:var(--success);border-color:var(--success);color:white}
+</style>
+</helmet>
+<div class="xt-canvas" style="position: relative; width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden; font-family: var(--font-sans);">
+
+  <header style="flex-shrink: 0; padding: 10px 12px 12px; background: var(--surface); border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <a href="Main.dc.html" class="btn btn-ghost btn-icon" style="border-radius: 9999px;" aria-label="Back to sessions">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
+      </a>
+      <div style="flex: 1;">
+        <h1 style="font-size: 16px; font-weight: 600; line-height: 1.35; color: var(--ink);">Today</h1>
+        <p class="tabular" style="font-size: 12px; color: var(--ink-muted);">Started 18:42 · 42 min</p>
+      </div>
+      <span class="badge badge-warning badge-live">In progress</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="flex: 1; height: 6px; border-radius: 9999px; background: var(--line); overflow: hidden;"><div style="width: {{progress}}%; height: 100%; background: var(--data-1); transition: width 250ms;"></div></div>
+      <span class="tabular" style="font-size: 12px; font-weight: 500; color: var(--ink-soft);">{{doneCount}} / 14 sets</span>
+    </div>
+  </header>
+
+  <main style="flex: 1; min-height: 0; overflow: hidden; padding: 16px 16px 96px; display: flex; flex-direction: column; gap: 10px;">
+
+    <section class="card" style="padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 10px; border-color: var(--accent-line);">
+      <div style="display: flex; align-items: baseline; justify-content: space-between;">
+        <h2 style="font-size: 16px; font-weight: 600; color: var(--ink);">Bench press</h2>
+        <span class="tabular" style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">Exercise 1 of 4</span>
+      </div>
+      <p style="display: flex; gap: 6px; padding: 8px 10px; border-radius: var(--radius-sm); background: var(--accent-soft); font-size: 13px; line-height: 1.4; color: var(--accent-strong);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="flex-shrink: 0; margin-top: 1px;" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"></path><path d="M8 10h8M8 14h5"></path></svg>
+        Focus on the descent, two seconds down.
+      </p>
+      <div style="display: grid; grid-template-columns: 24px minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr) 44px; gap: 8px; align-items: center;">
+        <span style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">Set</span>
+        <span style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">Target</span>
+        <span style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">Reps</span>
+        <span style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">kg</span>
+        <span></span>
+        <sc-for list="{{sets}}" as="set" hint-placeholder-count="4">
+          <span class="tabular" style="font-size: 14px; font-weight: 600; color: var(--ink-soft);">{{set.n}}</span>
+          <span class="tabular" style="font-size: 13px; color: var(--ink-soft);">{{set.target}}</span>
+          <input class="field tabular" style="height: 44px; width: 100%; box-sizing: border-box;" inputmode="numeric" value="{{set.reps}}" placeholder="8" aria-label="{{set.repsLabel}}">
+          <input class="field tabular" style="height: 44px; width: 100%; box-sizing: border-box;" inputmode="decimal" value="{{set.kg}}" placeholder="80" aria-label="{{set.kgLabel}}">
+          <button class="{{set.checkClass}}" onClick="{{set.toggle}}" aria-label="{{set.checkLabel}}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          </button>
+        </sc-for>
+      </div>
+      <button class="btn btn-soft" style="align-self: flex-start;">+ Add set</button>
+    </section>
+
+    <h2 class="section-label" style="margin-top: 6px;">Next</h2>
+    <div class="card card-hover" style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <h3 style="font-size: 14px; font-weight: 600; color: var(--ink);">Incline dumbbell press</h3>
+        <p class="tabular" style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">3 × 8–12 · 26 kg</p>
+      </div>
+      <span class="tabular" style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">0 / 3</span>
+    </div>
+    <div class="card card-hover" style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <h3 style="font-size: 14px; font-weight: 600; color: var(--ink);">Dips</h3>
+        <p class="tabular" style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">3 × 8–12 · Bodyweight</p>
+      </div>
+      <span class="tabular" style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">0 / 3</span>
+    </div>
+    <div class="card card-hover" style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <h3 style="font-size: 14px; font-weight: 600; color: var(--ink);">Triceps pushdown</h3>
+        <p class="tabular" style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">4 × 10–15 · 25 kg</p>
+      </div>
+      <span class="tabular" style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">0 / 4</span>
+    </div>
+  </main>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px 20px; background: var(--surface); border-top: 1px solid var(--line); display: flex; gap: 8px;">
+    <button class="btn btn-secondary btn-lg">+ Exercise</button>
+    <a href="workouts-session-done.dc.html" class="btn btn-primary btn-lg" style="flex: 1;">Finish session</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { done: [true, true, false, false] };
+}
+renderVals() {
+const done = this.state.done;
+const base = [
+{ target: '6–8 × 80', reps: '8', kg: '80' },
+{ target: '6–8 × 80', reps: '7', kg: '80' },
+{ target: '6–8 × 80', reps: '', kg: '' },
+{ target: '6–8 × 80', reps: '', kg: '' }
+];
+const sets = base.map((s, i) => ({
+n: i + 1,
+target: s.target,
+reps: s.reps,
+kg: s.kg,
+repsLabel: 'Set ' + (i + 1) + ' reps done',
+kgLabel: 'Set ' + (i + 1) + ' weight in kg',
+checkLabel: done[i] ? 'Set ' + (i + 1) + ' done, tap to undo' : 'Mark set ' + (i + 1) + ' as done',
+checkClass: done[i] ? 'set-check is-done' : 'set-check',
+toggle: () => this.setState({ done: done.map((d, j) => (j === i ? !d : d)) })
+}));
+const doneCount = done.filter(Boolean).length;
+return { sets, doneCount, progress: Math.round((doneCount / 14) * 100) };
+}
+}
+</script>
+</body>
+</html>
