@@ -1,7 +1,7 @@
 import { useState, type SubmitEvent } from 'react';
 import { Link, Navigate, useLocation, type Location } from 'react-router';
 import { AuthStatus, useAuth } from '@/app/providers/auth';
-import { ApiError } from '@/shared/api';
+import { getErrorMessage } from '@/shared/errors';
 import { AuthDomain, MainDomain } from '@/shared/types';
 
 /** What `RequireAuth` puts in `location.state` when it sends us here. Absent if /login was opened directly. */
@@ -38,11 +38,8 @@ export default function Login() {
             await login({ email, password });
             // Success: the context switches to 'authenticated', this page re-renders and the check above redirects
         } catch (error) {
-            setErrorMessage(
-                error instanceof ApiError && error.status === 401
-                    ? 'Invalid email or password'
-                    : 'Something went wrong, please try again',
-            );
+            // Wording comes from the central catalog (shared/errors/errorMessages.ts)
+            setErrorMessage(getErrorMessage(error, 'login'));
             setIsSubmitting(false);
         }
     };

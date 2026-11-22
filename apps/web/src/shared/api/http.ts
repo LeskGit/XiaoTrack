@@ -9,6 +9,14 @@ export class ApiError extends Error {
     }
 }
 
+/** Thrown by `request` when the API cannot be reached at all (server down, no connection). */
+export class NetworkError extends Error {
+    constructor(options?: ErrorOptions) {
+        super('Network request failed', options);
+        this.name = 'NetworkError';
+    }
+}
+
 export const HttpMethod = {
     Get: 'GET',
     Post: 'POST',
@@ -33,12 +41,20 @@ export async function request<T>(
     path: string,
     { method = HttpMethod.Get, body, signal }: RequestOptions = {},
 ): Promise<T> {
-    const response = await fetch(`/api${path}`, {
-        method,
-        headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
-        body: body === undefined ? undefined : JSON.stringify(body),
-        signal,
-    });
+    let response: Response;
+    try {
+        response = await fetch(`/api${path}`, {
+            method,
+            headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+            body: body === undefined ? undefined : JSON.stringify(body),
+            signal,
+        });
+    } catch (error) {
+        // A cancelled request is not a failure: let the AbortError through untouched
+        if (signal?.aborted) throw error;
+        // fetch only rejects when the server can't be reached: name it, keep the original as `cause`
+        throw new NetworkError({ cause: error });
+    }
 
     if (!response.ok) {
         throw new ApiError(response.status, await readErrorMessage(response));

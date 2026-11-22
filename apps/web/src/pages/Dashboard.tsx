@@ -14,6 +14,7 @@ import { useBlocker } from "react-router";
 import ConfirmDialog from "@/components/modals/ConfirmDialog";
 import { localLayoutStorage } from "@/components/widgets/storage/localLayoutStorage";
 import { compactLayout } from "@/components/widgets/engine/compact";
+import { reportError } from "@/shared/errors";
 
 
 type EmptyDashboardProps = {
@@ -92,7 +93,7 @@ export default function Dashboard() {
         try {
             await localLayoutStorage.save(draftWidgets);
         } catch (error) {
-            console.error("[layout] save failed", error);
+            reportError(error, "layoutSave");
             return;
         }
 

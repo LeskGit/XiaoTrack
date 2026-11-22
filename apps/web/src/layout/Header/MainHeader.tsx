@@ -7,6 +7,7 @@ import Bell from '@/assets/icons/bell.svg?react'
 import Menu from '@/assets/icons/menu.svg?react'
 import { AuthStatus, useAuth } from "@/app/providers/auth";
 import { roleLabel } from "@/shared/labels";
+import { reportError } from "@/shared/errors";
 import "./header.css";
 
 function eventClickTest() {
@@ -39,7 +40,7 @@ export default function MainHeader() {
             await logout();
         } catch (error) {
             // Decision K: the cookie is still there, so we stay logged in and let the user retry
-            console.error("Logout failed", error);
+            reportError(error, "logout");
             setIsLoggingOut(false);
         }
     };

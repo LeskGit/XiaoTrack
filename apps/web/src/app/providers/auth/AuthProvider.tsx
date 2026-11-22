@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { ApiError, authApi, type Credentials, type RegisterPayload } from '@/shared/api';
+import { authApi, type Credentials, type RegisterPayload } from '@/shared/api';
+import { ErrorKind, reportError, toErrorKind } from '@/shared/errors';
 import { AuthContext } from './authContext';
 import { AuthStatus, type AuthContextValue, type AuthState } from './authContext.types';
 
@@ -22,8 +23,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
                 if (controller.signal.aborted) return;
 
                 // 401 is the normal "not logged in" answer; anything else is a real failure
-                if (!(error instanceof ApiError && error.status === 401)) {
-                    console.error('Session check failed', error);
+                if (toErrorKind(error) !== ErrorKind.Unauthorized) {
+                    reportError(error, 'sessionCheck');
                 }
                 setState({ status: AuthStatus.Anonymous });
             });

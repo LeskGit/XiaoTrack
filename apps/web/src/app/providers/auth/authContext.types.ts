@@ -15,7 +15,7 @@ export type AuthState =
     | { status: typeof AuthStatus.Authenticated, user: CurrentUser }
     | { status: typeof AuthStatus.Anonymous };
 
-/** Actions exposed by the context. They throw the `ApiError` so the calling form can display it. */
+/** Actions exposed by the context. They rethrow the error (ApiError, NetworkError) so the caller can show `getErrorMessage(error, …)`. */
 export type AuthActions = {
     login: (credentials: Credentials) => Promise<void>;
     register: (payload: RegisterPayload) => Promise<void>;

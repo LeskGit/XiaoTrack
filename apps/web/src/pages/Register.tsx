@@ -1,7 +1,7 @@
 import { useState, type SubmitEvent } from 'react';
 import { Link, Navigate, useLocation, type Location } from 'react-router';
 import { AuthStatus, useAuth } from '@/app/providers/auth';
-import { ApiError } from '@/shared/api';
+import { getErrorMessage } from '@/shared/errors';
 import { AuthDomain, MainDomain } from '@/shared/types';
 
 /** Same state as the login page: set by `RequireAuth`, forwarded by the link between the two pages. */
@@ -36,11 +36,8 @@ export default function Register() {
         try {
             await register({ displayName, email, password });
         } catch (error) {
-            setErrorMessage(
-                error instanceof ApiError && error.status === 409
-                    ? 'This email is already in use'
-                    : 'Something went wrong, please try again',
-            );
+            // Wording comes from the central catalog (shared/errors/errorMessages.ts)
+            setErrorMessage(getErrorMessage(error, 'register'));
             setIsSubmitting(false);
         }
     };
