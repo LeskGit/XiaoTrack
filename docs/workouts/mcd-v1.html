@@ -187,6 +187,8 @@ h1 {
 .badge-pk text { fill: var(--pk); font: 700 8.5px var(--font-code); }
 .badge-fk rect { fill: transparent; stroke: var(--ink-muted); stroke-width: 0.8; }
 .badge-fk text { fill: var(--ink-soft); font: 600 8.5px var(--font-code); }
+.badge-v1 rect { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 0.8; }
+.badge-v1 text { fill: var(--accent); font: 700 9.5px var(--font-code); }
 .row-hit { fill: transparent; }
 .row-hit:hover { fill: var(--accent-soft); }
 
@@ -258,10 +260,11 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
         <p class="lede">Le modèle de données des séances de sport : un catalogue d'exercices, des séances types et des programmes (le prévu), puis les séances réellement faites, série par série (le réalisé).</p>
         <div class="meta">
             <span class="pill draft">Brouillon v1</span>
-            <span class="pill">14 novembre 2026</span>
+            <span class="pill">Mis à jour le 22 novembre 2026</span>
             <span class="pill"><strong>15</strong> entités</span>
             <span class="pill"><strong>24</strong> relations</span>
             <span class="pill">Source : <code>docs/workouts/mcd-v1.md</code></span>
+            <span class="pill">Cadrage : <code>docs/workouts/00-cadrage-v1.md</code></span>
         </div>
     </header>
 
@@ -282,9 +285,9 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
             </div>
         </div>
         <div class="sheet" id="sheet">
-            <svg id="mcd" role="img" aria-label="Diagramme entité-association du domaine Workouts : le catalogue d'exercices alimente les séances types et les programmes, et une séance type est copiée dans une séance réalisée au démarrage."></svg>
+            <svg id="mcd" role="img" aria-label="Diagramme entité-association du domaine Workouts : le catalogue d'exercices alimente les séances types et les programmes, et une séance est créée depuis une séance type quand on planifie une occurrence."></svg>
         </div>
-        <figcaption class="hint">Clique (ou survole) une entité pour isoler ses relations ; clique dans le vide pour tout réafficher. Le trait pointillé indigo est le cœur du modèle : la séance type copiée dans une séance réelle. Les liens <code>ownerId → User</code> sont indiqués dans les cartes plutôt que tracés, pour garder le schéma lisible.</figcaption>
+        <figcaption class="hint">Clique (ou survole) une entité pour isoler ses relations ; clique dans le vide pour tout réafficher. Le trait pointillé indigo est le cœur du modèle : planifier une occurrence d'une séance type crée une séance réelle, et c'est à ce moment qu'on saisit les objectifs. Le badge <code>V1</code> marque les tables construites à l'étape 1 (séances libres). Les liens <code>ownerId → User</code> sont indiqués dans les cartes plutôt que tracés, pour garder le schéma lisible.</figcaption>
     </figure>
 
     <section class="panel" aria-labelledby="legend-title">
@@ -297,11 +300,15 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
             <h2 id="rules-title">Règles clés<small>Ce que le modèle garantit</small></h2>
             <ul class="rules">
                 <li><b>Prévu et réalisé sur la même ligne</b><span>Une <code>WorkoutSession</code> change de <code>status</code> : <code>planned</code> → <code>in_progress</code> → <code>done</code>, ou <code>skipped</code>. Chaque <code>SessionSet</code> porte l'objectif (<code>target*</code>) et le réel (<code>actual*</code>) côte à côte.</span></li>
-                <li><b>Copie template → séance</b><span>Au démarrage, le template est copié : <code>targetSets = 4</code> donne 4 lignes <code>SessionSet</code> avec les valeurs cibles. Un exercice ajouté en cours de séance n'a pas de cible, un exercice retiré est marqué <code>skipped</code>.</span></li>
-                <li><b>Historique figé</b><span>Modifier un template ou un programme ne réécrit jamais les séances passées. Templates et exercices s'archivent, ils ne se suppriment pas.</span></li>
-                <li><b>Catalogue partagé</b><span>Un exercice avec <code>ownerId</code> à <code>null</code> est fourni par l'app. Pour le modifier, l'utilisateur en crée une copie à lui (<code>variantOfId</code> pointe vers l'original).</span></li>
-                <li><b>Archivage par utilisateur</b><span><code>UserExercise.archivedAt</code> masque un exercice pour un seul utilisateur, qu'il soit fourni ou personnel. <code>Exercise</code> n'a pas d'<code>archivedAt</code>.</span></li>
-                <li><b>Occurrences de programme calculées</b><span>On stocke la règle (<code>ProgramSlot</code>), pas les occurrences. Une occurrence ne devient une <code>WorkoutSession</code> que lorsqu'on y touche : démarrage, modification ou séance manquée marquée.</span></li>
+                <li><b>Séance libre</b><span>Créée en <code>planned</code>, avec une <code>scheduledDate</code> facultative. Elle ne passe en <code>in_progress</code> que par un clic sur <i>Start session</i>. <code>templateId</code> et <code>programSlotId</code> restent vides, et tout est saisi à la main.</span></li>
+                <li><b>Template = moule sans chiffres</b><span><code>TemplateExercise</code> ne porte que l'exercice, sa position et le repos. Les objectifs se saisissent quand on planifie une occurrence, ce qui crée la <code>WorkoutSession</code> et ses <code>SessionSet</code>. « Reprendre la dernière séance » copie les objectifs précédents ; « Surcharge progressive » propose +2,5 kg et remet les reps au minimum.</span></li>
+                <li><b>Cycle de vie</b><span>Une seule séance <code>in_progress</code> à la fois. Une séance non terminée se supprime, avec ses exercices et ses séries. Une séance terminée reste modifiable.</span></li>
+                <li><b>Pendant la séance</b><span>Un exercice ajouté en cours de route n'a pas de cible, un exercice retiré est marqué <code>skipped</code>. Le nombre de séries est le nombre de lignes <code>SessionSet</code>.</span></li>
+                <li><b>Historique figé</b><span>Modifier un template ou un programme ne réécrit jamais les séances passées. En cours de programme, l'utilisateur choisit de modifier le template ou d'en créer une copie.</span></li>
+                <li><b>Catalogue partagé et exercices perso</b><span>Un exercice avec <code>ownerId</code> à <code>null</code> est fourni par l'app (33 en V1) et n'est jamais modifiable. L'utilisateur crée les siens ; il peut en changer le nom (l'historique affiche le nom actuel), pas le profil une fois utilisé, et ne les supprime pas. Les copies d'un exercice fourni (<code>variantOfId</code>) viendront plus tard.</span></li>
+                <li><b>Archivage et note par utilisateur</b><span><code>UserExercise.archivedAt</code> masque un exercice pour un seul utilisateur. <code>UserExercise.notes</code> garde une consigne durable (« se concentrer sur la descente »).</span></li>
+                <li><b>Métriques en colonnes fixes</b><span><code>measureType</code> dit quels champs s'appliquent : <code>REPS_WEIGHT</code> (reps + charge) ou <code>DURATION_DISTANCE</code> (durée + distance). Charge 0 = poids du corps ; une distance qui ne s'applique pas reste vide, jamais 0. <code>category</code> ne sert qu'au filtre.</span></li>
+                <li><b>Occurrences de programme calculées</b><span>On stocke la règle (<code>ProgramSlot</code>), pas les occurrences. Une occurrence ne devient une <code>WorkoutSession</code> que lorsqu'on la planifie.</span></li>
                 <li><b>Unités stockées</b><span>Kilogrammes pour la charge, secondes pour la durée, mètres pour la distance. L'affichage convertit.</span></li>
                 <li><b>Objectif = étiquette <code>goal</code> sur la séance</b><span>Sur le template ou la <code>WorkoutSession</code>, jamais sur l'exercice. L'exercice ne porte que sa nature (<code>category</code>).</span></li>
             </ul>
@@ -311,17 +318,13 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
             <h2 id="open-title">Points ouverts<small>À trancher avant ou pendant le développement</small></h2>
             <ul class="todo">
                 <li class="group">Modèle</li>
-                <li><span><b>Stockage des métriques</b> : tableau PostgreSQL (<code>metric_list</code>) ou table de liaison <code>ExerciseMetric</code>, à décider avec la stack.</span></li>
-                <li><span><b>Nom dans l'historique</b> : le nom actuel de l'exercice est retenu, à confirmer.</span></li>
                 <li><span><b>Repos réel</b> : <code>startedAt</code> par série (précis) ou approximation entre deux validations.</span></li>
-                <li class="group">Cycle de vie</li>
-                <li><span><b>Séance en cours</b> : une seule <code>in_progress</code> à la fois ? Clôture automatique d'une séance oubliée ?</span></li>
-                <li><span><b>Démarrage</b> : depuis la séance prévue, un template ou en séance libre, les trois en V1 ? Une séance faite à la place d'une autre la remplace-t-elle ?</span></li>
+                <li class="group">Étape 2</li>
+                <li><span><b>Template copié</b> : retrouver la séance précédente par <code>programSlotId</code>, ou par un lien copie → original ?</span></li>
                 <li><span><b>Programme modifié en cours</b> : seules les occurrences futures changent ? Arrêter = <code>endDate</code> à aujourd'hui ?</span></li>
                 <li><span><b>Plusieurs programmes actifs</b> en même temps ?</span></li>
-                <li><span><b>Séance manquée</b> : calculée seulement, ou aussi marquable (<code>skipped</code> avec une note) ?</span></li>
-                <li><span><b>Séance terminée</b> : modification libre, ou limitée dans le temps ?</span></li>
-                <li><span><b>Template après une séance</b> : mise à jour proposée par l'app, ou action manuelle ?</span></li>
+                <li><span><b>Séance manquée</b> : calculée seulement, ou aussi marquable (<code>skipped</code>) ?</span></li>
+                <li><span><b>Séance faite à la place d'une autre</b> : la remplace-t-elle ?</span></li>
             </ul>
         </section>
     </div>
@@ -351,8 +354,9 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
 
     const ENUMS = {
         body_part_kind: ["muscle", "tendon", "joint", "…"],
-        exercise_category: ["resistance", "cardio", "mobility", "sport", "skill"],
-        metric_list: ["reps", "weight", "duration", "distance"],
+        user_role: ["USER", "ADMIN"],
+        exercise_category: ["RESISTANCE", "CARDIO"],
+        measure_type: ["REPS_WEIGHT", "DURATION_DISTANCE"],
         body_part_role: ["primary", "secondary"],
         tag_kind: ["focus", "goal"],
         session_status: ["planned", "in_progress", "done", "skipped"],
@@ -362,21 +366,21 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
     // a(name, type, key, nullable, unit, ref)
     const a = (n, t, k = "", nul = false, unit = "", ref = "") => ({ n, t, k, nul, unit, ref });
     const ENT = {
-        User: { zone: "account", attrs: [a("id", "uuid", "PK"), a("email", "string"), a("passwordHash", "string"), a("createdAt", "timestamp")] },
+        User: { zone: "account", attrs: [a("id", "uuid", "PK"), a("email", "string"), a("displayName", "string"), a("passwordHash", "string"), a("role", "user_role"), a("createdAt", "timestamp"), a("updatedAt", "timestamp")] },
         BodyPart: { zone: "catalog", attrs: [a("id", "uuid", "PK"), a("name", "string"), a("kind", "body_part_kind"), a("parentId", "uuid", "FK", true)] },
-        Exercise: { zone: "catalog", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", true, "", "User"), a("variantOfId", "uuid", "FK", true), a("name", "string"), a("description", "text"), a("imageUrl", "string", "", true), a("category", "exercise_category"), a("metrics", "metric_list")] },
+        Exercise: { zone: "catalog", v1: true, attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", true, "", "User"), a("variantOfId", "uuid", "FK", true), a("name", "string"), a("description", "text"), a("imageUrl", "string", "", true), a("category", "exercise_category"), a("measureType", "measure_type")] },
         ExerciseBodyPart: { zone: "catalog", attrs: [a("exerciseId", "uuid", "PK FK"), a("bodyPartId", "uuid", "PK FK"), a("role", "body_part_role")] },
-        UserExercise: { zone: "catalog", attrs: [a("userId", "uuid", "PK FK"), a("exerciseId", "uuid", "PK FK"), a("archivedAt", "timestamp", "", true), a("favorite", "bool"), a("defaultRestSeconds", "int", "", true, "s"), a("notes", "text", "", true)] },
+        UserExercise: { zone: "catalog", v1: true, attrs: [a("userId", "uuid", "PK FK"), a("exerciseId", "uuid", "PK FK"), a("archivedAt", "timestamp", "", true), a("favorite", "bool"), a("defaultRestSeconds", "int", "", true, "s"), a("notes", "text", "", true)] },
         Tag: { zone: "tags", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("name", "string"), a("color", "string"), a("kind", "tag_kind")] },
         Template: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("name", "string"), a("notes", "text"), a("archivedAt", "timestamp", "", true)] },
         TemplateTag: { zone: "tags", attrs: [a("templateId", "uuid", "PK FK"), a("tagId", "uuid", "PK FK")] },
-        TemplateExercise: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("templateId", "uuid", "FK"), a("exerciseId", "uuid", "FK"), a("position", "int"), a("targetSets", "int"), a("targetRepsMin", "int", "", true), a("targetRepsMax", "int", "", true), a("targetWeight", "decimal", "", true, "kg"), a("targetDuration", "int", "", true, "s"), a("targetDistance", "int", "", true, "m"), a("restSeconds", "int", "", true, "s"), a("notes", "text", "", true)] },
+        TemplateExercise: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("templateId", "uuid", "FK"), a("exerciseId", "uuid", "FK"), a("position", "int"), a("restSeconds", "int", "", true, "s")] },
         Program: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("name", "string"), a("goal", "text"), a("startDate", "date"), a("endDate", "date", "", true)] },
         ProgramSlot: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("programId", "uuid", "FK"), a("templateId", "uuid", "FK"), a("weekdays", "weekday_list"), a("everyNWeeks", "int")] },
-        WorkoutSession: { zone: "done", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("status", "session_status"), a("templateId", "uuid", "FK", true), a("programSlotId", "uuid", "FK", true), a("scheduledDate", "date", "", true), a("startedAt", "timestamp", "", true), a("endedAt", "timestamp", "", true), a("feeling", "int", "", true), a("notes", "text", "", true)] },
+        WorkoutSession: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("status", "session_status"), a("templateId", "uuid", "FK", true), a("programSlotId", "uuid", "FK", true), a("scheduledDate", "date", "", true), a("startedAt", "timestamp", "", true), a("endedAt", "timestamp", "", true), a("feeling", "int", "", true), a("notes", "text", "", true)] },
         WorkoutSessionTag: { zone: "tags", attrs: [a("workoutSessionId", "uuid", "PK FK"), a("tagId", "uuid", "PK FK")] },
-        SessionExercise: { zone: "done", attrs: [a("id", "uuid", "PK"), a("workoutSessionId", "uuid", "FK"), a("exerciseId", "uuid", "FK"), a("position", "int"), a("skipped", "bool"), a("targetRestSeconds", "int", "", true, "s"), a("notes", "text", "", true)] },
-        SessionSet: { zone: "done", attrs: [a("id", "uuid", "PK"), a("sessionExerciseId", "uuid", "FK"), a("position", "int"), a("targetReps", "int", "", true), a("targetWeight", "decimal", "", true, "kg"), a("targetDuration", "int", "", true, "s"), a("targetDistance", "int", "", true, "m"), a("actualReps", "int", "", true), a("actualWeight", "decimal", "", true, "kg"), a("actualDuration", "int", "", true, "s"), a("actualDistance", "int", "", true, "m"), a("rpe", "int", "", true), a("notes", "text", "", true), a("startedAt", "timestamp", "", true), a("completedAt", "timestamp", "", true)] },
+        SessionExercise: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("workoutSessionId", "uuid", "FK"), a("exerciseId", "uuid", "FK"), a("position", "int"), a("skipped", "bool"), a("targetRestSeconds", "int", "", true, "s"), a("notes", "text", "", true)] },
+        SessionSet: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("sessionExerciseId", "uuid", "FK"), a("position", "int"), a("targetRepsMin", "int", "", true), a("targetRepsMax", "int", "", true), a("targetWeight", "decimal", "", true, "kg"), a("targetDuration", "int", "", true, "s"), a("targetDistance", "int", "", true, "m"), a("actualReps", "int", "", true), a("actualWeight", "decimal", "", true, "kg"), a("actualDuration", "int", "", true, "s"), a("actualDistance", "int", "", true, "m"), a("rpe", "int", "", true), a("notes", "text", "", true), a("startedAt", "timestamp", "", true), a("completedAt", "timestamp", "", true)] },
     };
 
     // ── Placement (grid of 6 columns) ──
@@ -435,7 +439,7 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
           pts: () => [[CX("Program"), B("Program")], [CX("Program"), T("ProgramSlot")]] },
         { a: "Template", b: "ProgramSlot", am: "one", bm: "zeroMany", label: "planifié par",
           pts: () => { const y = T("Template") + 56, x = gut(2) + 34, y2 = row("ProgramSlot", "templateId"); return [[R("Template"), y], [x, y], [x, y2], [L("ProgramSlot"), y2]]; } },
-        { a: "Template", b: "WorkoutSession", am: "zeroOne", bm: "zeroMany", label: "copié au démarrage", hero: true,
+        { a: "Template", b: "WorkoutSession", am: "zeroOne", bm: "zeroMany", label: "planifiée depuis", hero: true,
           pts: () => { const y = 44; return [[CX("Template"), T("Template")], [CX("Template"), y], [CX("WorkoutSession"), y], [CX("WorkoutSession"), T("WorkoutSession")]]; } },
         { a: "ProgramSlot", b: "WorkoutSession", am: "zeroOne", bm: "zeroMany", label: "occurrence de",
           pts: () => { const y = T("ProgramSlot") + 56, x = gut(3) + 16, y2 = row("WorkoutSession", "programSlotId"); return [[R("ProgramSlot"), y], [x, y], [x, y2], [L("WorkoutSession"), y2]]; } },
@@ -534,6 +538,11 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
         el("line", { class: "card-rule", x1: e.x + 1, y1: e.y + 34, x2: e.x + CW - 1, y2: e.y + 34 }, g);
         el("circle", { class: "card-dot", cx: e.x + 16, cy: e.y + 18, r: 4 }, g);
         el("text", { class: "card-title", x: e.x + 28, y: e.y + 23 }, g, name);
+        if (e.v1) {
+            const v = el("g", { class: "badge-v1" }, g);
+            el("rect", { x: e.x + CW - 40, y: e.y + 10, width: 28, height: 15, rx: 4 }, v);
+            el("text", { x: e.x + CW - 26, y: e.y + 21, "text-anchor": "middle" }, v, "V1");
+        }
         e.attrs.forEach((at, i) => {
             const ry = e.y + HEAD + i * ROW;
             const hit = el("rect", { class: "row-hit", x: e.x + 4, y: ry, width: CW - 8, height: ROW, rx: 4 }, g);
@@ -648,6 +657,7 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
     legendItem(badgeMini("FK"), "<b>Clé étrangère</b> : pointe vers une autre table");
     legendItem(mini((s) => { const t = el("text", { class: "attr-name", x: 2, y: 15 }, s, "endDate"); el("tspan", { class: "attr-null" }, t, "?"); }, 70), "<b>Facultatif</b> (nullable)");
     legendItem(mini((s) => { el("text", { class: "attr-type ref", x: 2, y: 15 }, s, "→ User"); }, 52), "<code>ownerId</code> : appartient à un utilisateur (lien non tracé)");
+    legendItem(mini((s) => { const v = el("g", { class: "badge-v1" }, s); el("rect", { x: 2, y: 4, width: 26, height: 15, rx: 4 }, v); el("text", { x: 15, y: 15, "text-anchor": "middle" }, v, "V1"); }, 30), "<b>Étape 1</b> : table construite pour les séances libres");
     legendItem(crowMini("one"), "Exactement <b>un</b>");
     legendItem(crowMini("zeroOne"), "<b>Zéro ou un</b>");
     legendItem(crowMini("zeroMany"), "<b>Zéro ou plusieurs</b>");

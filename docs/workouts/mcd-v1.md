@@ -1,7 +1,8 @@
 # MCD Workouts — v1
 
-> **Statut : brouillon, va évoluer.** Version du 2026-11-14.
-> Modèle conceptuel des données du domaine Workouts (séances de sport), issu de l'analyse métier. Le cadrage complet viendra plus tard.
+> **Statut : brouillon, va évoluer.** Version du 2026-11-14, mise à jour le 2026-11-22 avec les décisions du cadrage.
+> Modèle conceptuel des données du domaine Workouts (séances de sport), issu de l'analyse métier. Le périmètre et les décisions sont dans `00-cadrage-v1.md`, qui fait foi.
+> `mcd-v1.html` est la version visuelle de ce document (publiée en artefact).
 
 ## Diagramme
 
@@ -10,8 +11,11 @@ erDiagram
     User {
         uuid id PK
         string email
+        string displayName
         string passwordHash
+        user_role role "USER, ADMIN"
         timestamp createdAt
+        timestamp updatedAt
     }
 
     BodyPart {
@@ -28,8 +32,8 @@ erDiagram
         string name
         text description
         string imageUrl "nullable"
-        exercise_category category "resistance, cardio, mobility, sport, skill"
-        metric_list metrics "reps, weight, duration, distance"
+        exercise_category category "RESISTANCE, CARDIO (V1)"
+        measure_type measureType "REPS_WEIGHT, DURATION_DISTANCE"
     }
 
     ExerciseBodyPart {
@@ -73,14 +77,7 @@ erDiagram
         uuid templateId FK
         uuid exerciseId FK
         int position
-        int targetSets
-        int targetRepsMin "nullable"
-        int targetRepsMax "nullable"
-        decimal targetWeight "nullable, kg"
-        int targetDuration "nullable, seconds"
-        int targetDistance "nullable, meters"
         int restSeconds "nullable"
-        text notes "nullable"
     }
 
     Program {
@@ -132,7 +129,8 @@ erDiagram
         uuid id PK
         uuid sessionExerciseId FK
         int position
-        int targetReps "nullable"
+        int targetRepsMin "nullable"
+        int targetRepsMax "nullable"
         decimal targetWeight "nullable, kg"
         int targetDuration "nullable, seconds"
         int targetDistance "nullable, meters"
@@ -179,24 +177,34 @@ erDiagram
 ## Règles clés
 
 - **Prévu et réalisé sur la même ligne** : une `WorkoutSession` change de `status` (`planned` → `in_progress` → `done`, ou `skipped`). Chaque `SessionSet` porte l'objectif (`target*`) et le réel (`actual*`) côte à côte.
-- **Copie template → séance** : au démarrage, le template est copié. `targetSets = 4` donne 4 lignes `SessionSet` avec les valeurs cibles. Un exercice ajouté en cours de séance n'a pas de `target*`, un exercice retiré est marqué `skipped`.
+- **Séance libre** : créée en `planned` (`scheduledDate` facultative), elle passe en `in_progress` uniquement par un clic sur *Start session*. `templateId` et `programSlotId` sont vides.
+- **Template = moule sans chiffres** : `TemplateExercise` ne porte que l'exercice, sa position et le repos. Les objectifs sont saisis à la **planification** d'une occurrence, qui crée la `WorkoutSession` en `planned` et ses `SessionSet` (une ligne par série). « Reprendre la dernière séance » copie les **objectifs** de la séance précédente ; « Surcharge progressive » propose +2,5 kg et remet les reps au minimum (cf. cadrage §5.3).
+- **Pendant la séance** : un exercice ajouté en cours de séance n'a pas de `target*`, un exercice retiré est marqué `skipped`. Le nombre de séries est le nombre de lignes `SessionSet`.
 - **Historique figé** : modifier un template ou un programme ne réécrit jamais les séances passées. Templates et exercices s'archivent, ils ne se suppriment pas.
 - **Catalogue partagé** : un exercice avec `ownerId` à `null` est fourni par l'app. Pour le modifier, l'utilisateur crée une copie à lui (`variantOfId` pointe vers l'original).
 - **Archivage par utilisateur** : `UserExercise.archivedAt` masque un exercice pour un seul utilisateur (exercice fourni ou personnel). `Exercise` n'a pas d'`archivedAt`.
 - **Occurrences de programme calculées** : on stocke la règle (`ProgramSlot`), pas les occurrences. Une occurrence ne devient une `WorkoutSession` que lorsqu'on y touche (démarrage, modification, séance manquée marquée).
 - **Unités stockées** : kg pour la charge, secondes pour la durée, mètres pour la distance. L'affichage convertit.
+- **Métriques en colonnes fixes** : `measureType` dit quels champs s'appliquent (`REPS_WEIGHT` : reps + charge ; `DURATION_DISTANCE` : durée + distance). Charge 0 = poids du corps ; une distance qui ne s'applique pas reste `null`, jamais 0. `category` ne sert qu'au filtre du catalogue.
+- **Note durable** : une consigne permanente sur un exercice va dans `UserExercise.notes`.
 - **Objectif = tag `goal` sur la séance** (template ou `WorkoutSession`), jamais sur l'exercice. L'exercice ne porte que sa nature (`category`).
 
 ## Points ouverts
 
-- **Stockage des métriques** : tableau PostgreSQL (`metric_list`) ou table de liaison `ExerciseMetric`, à trancher avec la stack.
-- **Nom affiché dans l'historique** : le nom actuel de l'exercice est retenu, à confirmer.
 - **Repos réel** : `startedAt` par série (précis) ou approximation entre deux validations.
-- **Cycle de vie** :
-  1. Une seule séance `in_progress` à la fois ? Clôture automatique d'une séance oubliée ?
-  2. Démarrage depuis la séance prévue, depuis un template, ou séance libre : les trois en V1 ? Une séance faite à la place d'une autre la remplace-t-elle ?
+- **Cycle de vie** (la liste à jour, avec ce qui bloque la V1, est au §8 du cadrage) :
+  1. Clôture automatique d'une séance oubliée ?
+  2. Une séance faite à la place d'une autre la remplace-t-elle ?
   3. Modification d'un programme en cours : seules les occurrences futures changent ? Arrêter = `endDate` à aujourd'hui ?
   4. Plusieurs programmes actifs en même temps ?
   5. Séance manquée : calculée seulement, ou aussi marquable (`skipped` avec une note) ?
-  6. Modification d'une séance terminée : libre, ou limitée dans le temps ?
-  7. Mise à jour du template après une séance : proposée par l'app, ou action manuelle ?
+  7. Séance précédente d'un template copié : retrouvée par `programSlotId` ou par un lien copie → original ?
+
+## Décisions tranchées (2026-11-22)
+
+- Stockage des métriques : colonnes fixes + `measureType` (le tableau `metric_list` et la table `ExerciseMetric` sont écartés).
+- Mise à jour du template : toujours manuelle ; en cours de programme, l'utilisateur choisit de modifier le template ou d'en créer une copie.
+- Démarrage : séance libre à l'étape 1, séance planifiée depuis un programme à l'étape 2.
+- Nom dans l'historique : le nom actuel de l'exercice.
+- Une seule séance `in_progress` à la fois ; une séance non terminée se supprime (avec ses exercices et séries) ; une séance terminée reste modifiable.
+- Exercices personnels en V1 : création et modification du nom ; le profil de mesure est figé dès qu'il a servi ; pas de suppression ni de variante.

@@ -35,7 +35,7 @@ An npm workspaces monorepo (`workspaces: ["apps/*"]`):
   - `docs/widgets/04-cadrage-v2.md`: the V2 spec (drag, push right then down, auto compaction). It adds to the V1 spec and replaces the V1 rules listed in its §2.
   - `docs/widgets/05-plan-v2.md`: the V2 build plan (phases 0 to 6), same format as the V1 plan. The layout engine stays home-made (confirmed 2026-10-30).
   - `docs/widgets/prerequis/`: concept primers for building the widget system.
-  - `docs/workouts/`: design docs for the Workouts domain, starting with `mcd-v1.md` (draft data model, Mermaid).
+  - `docs/workouts/`: design docs for the Workouts domain. `00-cadrage-v1.md` is the V1 spec and the source of truth (step 1: free sessions; step 2: programs + templates). `01-plan-v1.md` is the step 1 build plan (phases 0 to 6) the owner follows by hand. `mcd-v1.md` is the data model (Mermaid), updated with the cadrage decisions; `mcd-v1.html` is its visual version, published as an artifact (keep the two in sync).
   - `docs/design/`: the design charter (`charte-graphique.md`). Its visual board is `apps/web/planche-charte-v1.html` (served by Vite at `/planche-charte-v1.html` in dev).
   - `docs/vol-cookbook/`: an offline cookbook (TS, React, Router, state, widget framework, testing).
 - `Claude outputs/`: earlier Claude-generated notes and session logs. Not source code.
