@@ -1,0 +1,46 @@
+@layer components {
+    /*
+     * User menu: a native popover (popover="auto": light dismiss on outside click and Escape, top layer).
+     * Tailwind's reset wipes the browser's [popover] defaults (margin: auto, padding, border, background),
+     * so the panel would stick to the top-left corner: we place and style it ourselves.
+     */
+    .user-menu {
+        /* Anchor positioning: attached to the element that declares anchor-name: --user-menu (the user button) */
+        position-anchor: --user-menu;
+        position-area: bottom span-left;   /* below the button, right edges aligned */
+        position-try-fallbacks: flip-block; /* no room below: open above */
+        inset: auto;                       /* cancels the default inset: 0 */
+        margin: 0.5rem 0 0;
+        min-width: 12rem;
+        max-width: 18rem;                  /* lets the email line truncate instead of widening the panel */
+        padding: 0.375rem;
+        border: 1px solid var(--color-line);
+        border-radius: var(--radius-lg);
+        background-color: var(--color-surface);
+        color: var(--color-ink);
+        box-shadow: var(--shadow-float);
+
+        /* Open / close: same technique as modal.css (display and overlay are discrete properties) */
+        opacity: 1;
+        translate: 0 0;
+        transition:
+            opacity var(--motion-fast) var(--ease-out-soft),
+            translate var(--motion-fast) var(--ease-out-soft),
+            display var(--motion-fast) allow-discrete,
+            overlay var(--motion-fast) allow-discrete;
+    }
+
+    /* Closed state, and the state it closes to */
+    .user-menu:not(:popover-open) {
+        opacity: 0;
+        translate: 0 -0.25rem;
+    }
+
+    /* "Before" state when it opens (display: none → block) */
+    @starting-style {
+        .user-menu:popover-open {
+            opacity: 0;
+            translate: 0 -0.25rem;
+        }
+    }
+}
