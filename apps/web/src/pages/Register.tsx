@@ -70,7 +70,6 @@ export default function Register() {
                         maxLength={20}
                         pattern="[\p{L}\p{N}_\-]+"
                         title="Letters, digits, - or _ only"
-                        aria-describedby="display-name-hint"
                         value={displayName}
                         onChange={(event) => setDisplayName(event.target.value)}
                         className="field"

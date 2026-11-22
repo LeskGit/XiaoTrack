@@ -319,7 +319,7 @@ Pas de logique dans `index.ts`. Que des ré-exports.
 ### 7.4 Frontière `app/` vs `components/` vs `layout/` vs `pages/`
 
 - `app/` : l'**assemblage** de l'application, ce qui relie les pièces entre elles sans rien afficher de métier (ajouté le 2026-11-21).
-  - `app/providers/` : les Providers de contexte globaux, un dossier par contexte (`auth/` : types, contexte privé, Provider, hooks `useAuth` / `useCurrentUser`, barrel). Le contexte lui-même n'est pas exporté par le barrel : on y accède par les hooks.
+  - `app/providers/` : les Providers de contexte globaux, un dossier par contexte (`auth/` : types, contexte privé, Provider, hook `useAuth`, barrel). Un composant qui a besoin de l'utilisateur appelle `useAuth()` puis affine le type (`if (auth.status !== AuthStatus.Authenticated) return null`, après tous les hooks). Un hook dédié (`useCurrentUser`) ne sera créé que si plusieurs composants ont besoin de l'utilisateur sans les actions (décidé le 2026-11-21). Le contexte lui-même n'est pas exporté par le barrel : on y accède par le hook.
   - `app/routing/` : les gardes de route (`RequireAuth`, route sans `path` qui enveloppe les routes privées).
   - Le routeur (`shared/config/router.tsx`) relève aussi de l'assemblage et pourra y migrer.
 - `components/` : briques UI réutilisables, sans connaissance du contexte applicatif (`Icon`, `Avatar`, plus tard `Button`, `Input`, etc.).
@@ -331,6 +331,28 @@ Si un composant est utilisé par plusieurs pages → il monte dans `components/`
 ### 7.5 `shared/`
 
 Réservé aux choses **transversales sans dépendance UI** : types utilitaires, tokens de style, helpers purs. Pas de composants React dans `shared/`.
+
+| Dossier | Contenu |
+|---|---|
+| `shared/api/` | Client HTTP (`request`, `ApiError`, `NetworkError`) et un fichier par ressource (`auth.api.ts` + `auth.types.ts`). Les types y décrivent **ce que le serveur envoie**. |
+| `shared/config/` | Routes et routeur. |
+| `shared/errors/` | Classement et catalogue des messages d'erreur (voir §7.6). |
+| `shared/labels/` | Libellés d'interface tirés de valeurs métier (`roleLabel` : `'ADMIN'` → « Admin »). Une map `as const satisfies Record<X, string>` par valeur métier, pour qu'une valeur sans libellé ne compile pas (ajouté le 2026-11-22). |
+| `shared/styles/` | Maps de classes Tailwind et de tons (`sizeMapTW`, `domainToneMap`). |
+| `shared/types/` | Types et « enums » transversaux (`MainDomain`, `AuthDomain`...). |
+| `shared/utils/` | Helpers purs (`prefersReducedMotion`...). |
+
+### 7.6 Gestion des erreurs
+
+Décidée le 2026-11-22. Tout le vocabulaire d'erreur de l'app vit dans `shared/errors/`, pour que les messages soient clairs et uniformes sans être réécrits dans chaque composant.
+
+- **Classer, jamais lire un statut HTTP dans un composant.** `toErrorKind(error)` range n'importe quelle erreur attrapée (`unknown`) dans un `ErrorKind` (`Network`, `Validation`, `Unauthorized`, `Forbidden`, `NotFound`, `Conflict`, `Server`, `Unknown`). C'est le seul endroit qui connaît les codes HTTP.
+- **Aucun message d'erreur en dur dans un composant.** On affiche `getErrorMessage(error, situation)`. Les textes viennent du catalogue `errorMessages.ts` : un message par défaut par catégorie, et des surcharges par situation (`login`, `register`...) seulement quand le sens change (un 401 sur le login = mauvais identifiants, ailleurs = session expirée).
+- **Aucun `console.error` direct.** On appelle `reportError(error, situation)`, le seul point de journalisation : le jour où un outil de suivi arrive, seule cette fonction change.
+- **Nouvelle situation** = une clé dans `situationErrorMessages` (même vide, `{}`, si les défauts suffisent). Le type `ErrorSituation` en découle : une situation inconnue ne compile pas.
+- **Le message du back n'est pas affiché** : il est technique (regex, noms de champs). Il reste dans l'erreur, donc dans les logs.
+- **Réseau :** `request()` transforme un rejet de `fetch` en `NetworkError`, sauf une requête annulée (`AbortController`), qui passe telle quelle. En dev, une API éteinte derrière le proxy Vite répond 500 (`Server`), pas `Network`.
+- **Pas encore fait :** les toasts (erreurs d'actions sans formulaire) et la déconnexion automatique sur un 401 en cours de session.
 
 ---
 
