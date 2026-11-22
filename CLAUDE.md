@@ -42,6 +42,8 @@ An npm workspaces monorepo (`workspaces: ["apps/*"]`):
 
 Root `docker-compose.yml` and `apps/api/Dockerfile` are `# TODO` placeholders.
 
+**Database: Neon (since 2026-11-22).** Postgres is hosted on Neon (project linked in the git-ignored `.neon`, policy in root `neon.ts`). Two long-lived branches: `production` (default) and `dev` (local development; exempt from the 7-day TTL that `neon.ts` gives other branches). `apps/api/.env` holds the `dev` branch's `DATABASE_URL` (pooled, used by `PrismaService`) and `DATABASE_URL_UNPOOLED` (direct, used by the Prisma CLI through `prisma7.config.ts`). Refresh it with `neon env pull --file apps/api/.env` from the root. The local Docker Postgres (`xiaotrack-db`) is kept as a fallback only; its env is saved in `apps/api/.env.docker`. `npm run setup` still assumes Docker.
+
 ## Commands
 
 From the repo root:

@@ -10,6 +10,9 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts"
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // CLI only (migrate, seed, studio). Neon: the direct connection, because migrations need a
+    // session the pooler does not keep. The app itself uses the pooled DATABASE_URL (PrismaService).
+    // Falls back to DATABASE_URL for a plain local Postgres (Docker), which has no pooler.
+    url: process.env["DATABASE_URL_UNPOOLED"] ?? process.env["DATABASE_URL"],
   },
 });

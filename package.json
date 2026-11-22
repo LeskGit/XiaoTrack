@@ -22,6 +22,8 @@
   "author": "XiaoPang",
   "license": "ISC",
   "dependencies": {
+    "@neon/config": "^1.14.6",
+    "@neon/env": "^2.1.9",
     "react-grid-layout": "^2.2.3",
     "react-router-dom": "^7.15.1"
   }
