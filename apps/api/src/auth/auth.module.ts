@@ -17,6 +17,8 @@ import { SESSION_DURATION_SECONDS } from './auth.constants';
     }),
   ],
   providers: [AuthService],
-  controllers: [AuthController]
+  controllers: [AuthController],
+  // AuthGuard needs JwtService: any module that imports AuthModule can then use @UseGuards(AuthGuard)
+  exports: [JwtModule],
 })
 export class AuthModule {}
