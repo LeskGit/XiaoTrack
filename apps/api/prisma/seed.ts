@@ -1,12 +1,12 @@
 import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaNeon } from '@prisma/adapter-neon';
 import { hash } from "argon2";
 import { PrismaClient } from "../src/generated/prisma/client";
 import type { Role } from "../src/generated/prisma/enums";
 import { exercises, type SeedExercise } from "./seed-data/exercises";
 
 const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+    adapter: new PrismaNeon({ connectionString: process.env.DATABASE_URL }),
 });
 
 const required = (name: string): string => {
