@@ -261,7 +261,7 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
         <p class="lede">Le modèle de données des séances de sport : un catalogue d'exercices, des séances types et des programmes (le prévu), puis les séances réellement faites, série par série (le réalisé).</p>
         <div class="meta">
             <span class="pill draft">Brouillon v1</span>
-            <span class="pill">Mis à jour le 26 novembre 2026</span>
+            <span class="pill">Mis à jour le 27 novembre 2026</span>
             <span class="pill"><strong>15</strong> entités</span>
             <span class="pill"><strong>23</strong> relations</span>
             <span class="pill">Source : <code>docs/workouts/mcd-v1.md</code></span>
@@ -288,7 +288,7 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
         <div class="sheet" id="sheet">
             <svg id="mcd" role="img" aria-label="Diagramme entité-association du domaine Workouts : le catalogue d'exercices alimente les séances types et les programmes, et une séance est créée depuis une séance type quand on planifie une occurrence."></svg>
         </div>
-        <figcaption class="hint">Clique (ou survole) une entité pour isoler ses relations ; clique dans le vide pour tout réafficher. Le trait pointillé indigo est le cœur du modèle : planifier une occurrence d'une séance type crée une séance réelle, et c'est à ce moment qu'on saisit les objectifs. Le badge <code>V1</code> marque les tables construites à l'étape 1 (séances libres) ; dans ces tables, les attributs en italique grisé ne sont pas encore dans le schéma (survole-les pour savoir pourquoi). Les liens <code>ownerId → User</code> sont indiqués dans les cartes plutôt que tracés, pour garder le schéma lisible.</figcaption>
+        <figcaption class="hint">Clique (ou survole) une entité pour isoler ses relations ; clique dans le vide pour tout réafficher. Le trait pointillé indigo est le cœur du modèle : planifier une occurrence d'une séance type crée une séance réelle, et c'est à ce moment qu'on saisit les objectifs. Le badge <code>V1</code> marque les tables construites à l'étape 1 (séances ponctuelles) ; dans ces tables, les attributs en italique grisé ne sont pas encore dans le schéma (survole-les pour savoir pourquoi). Les liens <code>ownerId → User</code> sont indiqués dans les cartes plutôt que tracés, pour garder le schéma lisible.</figcaption>
     </figure>
 
     <section class="panel" aria-labelledby="legend-title">
@@ -300,19 +300,21 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
         <section class="panel" aria-labelledby="rules-title">
             <h2 id="rules-title">Règles clés<small>Ce que le modèle garantit</small></h2>
             <ul class="rules">
-                <li><b>Prévu et réalisé sur la même ligne</b><span>Une <code>WorkoutSession</code> change de <code>status</code> : <code>planned</code> → <code>in_progress</code> → <code>done</code>, ou <code>skipped</code>. Chaque <code>SessionSet</code> porte l'objectif (<code>target*</code>) et le réel (<code>actual*</code>) côte à côte.</span></li>
-                <li><b>Séance libre</b><span>Créée en <code>planned</code>, avec une <code>scheduledDate</code> facultative. Elle ne passe en <code>in_progress</code> que par un clic sur <i>Start session</i>. <code>templateId</code> et <code>programSlotId</code> restent vides, et tout est saisi à la main.</span></li>
-                <li><b>Template = moule sans chiffres</b><span><code>TemplateExercise</code> ne porte que l'exercice, sa position et le repos. Les objectifs se saisissent quand on planifie une occurrence, ce qui crée la <code>WorkoutSession</code> et ses <code>SessionSet</code>. « Reprendre la dernière séance » copie les objectifs précédents ; « Surcharge progressive » propose +2,5 kg et remet les reps au minimum.</span></li>
-                <li><b>Cycle de vie</b><span>Une seule séance <code>in_progress</code> à la fois. Une séance non terminée se supprime, avec ses exercices et ses séries. Une séance terminée reste modifiable.</span></li>
-                <li><b>Pendant la séance</b><span>Un exercice ajouté en cours de route n'a pas de cible, un exercice retiré est marqué <code>skipped</code>. Le nombre de séries est le nombre de lignes <code>SessionSet</code>.</span></li>
+                <li><b>Prévu et réalisé sur la même ligne</b><span>Chaque <code>SessionSet</code> porte l'objectif (<code>target*</code>) et le réel (<code>actual*</code>) côte à côte. Une série est faite quand <code>completedAt</code> est rempli.</span></li>
+                <li><b>Cycle de vie</b><span><code>PLANNED</code> → <i>Start</i> → <code>IN_PROGRESS</code> → <i>Finish</i> → <code>DONE</code>, et <i>Reopen</i> pour corriger. Une seule séance <code>IN_PROGRESS</code> à la fois. <code>SKIPPED</code> est réservé à l'étape 2.</span></li>
+                <li><b>Séance terminée figée</b><span>Une séance <code>DONE</code> ne s'écrit ni ne se supprime tant qu'elle n'est pas rouverte. Une séance non terminée se supprime, avec ses exercices et ses séries.</span></li>
+                <li><b>Objectifs figés au Start</b><span><code>target*</code>, <code>restSeconds</code> et <code>instructions</code> ne bougent plus en cours de séance. Ce qu'on ajoute en route n'a pas d'objectif ; un exercice prévu non fait passe en <code>SKIPPED</code>, il n'est pas supprimé.</span></li>
+                <li><b>Titre de séance</b><span>Obligatoire en base, rempli par le serveur s'il manque (« Workout Nov 27 »). Non unique : retrouver « la dernière Push » passera par le template, jamais par le titre.</span></li>
+                <li><b>Objectif de reps</b><span><code>targetReps</code> seul = valeur exacte ; avec <code>targetRepsMax</code> = fourchette. <code>targetRepsMax</code> n'existe pas sans <code>targetReps</code> et lui est strictement supérieur (contrainte <code>CHECK</code>).</span></li>
+                <li><b>Exercice de séance</b><span><code>status</code> : <code>PENDING</code>, <code>DONE</code> ou <code>SKIPPED</code> ; « en cours » = le premier <code>PENDING</code>. Repos copié du défaut de l'utilisateur, sinon 90 s. <code>instructions</code> = la consigne, <code>notes</code> = la conclusion.</span></li>
+                <li><b>Préférences par utilisateur</b><span><code>UserExercise</code> ne garde que <code>defaultRestSeconds</code> et <code>state</code> (<code>NONE</code>, <code>FAVORITE</code>, <code>ARCHIVED</code> : favori et archivé à la fois est impossible à écrire). Un exercice archivé quitte le sélecteur, pas l'historique.</span></li>
+                <li><b>Template = moule sans chiffres</b><span><code>TemplateExercise</code> ne porte que l'exercice, sa position et le repos. Les objectifs se saisissent quand on planifie une occurrence. « Reprendre la dernière séance » copie les objectifs précédents ; « Surcharge progressive » propose +2,5 kg et remet les reps à <code>targetReps</code>.</span></li>
                 <li><b>Historique figé</b><span>Modifier un template ou un programme ne réécrit jamais les séances passées. En cours de programme, l'utilisateur choisit de modifier le template ou d'en créer une copie.</span></li>
-                <li><b>Catalogue partagé et exercices perso</b><span>Un exercice avec <code>ownerId</code> à <code>null</code> est fourni par l'app (33 en V1) et n'est jamais modifiable. L'utilisateur crée les siens ; il peut en changer le nom (l'historique affiche le nom actuel), pas le profil une fois utilisé, et ne les supprime pas. Copier un exercice fourni pour le personnaliser est hors périmètre pour l'instant.</span></li>
-                <li><b>Archivage et note par utilisateur</b><span><code>UserExercise.archivedAt</code> masque un exercice pour un seul utilisateur. <code>UserExercise.notes</code> garde une consigne durable (« se concentrer sur la descente »).</span></li>
+                <li><b>Catalogue partagé et exercices perso</b><span>Un exercice avec <code>ownerId</code> à <code>null</code> est fourni par l'app (33 en V1) et n'est jamais modifiable. L'utilisateur crée les siens ; il peut en changer le nom, pas le profil une fois utilisé, et les archive au lieu de les supprimer.</span></li>
                 <li><b>Métriques en colonnes fixes</b><span><code>measureType</code> dit quels champs s'appliquent : <code>REPS_WEIGHT</code> (reps + charge) ou <code>DURATION_DISTANCE</code> (durée + distance). Charge 0 = poids du corps ; une distance qui ne s'applique pas reste vide, jamais 0. <code>category</code> ne sert qu'au filtre.</span></li>
-                <li><b>Suppressions</b><span>Séance → exercices → séries en cascade. Un exercice utilisé dans une séance ne se supprime pas (<code>Restrict</code>) : l'historique en a besoin. Supprimer un utilisateur supprime ses exercices, notes et séances.</span></li>
+                <li><b>Suppressions</b><span>Séance → exercices → séries en cascade. Un exercice utilisé dans une séance ne se supprime pas (<code>Restrict</code>) : l'historique en a besoin. Supprimer un utilisateur supprime ses exercices, préférences et séances.</span></li>
                 <li><b>Occurrences de programme calculées</b><span>On stocke la règle (<code>ProgramSlot</code>), pas les occurrences. Une occurrence ne devient une <code>WorkoutSession</code> que lorsqu'on la planifie.</span></li>
                 <li><b>Unités stockées</b><span>Kilogrammes pour la charge, secondes pour la durée, mètres pour la distance. L'affichage convertit.</span></li>
-                <li><b>Objectif = étiquette <code>goal</code> sur la séance</b><span>Sur le template ou la <code>WorkoutSession</code>, jamais sur l'exercice. L'exercice ne porte que sa nature (<code>category</code>).</span></li>
             </ul>
         </section>
 
@@ -320,13 +322,12 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
             <h2 id="open-title">Points ouverts<small>À trancher avant ou pendant le développement</small></h2>
             <ul class="todo">
                 <li class="group">Modèle</li>
-                <li><span><b>Repos visé</b> : <code>SessionExercise.targetRestSeconds</code> figure dans le cadrage mais pas dans le schéma de l'étape 1. Migration maintenant, ou report à l'étape 2 avec les templates ? <code>UserExercise.defaultRestSeconds</code>, qui pré-remplirait ce repos, suit la même décision.</span></li>
-                <li><span><b>Repos réel</b> : <code>startedAt</code> par série (précis) ou approximation entre deux validations.</span></li>
+                <li><span><b>Repos réel</b> : <code>startedAt</code> par série (précis) ou approximation entre deux validations. Après la V1, avec le minuteur.</span></li>
                 <li class="group">Étape 2</li>
                 <li><span><b>Template copié</b> : retrouver la séance précédente par <code>programSlotId</code>, ou par un lien copie → original ?</span></li>
                 <li><span><b>Programme modifié en cours</b> : seules les occurrences futures changent ? Arrêter = <code>endDate</code> à aujourd'hui ?</span></li>
                 <li><span><b>Plusieurs programmes actifs</b> en même temps ?</span></li>
-                <li><span><b>Séance manquée</b> : calculée seulement, ou aussi marquable (<code>skipped</code>) ?</span></li>
+                <li><span><b>Séance manquée</b> : calculée seulement, ou aussi marquable (<code>SKIPPED</code>) ?</span></li>
                 <li><span><b>Séance faite à la place d'une autre</b> : la remplace-t-elle ?</span></li>
             </ul>
         </section>
@@ -363,6 +364,8 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
         body_part_role: ["primary", "secondary"],
         tag_kind: ["focus", "goal"],
         session_status: ["PLANNED", "IN_PROGRESS", "DONE", "SKIPPED"],
+        session_exercise_status: ["PENDING", "DONE", "SKIPPED"],
+        user_exercise_state: ["NONE", "FAVORITE", "ARCHIVED"],
         weekday_list: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
     };
 
@@ -372,22 +375,23 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
     const later = (attr, why) => ({ ...attr, later: why });
     const STEP2 = "étape 2 : arrive avec les templates et programmes";
     const LATER = "plus tard : ajouté avec la fonctionnalité";
+    const TOBUILD = "V1, à construire : arrive avec la prochaine migration (cadrage §9)";
     const ENT = {
         User: { zone: "account", attrs: [a("id", "uuid", "PK"), a("email", "string"), a("displayName", "string"), a("passwordHash", "string"), a("role", "user_role"), a("createdAt", "timestamp"), a("updatedAt", "timestamp")] },
         BodyPart: { zone: "catalog", attrs: [a("id", "uuid", "PK"), a("name", "string"), a("kind", "body_part_kind"), a("parentId", "uuid", "FK", true)] },
         Exercise: { zone: "catalog", v1: true, attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", true, "", "User"), a("slug", "string", "", true), a("name", "string"), a("description", "text", "", true), later(a("imageUrl", "string", "", true), LATER), a("category", "exercise_category"), a("measureType", "measure_type")] },
         ExerciseBodyPart: { zone: "catalog", attrs: [a("exerciseId", "uuid", "PK FK"), a("bodyPartId", "uuid", "PK FK"), a("role", "body_part_role")] },
-        UserExercise: { zone: "catalog", v1: true, attrs: [a("userId", "uuid", "PK FK"), a("exerciseId", "uuid", "PK FK"), later(a("archivedAt", "timestamp", "", true), LATER), later(a("favorite", "bool"), LATER), later(a("defaultRestSeconds", "int", "", true, "s"), "pas construit : suit la décision sur le repos visé (points ouverts)"), a("notes", "text", "", true)] },
+        UserExercise: { zone: "catalog", v1: true, attrs: [a("userId", "uuid", "PK FK"), a("exerciseId", "uuid", "PK FK"), later(a("defaultRestSeconds", "int", "", true, "s"), TOBUILD + " ; vide = 90 s"), later(a("state", "user_exercise_state"), TOBUILD + " ; remplace notes, archivedAt et favorite")] },
         Tag: { zone: "tags", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("name", "string"), a("color", "string"), a("kind", "tag_kind")] },
         Template: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("name", "string"), a("notes", "text"), a("archivedAt", "timestamp", "", true)] },
         TemplateTag: { zone: "tags", attrs: [a("templateId", "uuid", "PK FK"), a("tagId", "uuid", "PK FK")] },
         TemplateExercise: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("templateId", "uuid", "FK"), a("exerciseId", "uuid", "FK"), a("position", "int"), a("restSeconds", "int", "", true, "s")] },
         Program: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("name", "string"), a("goal", "text"), a("startDate", "date"), a("endDate", "date", "", true)] },
         ProgramSlot: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("programId", "uuid", "FK"), a("templateId", "uuid", "FK"), a("weekdays", "weekday_list"), a("everyNWeeks", "int")] },
-        WorkoutSession: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("status", "session_status"), later(a("templateId", "uuid", "FK", true), STEP2), later(a("programSlotId", "uuid", "FK", true), STEP2), a("scheduledDate", "date", "", true), a("startedAt", "timestamp", "", true), a("endedAt", "timestamp", "", true), a("feeling", "int", "", true), a("notes", "text", "", true), a("createdAt", "timestamp"), a("updatedAt", "timestamp")] },
+        WorkoutSession: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), later(a("title", "string"), TOBUILD + " ; défaut rempli par le serveur (« Workout Nov 27 »)"), a("status", "session_status"), later(a("templateId", "uuid", "FK", true), STEP2), later(a("programSlotId", "uuid", "FK", true), STEP2), a("scheduledDate", "date", "", true), a("startedAt", "timestamp", "", true), a("endedAt", "timestamp", "", true), a("feeling", "int", "", true), a("notes", "text", "", true), a("createdAt", "timestamp"), a("updatedAt", "timestamp")] },
         WorkoutSessionTag: { zone: "tags", attrs: [a("workoutSessionId", "uuid", "PK FK"), a("tagId", "uuid", "PK FK")] },
-        SessionExercise: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("workoutSessionId", "uuid", "FK"), a("exerciseId", "uuid", "FK"), a("position", "int"), a("skipped", "bool"), later(a("targetRestSeconds", "int", "", true, "s"), "pas construit : à trancher (voir les points ouverts)"), a("notes", "text", "", true)] },
-        SessionSet: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("sessionExerciseId", "uuid", "FK"), a("position", "int"), a("targetRepsMin", "int", "", true), a("targetRepsMax", "int", "", true), a("targetWeight", "decimal", "", true, "kg"), a("targetDuration", "int", "", true, "s"), a("targetDistance", "int", "", true, "m"), a("actualReps", "int", "", true), a("actualWeight", "decimal", "", true, "kg"), a("actualDuration", "int", "", true, "s"), a("actualDistance", "int", "", true, "m"), a("rpe", "int", "", true), a("notes", "text", "", true), later(a("startedAt", "timestamp", "", true), "pas construit : point ouvert du repos réel"), a("completedAt", "timestamp", "", true)] },
+        SessionExercise: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("workoutSessionId", "uuid", "FK"), a("exerciseId", "uuid", "FK"), a("position", "int"), later(a("status", "session_exercise_status"), TOBUILD + " ; remplace skipped"), later(a("restSeconds", "int", "", false, "s"), TOBUILD + " ; copié de defaultRestSeconds, sinon 90 s"), later(a("instructions", "text", "", true), TOBUILD + " ; consigne écrite en planifiant"), a("notes", "text", "", true)] },
+        SessionSet: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("sessionExerciseId", "uuid", "FK"), a("position", "int"), later(a("targetReps", "int", "", true), TOBUILD + " ; renommage de targetRepsMin : valeur exacte ou bas de fourchette"), a("targetRepsMax", "int", "", true), a("targetWeight", "decimal", "", true, "kg"), a("targetDuration", "int", "", true, "s"), a("targetDistance", "int", "", true, "m"), a("actualReps", "int", "", true), a("actualWeight", "decimal", "", true, "kg"), a("actualDuration", "int", "", true, "s"), a("actualDistance", "int", "", true, "m"), a("rpe", "int", "", true), a("notes", "text", "", true), later(a("startedAt", "timestamp", "", true), "pas construit : point ouvert du repos réel"), a("completedAt", "timestamp", "", true)] },
     };
 
     // ── Placement (grid of 6 columns) ──
@@ -663,8 +667,8 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
     legendItem(badgeMini("FK"), "<b>Clé étrangère</b> : pointe vers une autre table");
     legendItem(mini((s) => { const t = el("text", { class: "attr-name", x: 2, y: 15 }, s, "endDate"); el("tspan", { class: "attr-null" }, t, "?"); }, 70), "<b>Facultatif</b> (nullable)");
     legendItem(mini((s) => { el("text", { class: "attr-type ref", x: 2, y: 15 }, s, "→ User"); }, 52), "<code>ownerId</code> : appartient à un utilisateur (lien non tracé)");
-    legendItem(mini((s) => { const v = el("g", { class: "badge-v1" }, s); el("rect", { x: 2, y: 4, width: 26, height: 15, rx: 4 }, v); el("text", { x: 15, y: 15, "text-anchor": "middle" }, v, "V1"); }, 30), "<b>Étape 1</b> : table construite pour les séances libres");
-    legendItem(mini((s) => { el("text", { class: "attr-name later", x: 2, y: 15 }, s, "favorite"); }, 70), "<b>Pas encore construit</b> : prévu, absent du schéma actuel");
+    legendItem(mini((s) => { const v = el("g", { class: "badge-v1" }, s); el("rect", { x: 2, y: 4, width: 26, height: 15, rx: 4 }, v); el("text", { x: 15, y: 15, "text-anchor": "middle" }, v, "V1"); }, 30), "<b>Étape 1</b> : table construite pour les séances ponctuelles");
+    legendItem(mini((s) => { el("text", { class: "attr-name later", x: 2, y: 15 }, s, "title"); }, 70), "<b>Pas encore construit</b> : prévu, absent du schéma actuel (survole pour savoir quand il arrive)");
     legendItem(crowMini("one"), "Exactement <b>un</b>");
     legendItem(crowMini("zeroOne"), "<b>Zéro ou un</b>");
     legendItem(crowMini("zeroMany"), "<b>Zéro ou plusieurs</b>");
