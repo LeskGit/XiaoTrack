@@ -1,7 +1,8 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUserId } from '../auth/current-user.decorator';
 import { ExercisesService } from './exercises.service';
+import { CreateExerciseDto } from './dto/create-exercise.dto';
 
 // Every route of this controller needs a logged-in user
 @UseGuards(AuthGuard)
@@ -12,6 +13,12 @@ export class ExercisesController {
     // GET /api/exercises
     @Get()
     findAll(@CurrentUserId() userId: string) {
-        return this.exercisesService.findAll(userId);
+    return this.exercisesService.findAll(userId);
+    }
+
+    // POST /api/exercises
+    @Post()
+    createExercise(@Body() dto: CreateExerciseDto, @CurrentUserId() userId: string) {
+        return this.exercisesService.createExercise(userId, dto);
     }
 }

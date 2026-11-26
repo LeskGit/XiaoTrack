@@ -180,6 +180,7 @@ h1 {
 .card-dot { fill: var(--z); }
 .attr-name { fill: var(--ink); font: 400 11.5px var(--font-code); }
 .attr-null { fill: var(--ink-muted); }
+.attr-name.later, .attr-type.later { opacity: 0.5; font-style: italic; }
 .attr-type { fill: var(--ink-muted); font: 400 10.5px var(--font-code); }
 .attr-type.enum { fill: var(--accent); text-decoration: underline dotted; }
 .attr-type.ref { fill: var(--zone-account); font-weight: 600; }
@@ -260,9 +261,9 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
         <p class="lede">Le modèle de données des séances de sport : un catalogue d'exercices, des séances types et des programmes (le prévu), puis les séances réellement faites, série par série (le réalisé).</p>
         <div class="meta">
             <span class="pill draft">Brouillon v1</span>
-            <span class="pill">Mis à jour le 22 novembre 2026</span>
+            <span class="pill">Mis à jour le 26 novembre 2026</span>
             <span class="pill"><strong>15</strong> entités</span>
-            <span class="pill"><strong>24</strong> relations</span>
+            <span class="pill"><strong>23</strong> relations</span>
             <span class="pill">Source : <code>docs/workouts/mcd-v1.md</code></span>
             <span class="pill">Cadrage : <code>docs/workouts/00-cadrage-v1.md</code></span>
         </div>
@@ -287,7 +288,7 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
         <div class="sheet" id="sheet">
             <svg id="mcd" role="img" aria-label="Diagramme entité-association du domaine Workouts : le catalogue d'exercices alimente les séances types et les programmes, et une séance est créée depuis une séance type quand on planifie une occurrence."></svg>
         </div>
-        <figcaption class="hint">Clique (ou survole) une entité pour isoler ses relations ; clique dans le vide pour tout réafficher. Le trait pointillé indigo est le cœur du modèle : planifier une occurrence d'une séance type crée une séance réelle, et c'est à ce moment qu'on saisit les objectifs. Le badge <code>V1</code> marque les tables construites à l'étape 1 (séances libres). Les liens <code>ownerId → User</code> sont indiqués dans les cartes plutôt que tracés, pour garder le schéma lisible.</figcaption>
+        <figcaption class="hint">Clique (ou survole) une entité pour isoler ses relations ; clique dans le vide pour tout réafficher. Le trait pointillé indigo est le cœur du modèle : planifier une occurrence d'une séance type crée une séance réelle, et c'est à ce moment qu'on saisit les objectifs. Le badge <code>V1</code> marque les tables construites à l'étape 1 (séances libres) ; dans ces tables, les attributs en italique grisé ne sont pas encore dans le schéma (survole-les pour savoir pourquoi). Les liens <code>ownerId → User</code> sont indiqués dans les cartes plutôt que tracés, pour garder le schéma lisible.</figcaption>
     </figure>
 
     <section class="panel" aria-labelledby="legend-title">
@@ -305,9 +306,10 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
                 <li><b>Cycle de vie</b><span>Une seule séance <code>in_progress</code> à la fois. Une séance non terminée se supprime, avec ses exercices et ses séries. Une séance terminée reste modifiable.</span></li>
                 <li><b>Pendant la séance</b><span>Un exercice ajouté en cours de route n'a pas de cible, un exercice retiré est marqué <code>skipped</code>. Le nombre de séries est le nombre de lignes <code>SessionSet</code>.</span></li>
                 <li><b>Historique figé</b><span>Modifier un template ou un programme ne réécrit jamais les séances passées. En cours de programme, l'utilisateur choisit de modifier le template ou d'en créer une copie.</span></li>
-                <li><b>Catalogue partagé et exercices perso</b><span>Un exercice avec <code>ownerId</code> à <code>null</code> est fourni par l'app (33 en V1) et n'est jamais modifiable. L'utilisateur crée les siens ; il peut en changer le nom (l'historique affiche le nom actuel), pas le profil une fois utilisé, et ne les supprime pas. Les copies d'un exercice fourni (<code>variantOfId</code>) viendront plus tard.</span></li>
+                <li><b>Catalogue partagé et exercices perso</b><span>Un exercice avec <code>ownerId</code> à <code>null</code> est fourni par l'app (33 en V1) et n'est jamais modifiable. L'utilisateur crée les siens ; il peut en changer le nom (l'historique affiche le nom actuel), pas le profil une fois utilisé, et ne les supprime pas. Copier un exercice fourni pour le personnaliser est hors périmètre pour l'instant.</span></li>
                 <li><b>Archivage et note par utilisateur</b><span><code>UserExercise.archivedAt</code> masque un exercice pour un seul utilisateur. <code>UserExercise.notes</code> garde une consigne durable (« se concentrer sur la descente »).</span></li>
                 <li><b>Métriques en colonnes fixes</b><span><code>measureType</code> dit quels champs s'appliquent : <code>REPS_WEIGHT</code> (reps + charge) ou <code>DURATION_DISTANCE</code> (durée + distance). Charge 0 = poids du corps ; une distance qui ne s'applique pas reste vide, jamais 0. <code>category</code> ne sert qu'au filtre.</span></li>
+                <li><b>Suppressions</b><span>Séance → exercices → séries en cascade. Un exercice utilisé dans une séance ne se supprime pas (<code>Restrict</code>) : l'historique en a besoin. Supprimer un utilisateur supprime ses exercices, notes et séances.</span></li>
                 <li><b>Occurrences de programme calculées</b><span>On stocke la règle (<code>ProgramSlot</code>), pas les occurrences. Une occurrence ne devient une <code>WorkoutSession</code> que lorsqu'on la planifie.</span></li>
                 <li><b>Unités stockées</b><span>Kilogrammes pour la charge, secondes pour la durée, mètres pour la distance. L'affichage convertit.</span></li>
                 <li><b>Objectif = étiquette <code>goal</code> sur la séance</b><span>Sur le template ou la <code>WorkoutSession</code>, jamais sur l'exercice. L'exercice ne porte que sa nature (<code>category</code>).</span></li>
@@ -318,6 +320,7 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
             <h2 id="open-title">Points ouverts<small>À trancher avant ou pendant le développement</small></h2>
             <ul class="todo">
                 <li class="group">Modèle</li>
+                <li><span><b>Repos visé</b> : <code>SessionExercise.targetRestSeconds</code> figure dans le cadrage mais pas dans le schéma de l'étape 1. Migration maintenant, ou report à l'étape 2 avec les templates ? <code>UserExercise.defaultRestSeconds</code>, qui pré-remplirait ce repos, suit la même décision.</span></li>
                 <li><span><b>Repos réel</b> : <code>startedAt</code> par série (précis) ou approximation entre deux validations.</span></li>
                 <li class="group">Étape 2</li>
                 <li><span><b>Template copié</b> : retrouver la séance précédente par <code>programSlotId</code>, ou par un lien copie → original ?</span></li>
@@ -359,28 +362,32 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
         measure_type: ["REPS_WEIGHT", "DURATION_DISTANCE"],
         body_part_role: ["primary", "secondary"],
         tag_kind: ["focus", "goal"],
-        session_status: ["planned", "in_progress", "done", "skipped"],
+        session_status: ["PLANNED", "IN_PROGRESS", "DONE", "SKIPPED"],
         weekday_list: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
     };
 
     // a(name, type, key, nullable, unit, ref)
     const a = (n, t, k = "", nul = false, unit = "", ref = "") => ({ n, t, k, nul, unit, ref });
+    // An attribute of the target model that schema.prisma does not have yet, with the reason (shown greyed, reason in the tooltip)
+    const later = (attr, why) => ({ ...attr, later: why });
+    const STEP2 = "étape 2 : arrive avec les templates et programmes";
+    const LATER = "plus tard : ajouté avec la fonctionnalité";
     const ENT = {
         User: { zone: "account", attrs: [a("id", "uuid", "PK"), a("email", "string"), a("displayName", "string"), a("passwordHash", "string"), a("role", "user_role"), a("createdAt", "timestamp"), a("updatedAt", "timestamp")] },
         BodyPart: { zone: "catalog", attrs: [a("id", "uuid", "PK"), a("name", "string"), a("kind", "body_part_kind"), a("parentId", "uuid", "FK", true)] },
-        Exercise: { zone: "catalog", v1: true, attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", true, "", "User"), a("variantOfId", "uuid", "FK", true), a("name", "string"), a("description", "text"), a("imageUrl", "string", "", true), a("category", "exercise_category"), a("measureType", "measure_type")] },
+        Exercise: { zone: "catalog", v1: true, attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", true, "", "User"), a("slug", "string", "", true), a("name", "string"), a("description", "text", "", true), later(a("imageUrl", "string", "", true), LATER), a("category", "exercise_category"), a("measureType", "measure_type")] },
         ExerciseBodyPart: { zone: "catalog", attrs: [a("exerciseId", "uuid", "PK FK"), a("bodyPartId", "uuid", "PK FK"), a("role", "body_part_role")] },
-        UserExercise: { zone: "catalog", v1: true, attrs: [a("userId", "uuid", "PK FK"), a("exerciseId", "uuid", "PK FK"), a("archivedAt", "timestamp", "", true), a("favorite", "bool"), a("defaultRestSeconds", "int", "", true, "s"), a("notes", "text", "", true)] },
+        UserExercise: { zone: "catalog", v1: true, attrs: [a("userId", "uuid", "PK FK"), a("exerciseId", "uuid", "PK FK"), later(a("archivedAt", "timestamp", "", true), LATER), later(a("favorite", "bool"), LATER), later(a("defaultRestSeconds", "int", "", true, "s"), "pas construit : suit la décision sur le repos visé (points ouverts)"), a("notes", "text", "", true)] },
         Tag: { zone: "tags", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("name", "string"), a("color", "string"), a("kind", "tag_kind")] },
         Template: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("name", "string"), a("notes", "text"), a("archivedAt", "timestamp", "", true)] },
         TemplateTag: { zone: "tags", attrs: [a("templateId", "uuid", "PK FK"), a("tagId", "uuid", "PK FK")] },
         TemplateExercise: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("templateId", "uuid", "FK"), a("exerciseId", "uuid", "FK"), a("position", "int"), a("restSeconds", "int", "", true, "s")] },
         Program: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("name", "string"), a("goal", "text"), a("startDate", "date"), a("endDate", "date", "", true)] },
         ProgramSlot: { zone: "plan", attrs: [a("id", "uuid", "PK"), a("programId", "uuid", "FK"), a("templateId", "uuid", "FK"), a("weekdays", "weekday_list"), a("everyNWeeks", "int")] },
-        WorkoutSession: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("status", "session_status"), a("templateId", "uuid", "FK", true), a("programSlotId", "uuid", "FK", true), a("scheduledDate", "date", "", true), a("startedAt", "timestamp", "", true), a("endedAt", "timestamp", "", true), a("feeling", "int", "", true), a("notes", "text", "", true)] },
+        WorkoutSession: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("ownerId", "uuid", "FK", false, "", "User"), a("status", "session_status"), later(a("templateId", "uuid", "FK", true), STEP2), later(a("programSlotId", "uuid", "FK", true), STEP2), a("scheduledDate", "date", "", true), a("startedAt", "timestamp", "", true), a("endedAt", "timestamp", "", true), a("feeling", "int", "", true), a("notes", "text", "", true), a("createdAt", "timestamp"), a("updatedAt", "timestamp")] },
         WorkoutSessionTag: { zone: "tags", attrs: [a("workoutSessionId", "uuid", "PK FK"), a("tagId", "uuid", "PK FK")] },
-        SessionExercise: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("workoutSessionId", "uuid", "FK"), a("exerciseId", "uuid", "FK"), a("position", "int"), a("skipped", "bool"), a("targetRestSeconds", "int", "", true, "s"), a("notes", "text", "", true)] },
-        SessionSet: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("sessionExerciseId", "uuid", "FK"), a("position", "int"), a("targetRepsMin", "int", "", true), a("targetRepsMax", "int", "", true), a("targetWeight", "decimal", "", true, "kg"), a("targetDuration", "int", "", true, "s"), a("targetDistance", "int", "", true, "m"), a("actualReps", "int", "", true), a("actualWeight", "decimal", "", true, "kg"), a("actualDuration", "int", "", true, "s"), a("actualDistance", "int", "", true, "m"), a("rpe", "int", "", true), a("notes", "text", "", true), a("startedAt", "timestamp", "", true), a("completedAt", "timestamp", "", true)] },
+        SessionExercise: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("workoutSessionId", "uuid", "FK"), a("exerciseId", "uuid", "FK"), a("position", "int"), a("skipped", "bool"), later(a("targetRestSeconds", "int", "", true, "s"), "pas construit : à trancher (voir les points ouverts)"), a("notes", "text", "", true)] },
+        SessionSet: { zone: "done", v1: true, attrs: [a("id", "uuid", "PK"), a("sessionExerciseId", "uuid", "FK"), a("position", "int"), a("targetRepsMin", "int", "", true), a("targetRepsMax", "int", "", true), a("targetWeight", "decimal", "", true, "kg"), a("targetDuration", "int", "", true, "s"), a("targetDistance", "int", "", true, "m"), a("actualReps", "int", "", true), a("actualWeight", "decimal", "", true, "kg"), a("actualDuration", "int", "", true, "s"), a("actualDistance", "int", "", true, "m"), a("rpe", "int", "", true), a("notes", "text", "", true), later(a("startedAt", "timestamp", "", true), "pas construit : point ouvert du repos réel"), a("completedAt", "timestamp", "", true)] },
     };
 
     // ── Placement (grid of 6 columns) ──
@@ -415,8 +422,6 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
     const REL = [
         { a: "BodyPart", b: "BodyPart", am: "zeroOne", bm: "zeroMany", label: "parent",
           pts: () => [[L("BodyPart"), row("BodyPart", "id")], [L("BodyPart") - 16, row("BodyPart", "id")], [L("BodyPart") - 16, row("BodyPart", "parentId")], [L("BodyPart"), row("BodyPart", "parentId")]] },
-        { a: "Exercise", b: "Exercise", am: "zeroOne", bm: "zeroMany", label: "variante",
-          pts: () => [[L("Exercise"), row("Exercise", "id")], [L("Exercise") - 16, row("Exercise", "id")], [L("Exercise") - 16, row("Exercise", "variantOfId")], [L("Exercise"), row("Exercise", "variantOfId")]] },
         { a: "Exercise", b: "ExerciseBodyPart", am: "one", bm: "zeroMany", label: "travaille",
           pts: () => { const y = B("Exercise") - 30, x = gut(0) + 16, y2 = row("ExerciseBodyPart", "exerciseId"); return [[L("Exercise"), y], [x, y], [x, y2], [R("ExerciseBodyPart"), y2]]; } },
         { a: "BodyPart", b: "ExerciseBodyPart", am: "one", bm: "zeroMany", label: "sollicitée par",
@@ -452,7 +457,7 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
         { a: "SessionExercise", b: "SessionSet", am: "one", bm: "zeroMany", label: "séries",
           pts: () => { const y = T("SessionExercise") + 28; return [[R("SessionExercise"), y], [L("SessionSet"), y]]; } },
     ];
-    // Owner links drawn as "→ User" chips in the cards (5 of them) + UserExercise → User drawn above: 24 relationships in total.
+    // Owner links drawn as "→ User" chips in the cards (5 of them) + UserExercise → User drawn above: 23 relationships in total.
     const OWNED = Object.entries(ENT).filter(([, e]) => e.attrs.some((x) => x.ref === "User")).map(([n]) => n);
 
     // ── SVG builders ──
@@ -549,6 +554,7 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
             const tip = [`${name}.${at.n}`, at.t + (at.unit ? ` (${at.unit})` : ""), at.nul ? "nullable" : "obligatoire"];
             if (ENUMS[at.t]) tip.push("valeurs : " + ENUMS[at.t].join(", "));
             if (at.ref) tip.push("référence vers User");
+            if (at.later) tip.push("absent du schéma de l'étape 1 · " + at.later);
             el("title", {}, hit, tip.join(" · "));
             const keys = at.k ? at.k.split(" ") : [];
             keys.forEach((k, ki) => {
@@ -557,10 +563,10 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
                 el("rect", { x: bx, y: ry + 4, width: 19, height: 12, rx: 3 }, b);
                 el("text", { x: bx + 9.5, y: ry + 13, "text-anchor": "middle" }, b, k);
             });
-            const t = el("text", { class: "attr-name", x: e.x + 58, y: ry + 14 }, g, at.n);
+            const t = el("text", { class: "attr-name" + (at.later ? " later" : ""), x: e.x + 58, y: ry + 14 }, g, at.n);
             if (at.nul) el("tspan", { class: "attr-null" }, t, "?");
             const typeText = at.ref ? "→ User" : at.t + (at.unit ? ` · ${at.unit}` : "");
-            const cls = "attr-type" + (ENUMS[at.t] ? " enum" : "") + (at.ref ? " ref" : "");
+            const cls = "attr-type" + (ENUMS[at.t] ? " enum" : "") + (at.ref ? " ref" : "") + (at.later ? " later" : "");
             el("text", { class: cls, x: e.x + CW - 12, y: ry + 14, "text-anchor": "end" }, g, typeText);
         });
     }
@@ -658,6 +664,7 @@ footer { font-size: 13px; color: var(--ink-muted); border-top: 1px solid var(--l
     legendItem(mini((s) => { const t = el("text", { class: "attr-name", x: 2, y: 15 }, s, "endDate"); el("tspan", { class: "attr-null" }, t, "?"); }, 70), "<b>Facultatif</b> (nullable)");
     legendItem(mini((s) => { el("text", { class: "attr-type ref", x: 2, y: 15 }, s, "→ User"); }, 52), "<code>ownerId</code> : appartient à un utilisateur (lien non tracé)");
     legendItem(mini((s) => { const v = el("g", { class: "badge-v1" }, s); el("rect", { x: 2, y: 4, width: 26, height: 15, rx: 4 }, v); el("text", { x: 15, y: 15, "text-anchor": "middle" }, v, "V1"); }, 30), "<b>Étape 1</b> : table construite pour les séances libres");
+    legendItem(mini((s) => { el("text", { class: "attr-name later", x: 2, y: 15 }, s, "favorite"); }, 70), "<b>Pas encore construit</b> : prévu, absent du schéma actuel");
     legendItem(crowMini("one"), "Exactement <b>un</b>");
     legendItem(crowMini("zeroOne"), "<b>Zéro ou un</b>");
     legendItem(crowMini("zeroMany"), "<b>Zéro ou plusieurs</b>");

@@ -1,6 +1,6 @@
 # MCD Workouts — v1
 
-> **Statut : brouillon, va évoluer.** Version du 2026-11-14, mise à jour le 2026-11-22 avec les décisions du cadrage.
+> **Statut : brouillon, va évoluer.** Version du 2026-11-14, mise à jour le 2026-11-22 avec les décisions du cadrage, puis le 2026-11-26 pour coller au `schema.prisma` de l'étape 1 (voir « Écarts avec le schéma de l'étape 1 »).
 > Modèle conceptuel des données du domaine Workouts (séances de sport), issu de l'analyse métier. Le périmètre et les décisions sont dans `00-cadrage-v1.md`, qui fait foi.
 > `mcd-v1.html` est la version visuelle de ce document (publiée en artefact).
 
@@ -28,10 +28,10 @@ erDiagram
     Exercise {
         uuid id PK
         uuid ownerId FK "nullable, null = provided by the app"
-        uuid variantOfId FK "nullable, copy of a provided exercise"
+        string slug "nullable, unique, seed key of a provided exercise"
         string name
-        text description
-        string imageUrl "nullable"
+        text description "nullable"
+        string imageUrl "later: nullable"
         exercise_category category "RESISTANCE, CARDIO (V1)"
         measure_type measureType "REPS_WEIGHT, DURATION_DISTANCE"
     }
@@ -45,9 +45,9 @@ erDiagram
     UserExercise {
         uuid userId PK, FK
         uuid exerciseId PK, FK
-        timestamp archivedAt "nullable, hidden for this user"
-        bool favorite
-        int defaultRestSeconds "nullable"
+        timestamp archivedAt "later: nullable, hidden for this user"
+        bool favorite "later"
+        int defaultRestSeconds "not built: nullable, see open point on rest"
         text notes "nullable"
     }
 
@@ -100,14 +100,16 @@ erDiagram
     WorkoutSession {
         uuid id PK
         uuid ownerId FK
-        session_status status "planned, in_progress, done, skipped"
-        uuid templateId FK "nullable, free session"
-        uuid programSlotId FK "nullable"
+        session_status status "PLANNED, IN_PROGRESS, DONE, SKIPPED"
+        uuid templateId FK "step 2: nullable, null = free session"
+        uuid programSlotId FK "step 2: nullable"
         date scheduledDate "nullable"
         timestamp startedAt "nullable"
         timestamp endedAt "nullable"
-        int feeling "nullable"
+        int feeling "nullable, 1 to 10"
         text notes "nullable"
+        timestamp createdAt "orders the list when scheduledDate is null"
+        timestamp updatedAt
     }
 
     WorkoutSessionTag {
@@ -121,7 +123,7 @@ erDiagram
         uuid exerciseId FK
         int position
         bool skipped
-        int targetRestSeconds "nullable"
+        int targetRestSeconds "not built: nullable, to decide"
         text notes "nullable"
     }
 
@@ -138,9 +140,9 @@ erDiagram
         decimal actualWeight "nullable, kg"
         int actualDuration "nullable, seconds"
         int actualDistance "nullable, meters"
-        int rpe "nullable"
+        int rpe "nullable, 1 to 10"
         text notes "nullable"
-        timestamp startedAt "nullable"
+        timestamp startedAt "not built: open point, real rest"
         timestamp completedAt "nullable"
     }
 
@@ -152,7 +154,6 @@ erDiagram
     User ||--o{ WorkoutSession : "owns"
 
     BodyPart |o--o{ BodyPart : "parent of"
-    Exercise |o--o{ Exercise : "variant of"
     Exercise ||--o{ ExerciseBodyPart : "works"
     BodyPart ||--o{ ExerciseBodyPart : "worked by"
     Exercise ||--o{ UserExercise : "preferred in"
@@ -181,7 +182,7 @@ erDiagram
 - **Template = moule sans chiffres** : `TemplateExercise` ne porte que l'exercice, sa position et le repos. Les objectifs sont saisis à la **planification** d'une occurrence, qui crée la `WorkoutSession` en `planned` et ses `SessionSet` (une ligne par série). « Reprendre la dernière séance » copie les **objectifs** de la séance précédente ; « Surcharge progressive » propose +2,5 kg et remet les reps au minimum (cf. cadrage §5.3).
 - **Pendant la séance** : un exercice ajouté en cours de séance n'a pas de `target*`, un exercice retiré est marqué `skipped`. Le nombre de séries est le nombre de lignes `SessionSet`.
 - **Historique figé** : modifier un template ou un programme ne réécrit jamais les séances passées. Templates et exercices s'archivent, ils ne se suppriment pas.
-- **Catalogue partagé** : un exercice avec `ownerId` à `null` est fourni par l'app. Pour le modifier, l'utilisateur crée une copie à lui (`variantOfId` pointe vers l'original).
+- **Catalogue partagé** : un exercice avec `ownerId` à `null` est fourni par l'app. Il n'est jamais modifiable : l'utilisateur crée ses propres exercices de zéro. Copier un exercice fourni (`variantOfId`) est retiré du modèle et rangé hors périmètre (cadrage §2, 2026-11-26).
 - **Archivage par utilisateur** : `UserExercise.archivedAt` masque un exercice pour un seul utilisateur (exercice fourni ou personnel). `Exercise` n'a pas d'`archivedAt`.
 - **Occurrences de programme calculées** : on stocke la règle (`ProgramSlot`), pas les occurrences. Une occurrence ne devient une `WorkoutSession` que lorsqu'on y touche (démarrage, modification, séance manquée marquée).
 - **Unités stockées** : kg pour la charge, secondes pour la durée, mètres pour la distance. L'affichage convertit.
@@ -189,8 +190,24 @@ erDiagram
 - **Note durable** : une consigne permanente sur un exercice va dans `UserExercise.notes`.
 - **Objectif = tag `goal` sur la séance** (template ou `WorkoutSession`), jamais sur l'exercice. L'exercice ne porte que sa nature (`category`).
 
+## Écarts avec le schéma de l'étape 1 (2026-11-26)
+
+Ce MCD décrit le modèle **cible** (étapes 1 et 2). `apps/api/prisma/schema.prisma` n'en construit qu'une partie. Dans le diagramme, le préfixe du commentaire d'un attribut dit pourquoi il manque au schéma :
+
+- **`step 2:`** : arrive avec les templates et programmes (`WorkoutSession.templateId`, `programSlotId`), par une migration.
+- **`later:`** : prévu, mais ajouté quand la fonctionnalité sera construite (`Exercise.imageUrl` ; `UserExercise.archivedAt`, `favorite`).
+- **`not built:`** : absent du schéma et pas encore décidé (`SessionExercise.targetRestSeconds`, `UserExercise.defaultRestSeconds`, `SessionSet.startedAt`, voir les points ouverts).
+
+À l'inverse, le schéma a ajouté en phase 0 :
+
+- **`Exercise.slug`** : clé stable du seed (`"bench-press"`), remplie pour les exercices fournis, `null` pour les exercices perso. Interne : jamais renvoyée par l'API.
+- **`WorkoutSession.createdAt` / `updatedAt`** : `createdAt` trie la liste quand `scheduledDate` est vide.
+
+**Règles de suppression** (phase 0) : séance → exercices → séries en `Cascade` ; un exercice utilisé dans une séance en `Restrict` (l'historique en a besoin) ; un utilisateur → ses exercices, notes et séances en `Cascade`.
+
 ## Points ouverts
 
+- **Repos visé** (cadrage §8, point 10) : `SessionExercise.targetRestSeconds` est dans ce MCD et le cadrage (« repos visé », §6), mais pas dans le schéma de l'étape 1. Oubli à rattraper par une migration, ou reporté à l'étape 2 avec les templates ? `UserExercise.defaultRestSeconds` (le repos habituel de l'utilisateur, qui pré-remplit le repos visé) suit la même décision : sans repos visé, il n'a rien à pré-remplir.
 - **Repos réel** : `startedAt` par série (précis) ou approximation entre deux validations.
 - **Cycle de vie** (la liste à jour, avec ce qui bloque la V1, est au §8 du cadrage) :
   1. Clôture automatique d'une séance oubliée ?

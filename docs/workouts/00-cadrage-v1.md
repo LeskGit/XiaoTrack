@@ -45,6 +45,7 @@ Décrite au §5 pour que le modèle la prépare dès maintenant. Elle ne commenc
 - Parties du corps (`BodyPart`, `ExerciseBodyPart`) et statistiques par muscle.
 - Statistiques et courbes de progression.
 - Fréquence cardiaque, calories, autres métriques.
+- Copier un exercice fourni pour le personnaliser (`variantOfId`) : retiré du MCD le 2026-11-26, faute de besoin prouvé. Un exercice perso créé de zéro couvre le cas.
 
 ---
 
@@ -85,7 +86,7 @@ L'utilisateur peut créer ses propres exercices (`ownerId` = lui, visibles par l
 | Modifier le nom ou la description | oui ; l'historique affiche le nom actuel |
 | Modifier le profil de mesure | non, dès que l'exercice a servi dans une séance |
 | Supprimer | non (plus tard : archivage via `UserExercise.archivedAt`) |
-| Copier un exercice fourni (`variantOfId`) | non, plus tard |
+| Copier un exercice fourni | non, hors périmètre (§2) |
 
 Les exercices fournis ne sont jamais modifiables par l'utilisateur.
 
@@ -231,6 +232,7 @@ Extrait du MCD (détail dans `mcd-v1.md`) :
 4. ~~Abandonner une séance~~ : tranché (§4.4).
 5. ~~Modifier une séance terminée~~ : tranché (§4.4).
 6. ~~Notes dans la séance~~ : tranché (§4.3).
+10. **Repos visé** (avant la phase 2, API Sessions) : `SessionExercise.targetRestSeconds` est listé au §6 mais absent du schéma. L'ajouter par une migration dans l'étape 1, ou le reporter à l'étape 2 avec les templates (qui portent déjà un repos) ? `UserExercise.defaultRestSeconds` suit la même décision.
 
 ### Pour l'étape 2
 
